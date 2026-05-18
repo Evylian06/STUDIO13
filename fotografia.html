@@ -51,7 +51,13 @@
         <h2>Presencia, gesto y carácter.</h2>
         <p>Sesiones personales, familiares y de marca con una dirección visual sobria y expresiva.</p>
       </div>
-      <div class="photo-mosaic">
+      <div
+        class="photo-mosaic"
+        data-gallery-mount
+        data-gallery-section="studio13"
+        data-gallery-category="retrato"
+        data-gallery-template="photo-mosaic"
+      >
         <article class="photo-tile large">
           <img src="retrato.jpg" alt="Retrato principal" loading="lazy" width="800" height="1000">
           <div><span>Book personal</span><strong>Retratos con identidad</strong></div>
@@ -73,7 +79,13 @@
         <h2>Celebraciones con memoria visual.</h2>
         <p>Quinceaños, bodas, familia y fechas especiales narradas con elegancia y detalle.</p>
       </div>
-      <div class="photo-strip">
+      <div
+        class="photo-strip"
+        data-gallery-mount
+        data-gallery-section="studio13"
+        data-gallery-category="social"
+        data-gallery-template="photo-strip"
+      >
         <article><img src="quince.jpg" alt="Sesión de quinceañera" loading="lazy" width="600" height="800"><span>Quinceaños</span></article>
         <article><img src="retrato.jpg" alt="Sesión familiar" loading="lazy" width="600" height="800"><span>Familia</span></article>
         <article><img src="creativo.JPG" alt="Sesión social creativa" loading="lazy" width="600" height="800"><span>Producción</span></article>
@@ -102,7 +114,13 @@
         <h2>Conceptos visuales para destacar.</h2>
         <p>Producciones con color, atmósfera y composición pensadas para campañas, artistas y marcas personales.</p>
       </div>
-      <div class="photo-gallery-grid">
+      <div
+        class="photo-gallery-grid"
+        data-gallery-mount
+        data-gallery-section="studio13"
+        data-gallery-category="creativa"
+        data-gallery-template="photo-grid"
+      >
         <img src="creativo.JPG" alt="Fotografía creativa" loading="lazy" width="600" height="600">
         <img src="fondo1.jpeg" alt="Escena fotográfica Studio 13" loading="lazy" width="600" height="600">
         <img src="quince.jpg" alt="Producción social" loading="lazy" width="600" height="600">
@@ -128,7 +146,11 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/supabase-client.js"></script>
   <script src="js/config.js"></script>
+  <script src="js/public-gallery.js"></script>
   <script src="js/site.js"></script>
 </body>
 </html>

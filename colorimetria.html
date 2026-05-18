@@ -119,7 +119,13 @@
           <span>Dibujo</span>
           <span>Técnica mixta</span>
         </div>
-        <div id="colorimetria-gallery-grid" class="items-grid" data-tab-panel="all">
+        <div
+          id="colorimetria-gallery-grid"
+          class="items-grid"
+          data-gallery-mount
+          data-gallery-section="colorimetria"
+          data-gallery-template="artwork"
+        >
           <article class="item-card">
             <img src="colorimetria3.jpeg" alt="Paleta del río" loading="lazy" width="500" height="320">
             <div class="item-info"><strong>Título: Paleta del río</strong><br>Técnica: Acrílico sobre lienzo<br>Artista: Por confirmar</div>
@@ -137,7 +143,7 @@
             <div class="item-info"><strong>Título: Raíces visuales</strong><br>Técnica: Acrílico<br>Artista: Por confirmar</div>
           </article>
         </div>
-        <p class="gallery-note">Catálogo en actualización. Pronto podrás ver más obras desde el panel administrativo.</p>
+        <p class="gallery-note">Si no ves obras nuevas, recarga la página. El catálogo se actualiza desde el panel administrativo.</p>
       </section>
 
       <section class="section" id="libreria">
@@ -200,7 +206,11 @@
     </footer>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/supabase-client.js"></script>
   <script src="js/config.js"></script>
+  <script src="js/public-gallery.js"></script>
   <script src="js/site.js"></script>
 </body>
 </html>

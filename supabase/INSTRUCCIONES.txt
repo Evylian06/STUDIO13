@@ -1,0 +1,28 @@
+CONFIGURAR SUPABASE PARA STUDIO 13
+==================================
+
+1. Crear proyecto gratis en https://supabase.com
+
+2. SQL Editor → pegar y ejecutar el archivo schema.sql
+
+3. Authentication → Users → Add user
+   - Email y contraseña del administrador (dueño del estudio)
+   - Desactivar "Confirm email" en desarrollo si quieres entrar al instante
+     (Authentication → Providers → Email)
+
+4. Settings → API → copiar:
+   - Project URL  → js/supabase-config.js (SUPABASE_URL)
+   - anon public  → js/supabase-config.js (SUPABASE_ANON_KEY)
+
+5. Subir el sitio a Netlify, Vercel o similar (HTTPS obligatorio para el panel).
+
+6. Abrir en el celular o laptop:
+   https://tudominio.com/admin/
+
+7. Iniciar sesión y subir imágenes desde el panel.
+
+NOTAS
+-----
+- La clave "anon" es pública (va en la web); la seguridad la dan las políticas RLS.
+- Solo usuarios creados en Authentication pueden subir, editar o borrar.
+- Si Supabase no está configurado, la web sigue mostrando el contenido estático de respaldo.
