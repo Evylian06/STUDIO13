@@ -1,0 +1,21 @@
+{
+  "studio13": {
+    "portafolio": [
+      { "id": "1", "category": "social", "src": "quince.jpg", "alt": "Sesión social de quinceañeros", "tag": "Boda y social", "title": "Celebraciones con dirección visual" },
+      { "id": "2", "category": "retrato", "src": "retrato.jpg", "alt": "Retrato fotográfico profesional", "tag": "Retrato", "title": "Books, familia y marca personal", "layout": "tall" },
+      { "id": "3", "category": "arte", "src": "creativo.JPG", "alt": "Fotografía creativa y artística", "tag": "Arte", "title": "Producción creativa" },
+      { "id": "4", "category": "evento", "src": "evento.jpg", "alt": "Cobertura fotográfica de eventos", "tag": "Eventos", "title": "Cobertura completa" },
+      { "id": "5", "category": "arte", "src": "colorimetria3.jpeg", "alt": "Obra vinculada a Colorimetría Amazónica", "tag": "Colorimetría", "title": "Arte amazónico", "layout": "color-card" }
+    ]
+  },
+  "colorimetria": {
+    "galeria": [
+      { "id": "g1", "src": "colorimetria3.jpeg", "alt": "Obra amazónica", "title": "Paleta del río", "technique": "Acrílico sobre lienzo", "artist": "Por confirmar" },
+      { "id": "g2", "src": "colorimetria.jpeg", "alt": "Obra amazónica", "title": "Memoria vegetal", "technique": "Óleo sobre lienzo", "artist": "Por confirmar" },
+      { "id": "g3", "src": "colorimetria5.jpeg", "alt": "Obra amazónica", "title": "Identidad en color", "technique": "Técnica mixta", "artist": "Por confirmar" },
+      { "id": "g4", "src": "colorimetria4.jpeg", "alt": "Obra amazónica", "title": "Raíces visuales", "technique": "Acrílico", "artist": "Por confirmar" }
+    ],
+    "libreria": [],
+    "artistas": []
+  }
+}

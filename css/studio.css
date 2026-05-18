@@ -1,51 +1,11 @@
-:root{
---ink:#111111;
---muted:#666666;
---line:#e7e3de;
---paper:#fffdf9;
---soft:#f5f1eb;
---dark:#050505;
---red:#c30d18;
---red-dark:#930811;
---green:#1f7a55;
---gold:#c99a45;
---max:1180px;
-}
+@import url("./base.css");
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
+/* Alias de variables usadas en este archivo */
+:root {
+  --red: var(--brand-red);
+  --red-dark: var(--brand-red-dark);
+  --max: var(--max-width);
 }
-
-html{
-scroll-behavior:smooth;
-}
-
-body{
-font-family:'Poppins',sans-serif;
-color:var(--ink);
-background:var(--paper);
-}
-
-body::selection{
-background:var(--red);
-color:#ffffff;
-}
-
-[id]{
-scroll-margin-top:112px;
-}
-
-img{
-max-width:100%;
-display:block;
-}
-
-a{
-color:inherit;
-}
-
 
 .site-nav{
 position:fixed;
@@ -400,6 +360,10 @@ display:grid;
 grid-template-columns:1.15fr .85fr 1fr;
 grid-auto-rows:235px;
 gap:18px;
+}
+
+.grid .card[hidden] {
+  display: none !important;
 }
 
 .card{
@@ -1147,6 +1111,28 @@ gap:18px;
 
 .footer-bottom a{
 text-decoration:none;
+}
+
+.footer-social a.is-disabled {
+  opacity: 0.45;
+  pointer-events: none;
+  cursor: default;
+}
+
+.photo-footer-wrap {
+  padding: 0;
+  background: #030303;
+}
+
+.photo-footer-wrap .photo-footer {
+  margin: 0 auto;
+  padding: 24px clamp(22px, 6vw, 80px);
+  border-top: none;
+}
+
+.photo-footer div {
+  display: flex;
+  gap: 18px;
 }
 
 @media(max-width:980px){
