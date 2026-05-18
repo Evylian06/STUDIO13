@@ -1,9 +1,7 @@
 (function () {
   "use strict";
 
-  const BUCKET = "gallery-images";
-
-  const $ = (sel, root = document) => root.querySelector(sel);
+  const $ = (sel) => document.querySelector(sel);
 
   const state = {
     section: "studio13",
@@ -31,6 +29,10 @@
     return window.getSupabaseClient();
   }
 
+  function cloudinary() {
+    return window.CloudinaryStudio;
+  }
+
   function showMessage(el, text, type) {
     if (!el) return;
     el.textContent = text;
@@ -38,17 +40,15 @@
     el.hidden = !text;
   }
 
-  function slugName(name) {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9.]+/g, "-")
-      .replace(/^-+|-+$/g, "");
+  function escapeHtml(text) {
+    const el = document.createElement("div");
+    el.textContent = text == null ? "" : String(text);
+    return el.innerHTML;
   }
 
   async function requireAuth() {
     const supabase = client();
     if (!supabase) return null;
-
     const { data } = await supabase.auth.getSession();
     return data.session;
   }
@@ -58,13 +58,23 @@
     if (!select) return;
     const opts = categories[section] || categories.studio13;
     select.innerHTML = opts
-      .map((o) => `<option value="${o.value}">${o.label}</option>`)
+      .map(function (o) {
+        return '<option value="' + o.value + '">' + o.label + "</option>";
+      })
       .join("");
   }
 
   function toggleLayoutField(section) {
     const wrap = $("#field-layout");
     if (wrap) wrap.hidden = section !== "studio13";
+  }
+
+  function thumbUrl(url) {
+    const c = cloudinary();
+    if (c && c.optimizeUrl) {
+      return c.optimizeUrl(url, { width: 160 });
+    }
+    return url;
   }
 
   function renderList() {
@@ -78,38 +88,44 @@
     }
 
     list.innerHTML = state.items
-      .map((item) => {
+      .map(function (item) {
         const meta = [
           item.category,
           item.published ? "Publicado" : "Borrador",
         ].join(" · ");
-        return `
-        <article class="item-row" data-id="${item.id}">
-          <img src="${item.image_url}" alt="">
-          <div>
-            <h3>${escapeHtml(item.title)}</h3>
-            <p class="meta">${escapeHtml(meta)}</p>
-          </div>
-          <div class="item-actions">
-            <button type="button" class="btn btn-ghost" data-edit="${item.id}">Editar</button>
-            <button type="button" class="btn btn-danger" data-delete="${item.id}">Eliminar</button>
-          </div>
-        </article>`;
+        return (
+          '<article class="item-row" data-id="' +
+          escapeHtml(item.id) +
+          '">' +
+          '<img src="' +
+          escapeHtml(thumbUrl(item.image_url)) +
+          '" alt="" loading="lazy">' +
+          "<div><h3>" +
+          escapeHtml(item.title) +
+          '</h3><p class="meta">' +
+          escapeHtml(meta) +
+          '</p></div><div class="item-actions">' +
+          '<button type="button" class="btn btn-ghost" data-edit="' +
+          escapeHtml(item.id) +
+          '">Editar</button>' +
+          '<button type="button" class="btn btn-danger" data-delete="' +
+          escapeHtml(item.id) +
+          '">Eliminar</button>' +
+          "</div></article>"
+        );
       })
       .join("");
 
-    list.querySelectorAll("[data-edit]").forEach((btn) => {
-      btn.addEventListener("click", () => openEdit(btn.dataset.edit));
+    list.querySelectorAll("[data-edit]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        openEdit(btn.getAttribute("data-edit"));
+      });
     });
-    list.querySelectorAll("[data-delete]").forEach((btn) => {
-      btn.addEventListener("click", () => deleteItem(btn.dataset.delete));
+    list.querySelectorAll("[data-delete]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        deleteItem(btn.getAttribute("data-delete"));
+      });
     });
-  }
-
-  function escapeHtml(text) {
-    const d = document.createElement("div");
-    d.textContent = text == null ? "" : String(text);
-    return d.innerHTML;
   }
 
   async function loadItems() {
@@ -130,22 +146,25 @@
 
     state.items = data || [];
     renderList();
+    showMessage($("#list-message"), "", "");
   }
 
   function openModal(isEdit) {
     const modal = $("#item-modal");
     if (modal) modal.hidden = false;
     $("#modal-title").textContent = isEdit ? "Editar imagen" : "Nueva imagen";
-    $("#field-image").hidden = isEdit;
-    $("#item-image").required = !isEdit;
+    const inputImage = $("#item-image");
+    if (inputImage) inputImage.required = !isEdit;
   }
 
   function closeModal() {
     const modal = $("#item-modal");
     if (modal) modal.hidden = true;
     state.editingId = null;
-    $("#item-form").reset();
-    $("#image-preview").hidden = true;
+    const form = $("#item-form");
+    if (form) form.reset();
+    const preview = $("#image-preview");
+    if (preview) preview.hidden = true;
     showMessage($("#form-message"), "", "");
   }
 
@@ -158,7 +177,9 @@
   }
 
   function openEdit(id) {
-    const item = state.items.find((i) => i.id === id);
+    const item = state.items.find(function (i) {
+      return i.id === id;
+    });
     if (!item) return;
 
     state.editingId = id;
@@ -173,35 +194,29 @@
     $("#item-technique").value = item.technique || "";
     $("#item-artist").value = item.artist || "";
     $("#item-layout").value = item.layout || "";
-    $("#item-sort").value = item.sort_order ?? 0;
+    $("#item-sort").value = item.sort_order != null ? item.sort_order : 0;
     $("#item-published").checked = item.published;
 
     const preview = $("#image-preview");
-    preview.src = item.image_url;
+    preview.src = thumbUrl(item.image_url);
     preview.hidden = false;
 
     openModal(true);
   }
 
   async function uploadImage(file, section) {
-    const supabase = client();
-    const path = `${section}/${Date.now()}-${slugName(file.name)}`;
-
-    const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
-      cacheControl: "3600",
-      upsert: false,
-    });
-
-    if (error) throw error;
-
-    const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
-    return { path, url: data.publicUrl };
+    const c = cloudinary();
+    if (!c || !c.isConfigured()) {
+      throw new Error("Configura Cloudinary en js/cloudinary-config.js");
+    }
+    return c.uploadImage(file, section);
   }
 
-  async function deleteStoragePath(storagePath) {
-    if (!storagePath) return;
-    const supabase = client();
-    await supabase.storage.from(BUCKET).remove([storagePath]);
+  async function removeCloudinaryAsset(publicId) {
+    const c = cloudinary();
+    if (c && c.deleteImage && publicId) {
+      await c.deleteImage(publicId);
+    }
   }
 
   async function saveItem(event) {
@@ -212,7 +227,7 @@
 
     const section = $("#item-section").value;
     const payload = {
-      section,
+      section: section,
       category: $("#item-category").value,
       title: $("#item-title").value.trim(),
       description: $("#item-description").value.trim(),
@@ -235,15 +250,22 @@
     try {
       if (state.editingId) {
         const file = $("#item-image").files[0];
-        let updatePayload = { ...payload };
+        const updatePayload = Object.assign({}, payload);
 
         if (file) {
           const uploaded = await uploadImage(file, section);
           updatePayload.image_url = uploaded.url;
-          updatePayload.storage_path = uploaded.path;
-          const old = state.items.find((i) => i.id === state.editingId);
-          if (old && old.storage_path && old.storage_path !== uploaded.path) {
-            await deleteStoragePath(old.storage_path);
+          updatePayload.storage_path = uploaded.publicId;
+
+          const old = state.items.find(function (i) {
+            return i.id === state.editingId;
+          });
+          if (
+            old &&
+            old.storage_path &&
+            old.storage_path !== uploaded.publicId
+          ) {
+            await removeCloudinaryAsset(old.storage_path);
           }
         }
 
@@ -263,9 +285,18 @@
 
         const uploaded = await uploadImage(file, section);
         const { error } = await supabase.from("gallery_items").insert({
-          ...payload,
+          section: payload.section,
+          category: payload.category,
+          title: payload.title,
+          description: payload.description,
+          tag: payload.tag,
+          technique: payload.technique,
+          artist: payload.artist,
+          layout: payload.layout,
+          sort_order: payload.sort_order,
+          published: payload.published,
           image_url: uploaded.url,
-          storage_path: uploaded.path,
+          storage_path: uploaded.publicId,
         });
 
         if (error) throw error;
@@ -282,10 +313,12 @@
   }
 
   async function deleteItem(id) {
-    if (!confirm("¿Eliminar esta imagen? No se puede deshacer.")) return;
+    if (!confirm("¿Eliminar esta imagen del sitio?")) return;
 
     const supabase = client();
-    const item = state.items.find((i) => i.id === id);
+    const item = state.items.find(function (i) {
+      return i.id === id;
+    });
     if (!item) return;
 
     const { error } = await supabase.from("gallery_items").delete().eq("id", id);
@@ -294,7 +327,7 @@
       return;
     }
 
-    await deleteStoragePath(item.storage_path);
+    await removeCloudinaryAsset(item.storage_path);
     await loadItems();
   }
 
@@ -308,10 +341,11 @@
       return;
     }
 
-    const email = $("#login-email").value.trim();
-    const password = $("#login-password").value;
+    const { error } = await supabase.auth.signInWithPassword({
+      email: $("#login-email").value.trim(),
+      password: $("#login-password").value,
+    });
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       showMessage(msg, error.message, "error");
       return;
@@ -337,18 +371,48 @@
     loadItems();
   }
 
-  function bindUi() {
-    $("#login-form")?.addEventListener("submit", handleLogin);
-    $("#btn-logout")?.addEventListener("click", handleLogout);
-    $("#btn-new")?.addEventListener("click", openCreate);
-    $("#btn-cancel")?.addEventListener("click", closeModal);
-    $("#item-form")?.addEventListener("submit", saveItem);
+  function updateConfigWarnings() {
+    const warn = $("#config-warn");
+    if (!warn) return;
 
-    $("#item-modal")?.addEventListener("click", (e) => {
+    const supabaseOk =
+      window.isSupabaseConfigured && window.isSupabaseConfigured();
+    const cloudinaryOk =
+      window.CloudinaryStudio && window.CloudinaryStudio.isConfigured();
+
+    if (!supabaseOk || !cloudinaryOk) {
+      warn.hidden = false;
+      const parts = [];
+      if (!supabaseOk) parts.push("Supabase (js/supabase-config.js)");
+      if (!cloudinaryOk) parts.push("Cloudinary (js/cloudinary-config.js)");
+      warn.innerHTML =
+        "<strong>Falta configurar:</strong> " +
+        parts.join(" y ") +
+        ". Revisa supabase/INSTRUCCIONES.txt.";
+    } else {
+      warn.hidden = true;
+    }
+  }
+
+  function bindUi() {
+    const loginForm = $("#login-form");
+    if (loginForm) loginForm.addEventListener("submit", handleLogin);
+    const logoutBtn = $("#btn-logout");
+    if (logoutBtn) logoutBtn.addEventListener("click", handleLogout);
+    const newBtn = $("#btn-new");
+    if (newBtn) newBtn.addEventListener("click", openCreate);
+    const cancelBtn = $("#btn-cancel");
+    if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
+    const itemForm = $("#item-form");
+    if (itemForm) itemForm.addEventListener("submit", saveItem);
+
+    const itemModal = $("#item-modal");
+    if (itemModal) itemModal.addEventListener("click", function (e) {
       if (e.target.id === "item-modal") closeModal();
     });
 
-    $("#item-image")?.addEventListener("change", (e) => {
+    const imageInput = $("#item-image");
+    if (imageInput) imageInput.addEventListener("change", function (e) {
       const file = e.target.files[0];
       const preview = $("#image-preview");
       if (!file) {
@@ -359,16 +423,19 @@
       preview.hidden = false;
     });
 
-    $("#item-section")?.addEventListener("change", (e) => {
+    const sectionSelect = $("#item-section");
+    if (sectionSelect) sectionSelect.addEventListener("change", function (e) {
       fillCategorySelect(e.target.value);
       toggleLayoutField(e.target.value);
     });
 
-    document.querySelectorAll(".tabs-admin button").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tabs-admin button").forEach((b) => b.classList.remove("active"));
+    document.querySelectorAll(".tabs-admin button").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        document.querySelectorAll(".tabs-admin button").forEach(function (b) {
+          b.classList.remove("active");
+        });
         btn.classList.add("active");
-        state.section = btn.dataset.section;
+        state.section = btn.getAttribute("data-section");
         loadItems();
       });
     });
@@ -376,9 +443,9 @@
 
   async function init() {
     bindUi();
+    updateConfigWarnings();
 
-    if (!window.isSupabaseConfigured()) {
-      $("#config-warn").hidden = false;
+    if (!window.isSupabaseConfigured || !window.isSupabaseConfigured()) {
       return;
     }
 
@@ -388,7 +455,7 @@
 
     const supabase = client();
     if (supabase) {
-      supabase.auth.onAuthStateChange((_event, sess) => {
+      supabase.auth.onAuthStateChange(function (_event, sess) {
         if (sess) showApp();
         else showLogin();
       });

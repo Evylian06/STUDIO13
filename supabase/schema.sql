@@ -1,5 +1,5 @@
 -- Studio 13 — ejecutar en Supabase → SQL Editor
--- Crea tablas, políticas de seguridad y bucket de imágenes.
+-- Datos de galería. Las imágenes viven en Cloudinary (storage_path = public_id).
 
 -- Tabla principal de galería
 create table if not exists public.gallery_items (

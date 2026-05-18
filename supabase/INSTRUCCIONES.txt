@@ -1,28 +1,60 @@
-CONFIGURAR SUPABASE PARA STUDIO 13
-==================================
+STUDIO 13 — CONFIGURACIÓN (Supabase + Cloudinary)
+=================================================
 
-1. Crear proyecto gratis en https://supabase.com
+ARQUITECTURA
+------------
+- Supabase: login del admin, textos, categorías, orden, publicado/no publicado
+- Cloudinary: almacén de imágenes (optimización automática en la web)
+- Web pública: lee datos de Supabase y muestra URLs de Cloudinary
 
-2. SQL Editor → pegar y ejecutar el archivo schema.sql
+PARTE 1 — SUPABASE
+------------------
+1. Crear proyecto en https://supabase.com
+2. SQL Editor → ejecutar supabase/schema.sql
+3. Authentication → Users → Add user (email + contraseña del admin)
+4. Settings → API → copiar en js/supabase-config.js:
+   - Project URL → SUPABASE_URL
+   - anon public → SUPABASE_ANON_KEY
 
-3. Authentication → Users → Add user
-   - Email y contraseña del administrador (dueño del estudio)
-   - Desactivar "Confirm email" en desarrollo si quieres entrar al instante
-     (Authentication → Providers → Email)
+PARTE 2 — CLOUDINARY
+--------------------
+1. Crear cuenta en https://cloudinary.com
+2. Dashboard → copiar Cloud name → js/cloudinary-config.js → CLOUDINARY_CLOUD_NAME
+3. Settings → Upload → Upload presets → Add upload preset:
+   - Name: studio13_unsigned (o el que prefieras)
+   - Signing Mode: Unsigned
+   - Folder: opcional (el código usa studio13/{seccion})
+4. Copiar el nombre del preset → CLOUDINARY_UPLOAD_PRESET
 
-4. Settings → API → copiar:
-   - Project URL  → js/supabase-config.js (SUPABASE_URL)
-   - anon public  → js/supabase-config.js (SUPABASE_ANON_KEY)
+PARTE 3 — BORRAR IMÁGENES (opcional pero recomendado)
+----------------------------------------------------
+Para que «Eliminar» borre también el archivo en Cloudinary:
 
-5. Subir el sitio a Netlify, Vercel o similar (HTTPS obligatorio para el panel).
+1. Instalar Supabase CLI y enlazar tu proyecto
+2. En Supabase → Project Settings → Edge Functions → Secrets, agregar:
+   - CLOUDINARY_CLOUD_NAME
+   - CLOUDINARY_API_KEY
+   - CLOUDINARY_API_SECRET  (Dashboard → API Keys — no la subas al sitio público)
+3. Desplegar la función:
+   supabase functions deploy delete-cloudinary-image
 
-6. Abrir en el celular o laptop:
-   https://tudominio.com/admin/
+Sin esta función, al eliminar se quita de la web pero el archivo puede quedar en Cloudinary.
 
-7. Iniciar sesión y subir imágenes desde el panel.
+PARTE 4 — PUBLICAR EL SITIO
+---------------------------
+- Usa Netlify, Vercel o similar con HTTPS
+- Panel admin: https://tudominio.com/admin/
+- Sube también la carpeta con tus imágenes locales de respaldo (logo, etc.)
+
+ARCHIVOS DE CONFIGURACIÓN
+-------------------------
+js/supabase-config.js     ← URL y anon key de Supabase
+js/cloudinary-config.js   ← cloud name y upload preset
+
+Usa los archivos .example.js como plantilla.
 
 NOTAS
 -----
-- La clave "anon" es pública (va en la web); la seguridad la dan las políticas RLS.
-- Solo usuarios creados en Authentication pueden subir, editar o borrar.
-- Si Supabase no está configurado, la web sigue mostrando el contenido estático de respaldo.
+- Sube JPG o WebP optimizados (no RAW/TIFF en la web).
+- storage_path en la base de datos guarda el public_id de Cloudinary.
+- Si falta configuración, la web muestra el HTML estático de respaldo.

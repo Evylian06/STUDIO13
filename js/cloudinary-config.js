@@ -1,0 +1,2 @@
+window.CLOUDINARY_CLOUD_NAME = "";
+window.CLOUDINARY_UPLOAD_PRESET = "";

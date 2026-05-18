@@ -8,11 +8,7 @@
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
-  <div id="config-warn" class="admin-wrap config-warn" hidden>
-    <strong>Supabase no configurado.</strong>
-    Completa <code>js/supabase-config.js</code> con tu URL y clave anon.
-    Sigue los pasos en <code>supabase/INSTRUCCIONES.txt</code>.
-  </div>
+  <div id="config-warn" class="admin-wrap config-warn" hidden></div>
 
   <section id="auth-view" class="admin-wrap">
     <div class="auth-card">
@@ -37,7 +33,7 @@
     <header class="admin-header">
       <div>
         <h1>Panel administrativo</h1>
-        <p>Sube, edita o elimina imágenes sin tocar código</p>
+        <p>Imágenes en Cloudinary · datos en Supabase</p>
       </div>
       <button type="button" class="btn btn-ghost" id="btn-logout">Cerrar sesión</button>
     </header>
@@ -126,7 +122,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/cloudinary-config.js"></script>
   <script src="../js/supabase-client.js"></script>
+  <script src="../js/cloudinary-client.js"></script>
   <script src="admin.js"></script>
 </body>
 </html>

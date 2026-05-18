@@ -1,7 +1,12 @@
 (function () {
   "use strict";
 
-  const BUCKET = "gallery-images";
+  function imageSrc(url, width) {
+    if (window.CloudinaryStudio && window.CloudinaryStudio.optimizeUrl) {
+      return window.CloudinaryStudio.optimizeUrl(url, { width: width || 900 });
+    }
+    return url || "";
+  }
 
   function escapeHtml(text) {
     const div = document.createElement("div");
@@ -21,7 +26,7 @@
     const alt = escapeHtml(item.description || item.title);
     return `
       <article class="card ${extra}" data-category="${escapeHtml(item.category)}">
-        <img src="${escapeHtml(item.image_url)}" alt="${alt}" loading="lazy" width="600" height="600">
+        <img src="${escapeHtml(imageSrc(item.image_url, 800))}" alt="${alt}" loading="lazy" width="600" height="600">
         <div class="overlay">
           <span>${tag}</span>
           <strong>${title}</strong>
@@ -36,7 +41,7 @@
     const alt = escapeHtml(item.description || item.title);
     return `
       <article class="item-card">
-        <img src="${escapeHtml(item.image_url)}" alt="${alt}" loading="lazy" width="500" height="320">
+        <img src="${escapeHtml(imageSrc(item.image_url, 600))}" alt="${alt}" loading="lazy" width="500" height="320">
         <div class="item-info">
           <strong>Título: ${title}</strong><br>
           Técnica: ${technique}<br>
@@ -52,7 +57,7 @@
     const cls = large ? "photo-tile large" : "photo-tile";
     return `
       <article class="${cls}">
-        <img src="${escapeHtml(item.image_url)}" alt="${alt}" loading="lazy" width="600" height="600">
+        <img src="${escapeHtml(imageSrc(item.image_url, 800))}" alt="${alt}" loading="lazy" width="600" height="600">
         <div><span>${tag}</span><strong>${title}</strong></div>
       </article>`;
   }
@@ -62,14 +67,14 @@
     const alt = escapeHtml(item.description || item.title);
     return `
       <article>
-        <img src="${escapeHtml(item.image_url)}" alt="${alt}" loading="lazy" width="600" height="800">
+        <img src="${escapeHtml(imageSrc(item.image_url, 700))}" alt="${alt}" loading="lazy" width="600" height="800">
         <span>${label}</span>
       </article>`;
   }
 
   function renderPhotoGridImg(item) {
     const alt = escapeHtml(item.description || item.title);
-    return `<img src="${escapeHtml(item.image_url)}" alt="${alt}" loading="lazy" width="600" height="600">`;
+    return `<img src="${escapeHtml(imageSrc(item.image_url, 700))}" alt="${alt}" loading="lazy" width="600" height="600">`;
   }
 
   async function fetchItems(section, category) {
