@@ -16,7 +16,13 @@
 
   function layoutClass(layout) {
     if (!layout) return "";
-    return layout.split(/\s+/).filter(Boolean).join(" ");
+    const allowed = ["wide", "tall", "color-card"];
+    return layout
+      .split(/\s+/)
+      .filter(function (name) {
+        return allowed.indexOf(name) !== -1;
+      })
+      .join(" ");
   }
 
   function renderPortfolioCard(item) {
@@ -161,10 +167,14 @@
       default:
         break;
     }
+
+    mount.dispatchEvent(
+      new CustomEvent("studio13:gallery-mounted", { bubbles: true })
+    );
   }
 
   async function init() {
-    if (!window.isSupabaseConfigured()) return;
+    if (!window.isSupabaseConfigured || !window.isSupabaseConfigured()) return;
 
     const mounts = document.querySelectorAll("[data-gallery-mount]");
     await Promise.all(Array.from(mounts).map(initMount));

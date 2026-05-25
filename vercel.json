@@ -1,0 +1,16 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/fotografias",
+      "destination": "/fotografia",
+      "permanent": true
+    },
+    {
+      "source": "/fotografias.html",
+      "destination": "/fotografia",
+      "permanent": true
+    }
+  ]
+}

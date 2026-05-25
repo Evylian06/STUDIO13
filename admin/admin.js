@@ -190,6 +190,7 @@
     const supabase = client();
     if (!supabase) return;
     updateSectionInfo();
+    showMessage($("#list-message"), "Cargando imágenes…", "");
 
     const { data, error } = await supabase
       .from("gallery_items")
@@ -199,6 +200,9 @@
       .order("created_at", { ascending: false });
 
     if (error) {
+      state.items = [];
+      updateCounters();
+      renderList();
       showMessage($("#list-message"), error.message, "error");
       return;
     }
@@ -284,6 +288,11 @@
     const supabase = client();
     const msg = $("#form-message");
     const submitBtn = $("#btn-save");
+
+    if (!supabase) {
+      showMessage(msg, "No se pudo conectar con Supabase.", "error");
+      return;
+    }
 
     const section = $("#item-section").value;
     const payload = {

@@ -70,9 +70,8 @@
 
   /* —— Filtros del portafolio (solo en index) —— */
   const filterButtons = document.querySelectorAll("[data-filter]");
-  const galleryCards = document.querySelectorAll(".grid .card");
 
-  if (filterButtons.length && galleryCards.length) {
+  if (filterButtons.length) {
     filterButtons.forEach((button) => {
       button.addEventListener("click", () => {
         filterButtons.forEach((item) => {
@@ -83,6 +82,8 @@
         button.setAttribute("aria-pressed", "true");
 
         const filter = button.dataset.filter;
+        const galleryCards = document.querySelectorAll(".grid .card");
+
         galleryCards.forEach((card) => {
           const show = filter === "all" || card.dataset.category === filter;
           card.hidden = !show;
