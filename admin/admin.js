@@ -25,6 +25,19 @@
     ],
   };
 
+  const sections = {
+    studio13: {
+      eyebrow: "Galería fotográfica",
+      title: "Studio 13 - Fotografías",
+      help: "Sube, ordena y publica las fotos que aparecerán en la web principal.",
+    },
+    colorimetria: {
+      eyebrow: "Galería cultural",
+      title: "Colorimetría Amazónica",
+      help: "Administra obras, técnicas y artistas para la sección cultural.",
+    },
+  };
+
   function client() {
     return window.getSupabaseClient();
   }
@@ -64,9 +77,14 @@
       .join("");
   }
 
-  function toggleLayoutField(section) {
-    const wrap = $("#field-layout");
-    if (wrap) wrap.hidden = section !== "studio13";
+  function toggleSectionFields(section) {
+    const layout = $("#field-layout");
+    const technique = $("#field-technique");
+    const artist = $("#field-artist");
+
+    if (layout) layout.hidden = section !== "studio13";
+    if (technique) technique.hidden = section !== "colorimetria";
+    if (artist) artist.hidden = section !== "colorimetria";
   }
 
   function thumbUrl(url) {
@@ -77,22 +95,56 @@
     return url;
   }
 
+  function categoryLabel(section, value) {
+    const option = (categories[section] || []).find(function (item) {
+      return item.value === value;
+    });
+    return option ? option.label : value;
+  }
+
+  function updateSectionInfo() {
+    const info = sections[state.section] || sections.studio13;
+    const eyebrow = $("#section-eyebrow");
+    const title = $("#section-title");
+    const help = $("#section-help");
+
+    if (eyebrow) eyebrow.textContent = info.eyebrow;
+    if (title) title.textContent = info.title;
+    if (help) help.textContent = info.help;
+  }
+
+  function updateCounters() {
+    const total = state.items.length;
+    const published = state.items.filter(function (item) {
+      return item.published;
+    }).length;
+    const draft = total - published;
+
+    const countTotal = $("#count-total");
+    const countPublished = $("#count-published");
+    const countDraft = $("#count-draft");
+
+    if (countTotal) countTotal.textContent = total;
+    if (countPublished) countPublished.textContent = published;
+    if (countDraft) countDraft.textContent = draft;
+  }
+
   function renderList() {
     const list = $("#item-list");
     if (!list) return;
 
     if (!state.items.length) {
       list.innerHTML =
-        '<p class="empty-admin">No hay imágenes en esta sección. Pulsa «Nueva imagen» para agregar la primera.</p>';
+        '<p class="empty-admin">Esta sección todavía no tiene imágenes. Usa “Nueva imagen” para publicar la primera pieza.</p>';
       return;
     }
 
     list.innerHTML = state.items
       .map(function (item) {
-        const meta = [
-          item.category,
-          item.published ? "Publicado" : "Borrador",
-        ].join(" · ");
+        const category = categoryLabel(item.section, item.category);
+        const status = item.published ? "Publicado" : "Borrador";
+        const statusClass = item.published ? "status-published" : "status-draft";
+        const order = item.sort_order != null ? item.sort_order : 0;
         return (
           '<article class="item-row" data-id="' +
           escapeHtml(item.id) +
@@ -102,8 +154,14 @@
           '" alt="" loading="lazy">' +
           "<div><h3>" +
           escapeHtml(item.title) +
-          '</h3><p class="meta">' +
-          escapeHtml(meta) +
+          '<span class="status-pill ' +
+          statusClass +
+          '">' +
+          status +
+          "</span></h3><p class=\"meta\">Categoría: " +
+          escapeHtml(category) +
+          " · Orden: " +
+          escapeHtml(order) +
           '</p></div><div class="item-actions">' +
           '<button type="button" class="btn btn-ghost" data-edit="' +
           escapeHtml(item.id) +
@@ -131,6 +189,7 @@
   async function loadItems() {
     const supabase = client();
     if (!supabase) return;
+    updateSectionInfo();
 
     const { data, error } = await supabase
       .from("gallery_items")
@@ -145,6 +204,7 @@
     }
 
     state.items = data || [];
+    updateCounters();
     renderList();
     showMessage($("#list-message"), "", "");
   }
@@ -171,7 +231,7 @@
   function openCreate() {
     state.editingId = null;
     fillCategorySelect(state.section);
-    toggleLayoutField(state.section);
+    toggleSectionFields(state.section);
     $("#item-section").value = state.section;
     openModal(false);
   }
@@ -184,7 +244,7 @@
 
     state.editingId = id;
     fillCategorySelect(item.section);
-    toggleLayoutField(item.section);
+    toggleSectionFields(item.section);
 
     $("#item-section").value = item.section;
     $("#item-category").value = item.category;
@@ -426,15 +486,17 @@
     const sectionSelect = $("#item-section");
     if (sectionSelect) sectionSelect.addEventListener("change", function (e) {
       fillCategorySelect(e.target.value);
-      toggleLayoutField(e.target.value);
+      toggleSectionFields(e.target.value);
     });
 
     document.querySelectorAll(".tabs-admin button").forEach(function (btn) {
       btn.addEventListener("click", function () {
         document.querySelectorAll(".tabs-admin button").forEach(function (b) {
           b.classList.remove("active");
+          b.setAttribute("aria-selected", "false");
         });
         btn.classList.add("active");
+        btn.setAttribute("aria-selected", "true");
         state.section = btn.getAttribute("data-section");
         loadItems();
       });
@@ -443,6 +505,7 @@
 
   async function init() {
     bindUi();
+    updateSectionInfo();
     updateConfigWarnings();
 
     if (!window.isSupabaseConfigured || !window.isSupabaseConfigured()) {

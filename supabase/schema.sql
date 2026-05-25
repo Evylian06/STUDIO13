@@ -22,6 +22,12 @@ create table if not exists public.gallery_items (
 
 create index if not exists gallery_items_section_idx on public.gallery_items (section, published, sort_order);
 
+-- Permisos base para que RLS pueda aplicar sus políticas.
+-- Sin estos GRANT, Supabase devuelve "permission denied for table gallery_items".
+grant usage on schema public to anon, authenticated;
+grant select on public.gallery_items to anon, authenticated;
+grant insert, update, delete on public.gallery_items to authenticated;
+
 -- Actualizar updated_at
 create or replace function public.set_updated_at()
 returns trigger

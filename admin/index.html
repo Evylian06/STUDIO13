@@ -12,8 +12,9 @@
 
   <section id="auth-view" class="admin-wrap">
     <div class="auth-card">
-      <h2>Studio 13 — Admin</h2>
-      <p>Inicia sesión para gestionar fotografías y obras de Colorimetría.</p>
+      <span class="admin-kicker">Panel privado</span>
+      <h2>Studio 13</h2>
+      <p>Ingresa para publicar fotografías, ordenar galerías y administrar Colorimetría.</p>
       <form id="login-form">
         <label>
           Correo
@@ -32,25 +33,75 @@
   <div id="app-view" hidden>
     <header class="admin-header">
       <div>
-        <h1>Panel administrativo</h1>
-        <p>Imágenes en Cloudinary · datos en Supabase</p>
+        <span class="admin-kicker">Studio 13</span>
+        <h1>Panel de contenido</h1>
+        <p>Administra las imágenes publicadas en la web.</p>
       </div>
-      <button type="button" class="btn btn-ghost" id="btn-logout">Cerrar sesión</button>
+      <div class="header-actions">
+        <a class="btn btn-ghost" href="../index.html" target="_blank" rel="noopener">Ver sitio</a>
+        <button type="button" class="btn btn-ghost" id="btn-logout">Cerrar sesión</button>
+      </div>
     </header>
 
     <div class="admin-wrap">
-      <div class="tabs-admin" role="tablist">
-        <button type="button" class="active" data-section="studio13">Studio 13 — Fotos</button>
-        <button type="button" data-section="colorimetria">Colorimetría</button>
-      </div>
+      <section class="dashboard-summary" aria-label="Resumen del panel">
+        <div>
+          <span>Total</span>
+          <strong id="count-total">0</strong>
+          <small>imágenes cargadas</small>
+        </div>
+        <div>
+          <span>Publicadas</span>
+          <strong id="count-published">0</strong>
+          <small>visibles en la web</small>
+        </div>
+        <div>
+          <span>Borradores</span>
+          <strong id="count-draft">0</strong>
+          <small>ocultas al público</small>
+        </div>
+      </section>
 
-      <div class="toolbar">
-        <button type="button" class="btn btn-primary" id="btn-new">+ Nueva imagen</button>
-        <a class="btn btn-ghost" href="../index.html" target="_blank" rel="noopener">Ver sitio</a>
-      </div>
+      <section class="content-panel">
+        <aside class="admin-sidebar" aria-label="Secciones administrables">
+          <p class="sidebar-label">Galerías</p>
+          <div class="tabs-admin" role="tablist">
+            <button type="button" class="active" data-section="studio13" aria-selected="true">
+              <strong>Studio 13</strong>
+              <span>Fotografías principales</span>
+            </button>
+            <button type="button" data-section="colorimetria" aria-selected="false">
+              <strong>Colorimetría</strong>
+              <span>Obras y arte visual</span>
+            </button>
+          </div>
+        </aside>
 
-      <p id="list-message" class="message" hidden></p>
-      <div id="item-list" class="item-list"></div>
+        <main class="admin-main">
+          <div class="panel-head">
+            <div>
+              <span class="admin-kicker" id="section-eyebrow">Galería</span>
+              <h2 id="section-title">Studio 13 - Fotografías</h2>
+              <p id="section-help">Sube, ordena y publica las fotos que aparecerán en la web.</p>
+            </div>
+            <button type="button" class="btn btn-primary" id="btn-new">Nueva imagen</button>
+          </div>
+
+          <div class="workflow">
+            <span>1. Elige sección</span>
+            <span>2. Sube imagen</span>
+            <span>3. Publica en la web</span>
+          </div>
+
+          <p id="list-message" class="message" hidden></p>
+          <div class="list-head" aria-hidden="true">
+            <span>Imagen</span>
+            <span>Información</span>
+            <span>Acciones</span>
+          </div>
+          <div id="item-list" class="item-list"></div>
+        </main>
+      </section>
     </div>
   </div>
 
@@ -58,59 +109,70 @@
     <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <h2 id="modal-title">Nueva imagen</h2>
       <form id="item-form">
-        <label>
-          Sección
-          <select id="item-section" required>
-            <option value="studio13">Studio 13 — Fotografías</option>
-            <option value="colorimetria">Colorimetría Amazónica</option>
-          </select>
-        </label>
-        <label>
-          Categoría
-          <select id="item-category" required></select>
-        </label>
-        <label>
-          Título *
-          <input type="text" id="item-title" required maxlength="200">
-        </label>
-        <label>
-          Etiqueta corta (opcional)
-          <input type="text" id="item-tag" placeholder="Ej: Retrato, Boda y social">
-        </label>
-        <label>
-          Descripción
-          <textarea id="item-description" placeholder="Texto para accesibilidad o detalle"></textarea>
-        </label>
-        <label id="field-technique">
-          Técnica (Colorimetría)
-          <input type="text" id="item-technique" placeholder="Ej: Óleo sobre lienzo">
-        </label>
-        <label id="field-artist">
-          Artista
-          <input type="text" id="item-artist">
-        </label>
-        <label id="field-layout">
-          Diseño en portada (Studio 13)
-          <select id="item-layout">
-            <option value="">Normal</option>
-            <option value="wide">Ancho (wide)</option>
-            <option value="tall">Alto (tall)</option>
-            <option value="color-card">Tarjeta color</option>
-          </select>
-        </label>
-        <label>
-          Orden
-          <input type="number" id="item-sort" value="0" min="0" step="1">
-        </label>
-        <label id="field-image">
-          Imagen *
-          <input type="file" id="item-image" accept="image/jpeg,image/png,image/webp,image/gif">
-          <img id="image-preview" class="preview-img" alt="" hidden>
-        </label>
-        <label style="display:flex;align-items:center;gap:8px;margin-top:8px">
-          <input type="checkbox" id="item-published" checked>
-          Publicado en la web
-        </label>
+        <fieldset>
+          <legend>Ubicación</legend>
+          <label>
+            Sección
+            <select id="item-section" required>
+              <option value="studio13">Studio 13 - Fotografías</option>
+              <option value="colorimetria">Colorimetría Amazónica</option>
+            </select>
+          </label>
+          <label>
+            Categoría
+            <select id="item-category" required></select>
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Contenido</legend>
+          <label>
+            Título *
+            <input type="text" id="item-title" required maxlength="200">
+          </label>
+          <label>
+            Etiqueta corta
+            <input type="text" id="item-tag" placeholder="Ej: Retrato, Boda y social">
+          </label>
+          <label>
+            Descripción
+            <textarea id="item-description" placeholder="Texto breve para describir la imagen"></textarea>
+          </label>
+          <label id="field-technique">
+            Técnica
+            <input type="text" id="item-technique" placeholder="Ej: Óleo sobre lienzo">
+          </label>
+          <label id="field-artist">
+            Artista
+            <input type="text" id="item-artist">
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Publicación</legend>
+          <label id="field-layout">
+            Diseño en portada
+            <select id="item-layout">
+              <option value="">Normal</option>
+              <option value="wide">Ancho</option>
+              <option value="tall">Alto</option>
+              <option value="color-card">Tarjeta color</option>
+            </select>
+          </label>
+          <label>
+            Orden
+            <input type="number" id="item-sort" value="0" min="0" step="1">
+          </label>
+          <label id="field-image">
+            Imagen *
+            <input type="file" id="item-image" accept="image/jpeg,image/png,image/webp,image/gif">
+            <img id="image-preview" class="preview-img" alt="" hidden>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" id="item-published" checked>
+            <span>Publicado en la web</span>
+          </label>
+        </fieldset>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary" id="btn-save">Guardar</button>
           <button type="button" class="btn btn-ghost" id="btn-cancel">Cancelar</button>
