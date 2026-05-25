@@ -95,6 +95,7 @@ create policy "Admin actualiza imágenes"
   using (bucket_id = 'gallery-images');
 
 drop policy if exists "Admin borra imágenes" on storage.objects;
+drop policy if exists "Admin elimina imágenes" on storage.objects;
 create policy "Admin elimina imágenes"
   on storage.objects for delete
   to authenticated
