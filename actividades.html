@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Actividades y comunidad creativa de Studio 13 en Pucallpa.">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta property="og:title" content="Actividades | Studio 13">
+  <meta property="og:description" content="Comunidad creativa, talleres y colaboraciones de Studio 13.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_PE">
+  <link rel="canonical" href="actividades.html">
+  <title>Actividades | Studio 13</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="icon" href="camera.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <style>
+    body {
+      background: #faf9f7;
+    }
+    .page-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px clamp(22px, 6vw, 80px);
+      background: rgba(255, 253, 249, 0.98);
+      border-bottom: 1px solid rgba(17, 17, 17, 0.08);
+      backdrop-filter: blur(16px);
+    }
+    .page-header .brand {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+    .page-header .brand img {
+      height: 60px;
+      width: auto;
+    }
+    .page-header .back-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.25s ease;
+    }
+    .page-header .back-btn:hover {
+      background: var(--ink);
+      color: #fff;
+    }
+    .page-container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 130px clamp(22px, 6vw, 80px) 80px;
+    }
+    .page-intro {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    .page-intro h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 800;
+      margin-bottom: 16px;
+      line-height: 1.1;
+    }
+    .page-intro p {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 720px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+    .activities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 32px;
+      margin: 50px 0;
+    }
+    .activity-card {
+      padding: 40px 28px;
+      border: 1px solid rgba(17, 17, 17, 0.08);
+      border-radius: 16px;
+      background: #fff;
+      transition: all 0.35s ease;
+    }
+    .activity-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 56px rgba(17, 17, 17, 0.08);
+      border-color: rgba(195, 13, 24, 0.2);
+    }
+    .activity-card img {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    .activity-card h3 {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    .activity-card p {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+    .activity-card a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      transition: all 0.25s ease;
+    }
+    .activity-card a:hover {
+      background: var(--red);
+      transform: translateY(-2px);
+    }
+    .page-cta {
+      text-align: center;
+      padding: 60px 20px;
+      margin-top: 80px;
+      border-top: 1px solid rgba(17, 17, 17, 0.08);
+    }
+    .page-cta h2 {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .page-cta p {
+      font-size: 16px;
+      color: var(--muted);
+      margin-bottom: 28px;
+      max-width: 540px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .page-cta a {
+      display: inline-flex;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 999px;
+      background: var(--red);
+      color: #fff;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      transition: all 0.25s ease;
+    }
+    .page-cta a:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(195, 13, 24, 0.3);
+    }
+    @media (max-width: 640px) {
+      .page-header {
+        padding: 14px clamp(18px, 4vw, 40px);
+      }
+      .page-header .brand img {
+        height: 48px;
+      }
+      .page-container {
+        padding: 110px clamp(18px, 4vw, 40px) 60px;
+      }
+      .activities-grid {
+        gap: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <a class="brand" href="index.html" aria-label="Volver a Studio 13">
+      <img src="logo1.PNG" alt="Studio 13" width="95" height="60">
+    </a>
+    <button class="back-btn" onclick="window.history.back();">← Volver</button>
+  </header>
+
+  <main class="page-container">
+    <div class="page-intro" style="animation: slideInLeft 0.7s cubic-bezier(0.22,1,0.36,1) forwards;">
+      <h1>Actividades y Comunidad</h1>
+      <p>Explora nuestras actividades, colaboraciones, talleres y la red de creadores que hacen posible cada proyecto en Studio 13.</p>
+    </div>
+
+    <div class="activities-grid">
+      <div class="activity-card">
+        <img src="creativo.JPG" alt="Dirección creativa" loading="lazy">
+        <h3>Dirección creativa</h3>
+        <p>Conceptos visuales personalizados para sesiones fotográficas, campañas comerciales y producciones audiovisuales. Trabajamos desde la idea inicial hasta la materialización completa.</p>
+        <a href="index.html#contacto">Solicitar asesoría →</a>
+      </div>
+
+      <div class="activity-card">
+        <img src="colorimetria.jpeg" alt="Arte amazónico" loading="lazy">
+        <h3>Arte amazónico</h3>
+        <p>Expresión visual conectada con la identidad cultural de Pucallpa. Obras, paletas cromáticas y memoria visual que celebran la Amazonía y sus tradiciones.</p>
+        <a href="colorimetria.html" target="_blank">Explorar →</a>
+      </div>
+
+      <div class="activity-card">
+        <img src="evento.jpg" alt="Producción de eventos" loading="lazy">
+        <h3>Producción de eventos</h3>
+        <p>Cobertura profesional y experiencia en vivo para celebraciones, lanzamientos y activaciones. Material audiovisual listo para comunicación digital inmediata.</p>
+        <a href="index.html#contacto">Cotizar evento →</a>
+      </div>
+    </div>
+
+    <div class="page-cta" style="animation: fadeInUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.4s forwards; opacity: 0;">
+      <h2>¿Tienes un proyecto en mente?</h2>
+      <p>Contáctanos para explorar colaboraciones, talleres o cualquier actividad creativa que necesites. Estamos aquí para transformar ideas en experiencias visuales.</p>
+      <a href="index.html#contacto">Iniciar conversación →</a>
+    </div>
+  </main>
+</body>
+</html>

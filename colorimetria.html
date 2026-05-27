@@ -4,90 +4,213 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Colorimetría Amazónica — galería de arte, librería y artistas de Studio 13 en Pucallpa.">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta property="og:title" content="Colorimetría Amazónica | Studio 13">
+  <meta property="og:description" content="Galería de arte amazónico, obras y cultura visual — línea cultural de Studio 13.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_PE">
+  <meta property="og:image" content="colorimetria4.jpeg">
+  <link rel="canonical" href="colorimetria.html">
   <title>Colorimetría Amazónica | Studio 13</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="icon" href="camera.ico" type="image/x-icon">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/colorimetria.css">
 </head>
 <body>
   <div class="page">
-    <nav class="color-nav" aria-label="Navegación Colorimetría">
-      <a class="logo" href="index.html">
-        <img src="colorimetria4.jpeg" alt="Colorimetría Amazónica" width="100" height="100">
+    <nav class="color-nav" id="color-nav" aria-label="Navegación Colorimetría">
+      <a class="logo" href="index.html" aria-label="Studio 13 — inicio">
+        <img src="colorimetria4.jpeg" alt="Colorimetría Amazónica" width="72" height="72">
+        <span class="logo-text">Colorimetría <em>Amazónica</em></span>
       </a>
-      <div class="menu">
+      <button type="button" class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="color-menu">Menú</button>
+      <div class="menu" id="color-menu">
+        <a href="index.html">Studio 13</a>
         <a href="fotografia.html">Fotografías</a>
         <a href="#galeria">Galería</a>
         <a href="#libreria">Librería</a>
         <a href="#artistas">Artistas</a>
         <a href="#contacto">Contacto</a>
       </div>
+      <a class="nav-cta" href="#contacto">Consultar obra</a>
     </nav>
 
     <main>
-      <section class="intro" id="inicio">
-        <div class="intro-image">
-          <img src="colorimetria3.jpeg" alt="Colorimetría amazónica" loading="eager" width="800" height="600">
-        </div>
-        <div class="intro-copy">
-          <h1 class="sr-only">Colorimetría Amazónica</h1>
-          <p>Una línea creativa de Studio 13 dedicada a obras, paletas y expresiones visuales inspiradas en la identidad amazónica.</p>
+      <section class="hero-color reveal" id="inicio">
+        <div class="hero-color-copy">
+          <span class="eyebrow">Línea cultural · Studio 13</span>
+          <h1>Colorimetría Amazónica</h1>
+          <p class="hero-lead">Galería de arte en línea para explorar obras, artistas y cultura visual inspirada en la identidad amazónica — un espacio propio, conectado con la mirada de Studio 13.</p>
           <div class="cta-row">
-            <a class="btn primary" href="#galeria">Ver galería</a>
-            <a class="btn" href="index.html">Volver a Studio 13</a>
+            <a class="btn primary" href="#galeria">Explorar galería</a>
+            <a class="btn ghost" href="index.html">Volver a Studio 13</a>
           </div>
+        </div>
+        <div class="hero-color-media">
+          <img src="colorimetria3.jpeg" alt="Obra de colorimetría amazónica" loading="eager" width="800" height="600">
         </div>
       </section>
 
-      <section class="section art-preview">
-        <h2>Un proyecto aparte, conectado con la mirada de Studio 13.</h2>
-        <p>Colorimetría Amazónica funciona como un espacio propio para el arte, manteniendo el vínculo con la fotografía, la cultura y la experiencia creativa del estudio.</p>
+      <section class="trust-strip" aria-label="Ventajas de la galería">
+        <div class="trust-badge reveal">
+          <strong>Obras originales</strong>
+          <span>Piezas auténticas seleccionadas por el estudio</span>
+        </div>
+        <div class="trust-badge reveal">
+          <strong>Asesoría experta</strong>
+          <span>Valor y disponibilidad definidos de forma personalizada</span>
+        </div>
+        <div class="trust-badge reveal">
+          <strong>Envío seguro</strong>
+          <span>Embalaje profesional para tus adquisiciones</span>
+        </div>
+        <div class="trust-badge reveal">
+          <strong>Atención directa</strong>
+          <span>WhatsApp y correo con el equipo de Studio 13</span>
+        </div>
+      </section>
+
+      <section class="section activities reveal" id="categorias">
+        <div class="section-head-block">
+          <span class="eyebrow">Explora por actividad</span>
+          <h2 class="section-title">Encuentra lo que más te inspire</h2>
+          <p class="section-subtitle">Como en una galería profesional: navega por secciones y accede al catálogo al instante.</p>
+        </div>
+        <div class="activity-grid">
+          <a class="activity-card" href="#galeria" data-filter-jump="pintura">
+            <span class="activity-icon" aria-hidden="true">01</span>
+            <h3>Galería de arte</h3>
+            <p>Pinturas, técnicas mixtas y obra contemporánea amazónica.</p>
+            <span class="activity-link">Explorar →</span>
+          </a>
+          <a class="activity-card" href="#libreria" data-filter-jump="all">
+            <span class="activity-icon" aria-hidden="true">02</span>
+            <h3>Librería</h3>
+            <p>Libros de arte, literatura y cultura regional.</p>
+            <span class="activity-link">Ver sección →</span>
+          </a>
+          <a class="activity-card" href="#artistas" data-filter-jump="all">
+            <span class="activity-icon" aria-hidden="true">03</span>
+            <h3>Artistas</h3>
+            <p>Conoce a los creadores detrás de cada obra.</p>
+            <span class="activity-link">Conocer →</span>
+          </a>
+          <a class="activity-card" href="#galeria" data-filter-jump="mixta">
+            <span class="activity-icon" aria-hidden="true">04</span>
+            <h3>Museo virtual</h3>
+            <p>Recorre color, memoria visual e identidad en formato digital.</p>
+            <span class="activity-link">Entrar →</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="section art-preview reveal">
+        <div class="art-preview-copy">
+          <h2>Un proyecto aparte, conectado con Studio 13.</h2>
+          <p>Colorimetría Amazónica funciona como espacio propio para el arte, manteniendo vínculo con la fotografía, la cultura y la experiencia creativa del estudio en Pucallpa.</p>
+        </div>
         <div class="preview-list">
           <div class="preview-card">
             <strong>Exposiciones</strong>
-            <span>Presentación de obras, procesos creativos y colecciones vinculadas al territorio.</span>
+            <span>Presentación de obras, procesos creativos y colecciones del territorio.</span>
           </div>
           <div class="preview-card">
             <strong>Tienda de arte</strong>
             <span>Obras seleccionadas para quienes buscan cultura visual en sus espacios.</span>
           </div>
           <div class="preview-card">
-            <strong>Museo virtual</strong>
-            <span>Explora color, memoria visual e identidad amazónica en formato digital.</span>
+            <strong>Asesoría</strong>
+            <span>Consulta disponibilidad y valor de cada pieza con el estudio.</span>
           </div>
         </div>
       </section>
 
-      <section class="section categories" id="categorias">
-        <h2 class="section-title">Nuestras categorías</h2>
-        <div class="category-grid">
-          <a class="category-card" href="#galeria">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c5 1 8 4 8 8s-3.6 7-8 7-8-3-8-7 3-7 8-8z"></path><path d="M12 2v19"></path><path d="M6 7c2.5 1.4 9.5 1.4 12 0"></path><circle cx="12" cy="11" r="2"></circle><path d="M4 13c3 2.5 13 2.5 16 0"></path></svg>
-            <div>
-              <h3>Galería de arte</h3>
-              <p>Pinturas, esculturas y obras contemporáneas de artistas destacados.</p>
-            </div>
-          </a>
-          <a class="category-card" href="#libreria">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4 19 8l-2 11L4 15z"></path><path d="M8 2 20 6"></path><path d="M5 9 18 13"></path><path d="M4 15l3 5 10-1"></path></svg>
-            <div>
-              <h3>Librería</h3>
-              <p>Libros de arte, literatura y cultura amazónica.</p>
-            </div>
-          </a>
-          <a class="category-card" href="#artistas">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4"></circle><path d="M3 21v-2a6 6 0 0 1 12 0v2"></path><path d="M17 8c1.4.3 2.5 1.5 2.5 3s-1.1 2.7-2.5 3"></path><path d="M20 18c1.1.8 1.8 1.8 2 3"></path></svg>
-            <div>
-              <h3>Artistas</h3>
-              <p>Conoce a los creadores detrás de las obras.</p>
-            </div>
-          </a>
+      <section class="section gallery-section reveal" id="galeria">
+        <div class="section-head-block centered">
+          <span class="eyebrow">Catálogo en línea</span>
+          <h2 class="section-title">Galería de arte</h2>
+          <p class="section-subtitle">Explora obras por categoría o búsqueda. Cada pieza es única — consulta disponibilidad directamente con nosotros.</p>
         </div>
+
+        <div class="gallery-toolbar">
+          <label class="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 5 5"></path></svg>
+            <span class="sr-only">Buscar obras</span>
+            <input type="search" id="colorimetria-gallery-search" placeholder="Buscar por título, técnica o artista…" autocomplete="off">
+          </label>
+          <p class="gallery-count" id="gallery-result-count" aria-live="polite">Cargando catálogo…</p>
+        </div>
+
+        <div class="tabs tabs-pills" role="tablist" aria-label="Categorías de obra">
+          <button type="button" class="active" data-colorimetria-filter="all" aria-pressed="true">Todos</button>
+          <button type="button" data-colorimetria-filter="pintura" aria-pressed="false">Pintura</button>
+          <button type="button" data-colorimetria-filter="dibujo" aria-pressed="false">Dibujo</button>
+          <button type="button" data-colorimetria-filter="mixta" aria-pressed="false">Técnica mixta</button>
+          <button type="button" data-colorimetria-filter="general" aria-pressed="false">General</button>
+        </div>
+
+        <div
+          id="colorimetria-gallery-grid"
+          class="items-grid"
+          data-gallery-mount
+          data-gallery-section="colorimetria"
+          data-gallery-template="artwork"
+        >
+          <article class="item-card reveal" data-category="pintura">
+            <a class="item-card-media" href="#" data-lightbox-open aria-label="Ver Paleta del río">
+              <img src="colorimetria3.jpeg" alt="Paleta del río" loading="lazy" width="500" height="320">
+              <span class="item-card-badge">Pintura</span>
+              <span class="item-card-zoom">Ver obra</span>
+            </a>
+            <div class="item-info">
+              <h3 class="item-title">Paleta del río</h3>
+              <p class="item-meta">Acrílico sobre lienzo · Por confirmar</p>
+              <a class="item-cta" data-artwork-consult data-artwork-title="Paleta del río" href="#">Consultar obra</a>
+            </div>
+          </article>
+          <article class="item-card reveal" data-category="pintura">
+            <a class="item-card-media" href="#" data-lightbox-open aria-label="Ver Memoria vegetal">
+              <img src="colorimetria.jpeg" alt="Memoria vegetal" loading="lazy" width="500" height="320">
+              <span class="item-card-badge">Pintura</span>
+              <span class="item-card-zoom">Ver obra</span>
+            </a>
+            <div class="item-info">
+              <h3 class="item-title">Memoria vegetal</h3>
+              <p class="item-meta">Óleo sobre lienzo · Por confirmar</p>
+              <a class="item-cta" data-artwork-consult data-artwork-title="Memoria vegetal" href="#">Consultar obra</a>
+            </div>
+          </article>
+          <article class="item-card reveal" data-category="mixta">
+            <a class="item-card-media" href="#" data-lightbox-open aria-label="Ver Identidad en color">
+              <img src="colorimetria5.jpeg" alt="Identidad en color" loading="lazy" width="500" height="320">
+              <span class="item-card-badge">Técnica mixta</span>
+              <span class="item-card-zoom">Ver obra</span>
+            </a>
+            <div class="item-info">
+              <h3 class="item-title">Identidad en color</h3>
+              <p class="item-meta">Técnica mixta · Por confirmar</p>
+              <a class="item-cta" data-artwork-consult data-artwork-title="Identidad en color" href="#">Consultar obra</a>
+            </div>
+          </article>
+          <article class="item-card reveal" data-category="pintura">
+            <a class="item-card-media" href="#" data-lightbox-open aria-label="Ver Raíces visuales">
+              <img src="colorimetria4.jpeg" alt="Raíces visuales" loading="lazy" width="500" height="320">
+              <span class="item-card-badge">Pintura</span>
+              <span class="item-card-zoom">Ver obra</span>
+            </a>
+            <div class="item-info">
+              <h3 class="item-title">Raíces visuales</h3>
+              <p class="item-meta">Acrílico · Por confirmar</p>
+              <a class="item-cta" data-artwork-consult data-artwork-title="Raíces visuales" href="#">Consultar obra</a>
+            </div>
+          </article>
+        </div>
+        <p class="gallery-note">El catálogo se actualiza desde el panel administrativo de Studio 13.</p>
       </section>
 
-      <section class="section why">
+      <section class="section why reveal">
         <div>
           <h2>¿Por qué elegirnos?</h2>
           <div class="benefit">
@@ -106,67 +229,64 @@
         <img class="why-image" src="colorimetria.jpeg" alt="Obra de colorimetría amazónica" loading="lazy" width="800" height="500">
       </section>
 
-      <section class="section" id="galeria">
-        <h2 class="section-title">Galería de arte</h2>
-        <label class="search">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 5 5"></path></svg>
-          <span class="sr-only">Buscar obras</span>
-          <input type="search" placeholder="Buscar obras o artistas (próximamente)" disabled>
-        </label>
-        <div class="tabs" aria-label="Categorías de obra">
-          <span class="active">Todos</span>
-          <span>Pintura</span>
-          <span>Dibujo</span>
-          <span>Técnica mixta</span>
-        </div>
-        <div
-          id="colorimetria-gallery-grid"
-          class="items-grid"
-          data-gallery-mount
-          data-gallery-section="colorimetria"
-          data-gallery-template="artwork"
-        >
-          <article class="item-card">
-            <img src="colorimetria3.jpeg" alt="Paleta del río" loading="lazy" width="500" height="320">
-            <div class="item-info"><strong>Título: Paleta del río</strong><br>Técnica: Acrílico sobre lienzo<br>Artista: Por confirmar</div>
-          </article>
-          <article class="item-card">
-            <img src="colorimetria.jpeg" alt="Memoria vegetal" loading="lazy" width="500" height="320">
-            <div class="item-info"><strong>Título: Memoria vegetal</strong><br>Técnica: Óleo sobre lienzo<br>Artista: Por confirmar</div>
-          </article>
-          <article class="item-card">
-            <img src="colorimetria5.jpeg" alt="Identidad en color" loading="lazy" width="500" height="320">
-            <div class="item-info"><strong>Título: Identidad en color</strong><br>Técnica: Técnica mixta<br>Artista: Por confirmar</div>
-          </article>
-          <article class="item-card">
-            <img src="colorimetria4.jpeg" alt="Raíces visuales" loading="lazy" width="500" height="320">
-            <div class="item-info"><strong>Título: Raíces visuales</strong><br>Técnica: Acrílico<br>Artista: Por confirmar</div>
-          </article>
-        </div>
-        <p class="gallery-note">Si no ves obras nuevas, recarga la página. El catálogo se actualiza desde el panel administrativo.</p>
-      </section>
-
       <section class="section" id="libreria">
-        <h2 class="section-title">Librería</h2>
-        <label class="search">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 5 5"></path></svg>
-          <span class="sr-only">Buscar libros</span>
-          <input type="search" placeholder="Buscar libros (próximamente)" disabled>
-        </label>
-        <div class="empty-state">
-          <p>Próximamente: catálogo de libros de arte y cultura. El panel administrativo permitirá cargar títulos e imágenes.</p>
+        <div class="section-head-block">
+          <span class="eyebrow">Próximamente</span>
+          <h2 class="section-title">Librería</h2>
+          <p class="section-subtitle">Catálogo de libros de arte y cultura amazónica — en preparación.</p>
+        </div>
+        <div class="empty-state panel-empty">
+          <p>Próximamente podrás explorar títulos desde esta sección. El panel administrativo permitirá cargar libros e imágenes.</p>
         </div>
       </section>
 
-      <section class="section artists" id="artistas">
-        <h2 class="section-title">Nuestros artistas</h2>
-        <p class="section-subtitle">Conoce a los creadores que forman parte de la colección. Cada uno aporta una perspectiva única al territorio amazónico.</p>
-        <div class="empty-state">
-          <p>Próximamente: perfiles de artistas. Podrás gestionarlos desde el panel administrativo.</p>
+      <section class="section artists reveal" id="artistas">
+        <div class="section-head-block">
+          <span class="eyebrow">Comunidad creativa</span>
+          <h2 class="section-title">Nuestros artistas</h2>
+          <p class="section-subtitle">Creadores que aportan una perspectiva única al territorio amazónico.</p>
+        </div>
+        <div class="artist-grid">
+          <article class="artist-card reveal">
+            <div class="artist-photo">
+              <img src="colorimetria3.jpeg" alt="" loading="lazy" width="200" height="200">
+            </div>
+            <span class="artist-tag">Colección destacada</span>
+            <h3>Artista invitado</h3>
+            <p>Obra vinculada a paletas del río y memoria visual.</p>
+            <a class="artist-cta" href="#galeria">Ver obras</a>
+          </article>
+          <article class="artist-card reveal">
+            <div class="artist-photo">
+              <img src="colorimetria.jpeg" alt="" loading="lazy" width="200" height="200">
+            </div>
+            <span class="artist-tag">En exhibición</span>
+            <h3>Creador amazónico</h3>
+            <p>Exploración de color y territorio en lienzo.</p>
+            <a class="artist-cta" href="#galeria">Ver obras</a>
+          </article>
+          <article class="artist-card reveal">
+            <div class="artist-photo">
+              <img src="colorimetria5.jpeg" alt="" loading="lazy" width="200" height="200">
+            </div>
+            <span class="artist-tag">Técnica mixta</span>
+            <h3>Artista emergente</h3>
+            <p>Propuestas contemporáneas con identidad local.</p>
+            <a class="artist-cta" href="#contacto">Contactar</a>
+          </article>
+          <article class="artist-card reveal">
+            <div class="artist-photo">
+              <img src="colorimetria4.jpeg" alt="" loading="lazy" width="200" height="200">
+            </div>
+            <span class="artist-tag">Studio 13</span>
+            <h3>Red cultural</h3>
+            <p>Artistas por confirmar — perfiles desde el panel admin.</p>
+            <a class="artist-cta" data-contact="whatsapp" href="#">Escribir</a>
+          </article>
         </div>
       </section>
 
-      <section class="section contact" id="contacto">
+      <section class="section contact reveal" id="contacto">
         <h2>¿Te interesa una obra? Hablemos</h2>
         <p class="contact-intro">Cada obra es única y su valor se define de forma personalizada.<br>Contáctanos para información, disponibilidad y asesoría.</p>
         <div class="contact-row">
@@ -174,13 +294,13 @@
             <span class="contact-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="#20b038"><path d="M12 2a9.8 9.8 0 0 0-8.4 14.9L2.4 22l5.2-1.2A9.9 9.9 0 1 0 12 2zm5.6 14.1c-.2.6-1.2 1.1-1.7 1.2-.5.1-1.1.2-3.4-.8-2.8-1.2-4.7-4-4.8-4.2-.1-.1-1.1-1.5-1.1-2.9 0-1.3.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5.2.5.8 1.9.9 2 .1.2.1.4 0 .6-.1.2-.2.4-.4.5-.2.2-.3.3-.5.5-.2.2-.3.4-.1.7.2.3.8 1.3 1.8 2.1 1.2 1.1 2.2 1.4 2.6 1.6.3.1.5.1.7-.1.2-.2.8-.9 1-1.2.2-.3.4-.3.7-.2.3.1 1.8.9 2.1 1 .3.2.5.2.6.3.1.2.1.7-.1 1.3z"></path></svg>
             </span>
-            <p>WhatsApp<br><a data-contact="whatsapp-link" href="https://wa.me/51986627685"></a></p>
+            <p>WhatsApp<br><a data-contact="whatsapp-link" href="#"></a></p>
           </div>
           <div class="contact-item">
             <span class="contact-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24"><path fill="#e84135" d="M3 6.5 12 13l9-6.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path fill="#f2f2f2" d="M5 5h14l-7 5z"></path></svg>
             </span>
-            <p>Consultas<br><a data-contact="email" href="mailto:studio13@gmail.com"></a></p>
+            <p>Consultas<br><a data-contact="email" href="#"></a></p>
           </div>
           <div class="contact-item">
             <span class="contact-icon" aria-hidden="true">
@@ -198,21 +318,63 @@
     </main>
 
     <footer class="color-footer">
-      <span>2026 Studio 13 · Colorimetría Amazónica</span>
-      <div>
-        <a href="index.html">Studio 13</a>
-        <a href="fotografia.html">Fotografías</a>
+      <div class="footer-brand">
+        <strong>Colorimetría Amazónica</strong>
+        <span>Línea cultural de Studio 13 · Pucallpa</span>
+      </div>
+      <div class="footer-cols">
+        <div>
+          <h3>Navegación</h3>
+          <a href="#galeria">Galería</a>
+          <a href="#artistas">Artistas</a>
+          <a href="#libreria">Librería</a>
+          <a href="#contacto">Contacto</a>
+        </div>
+        <div>
+          <h3>Studio 13</h3>
+          <a href="index.html">Inicio</a>
+          <a href="fotografia.html">Fotografías</a>
+          <a href="index.html#contacto">Reservar sesión</a>
+        </div>
+        <div>
+          <h3>Contacto</h3>
+          <a data-contact="whatsapp-link" href="#">WhatsApp</a>
+          <a data-contact="email" href="#">Correo</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>2026 Studio 13 · Colorimetría Amazónica. Todos los derechos reservados.</span>
       </div>
     </footer>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase-config.js"></script>
-  <script src="js/cloudinary-config.js"></script>
-  <script src="js/supabase-client.js"></script>
-  <script src="js/cloudinary-client.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/public-gallery.js"></script>
-  <script src="js/site.js"></script>
+  <div id="color-lightbox" class="color-lightbox" hidden role="dialog" aria-modal="true" aria-label="Vista ampliada de obra">
+    <button type="button" class="lightbox-close" data-lightbox-close aria-label="Cerrar">×</button>
+    <figure>
+      <img class="lightbox-img" src="" alt="">
+      <figcaption class="lightbox-caption"></figcaption>
+    </figure>
+  </div>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ArtGallery",
+    "name": "Colorimetría Amazónica",
+    "description": "Galería de arte amazónico — línea cultural de Studio 13 en Pucallpa.",
+    "parentOrganization": { "@type": "Organization", "name": "Studio 13" }
+  }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="js/supabase-config.js" defer></script>
+  <script src="js/cloudinary-config.js" defer></script>
+  <script src="js/studio-utils.js" defer></script>
+  <script src="js/categories.js" defer></script>
+  <script src="js/supabase-client.js" defer></script>
+  <script src="js/cloudinary-client.js" defer></script>
+  <script src="js/config.js" defer></script>
+  <script src="js/public-gallery.js" defer></script>
+  <script src="js/site.js" defer></script>
+  <script src="js/colorimetria.js" defer></script>
 </body>
 </html>

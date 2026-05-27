@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Servicios fotográficos profesionales de Studio 13 en Pucallpa.">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta property="og:title" content="Servicios | Studio 13">
+  <meta property="og:description" content="Fotografía profesional, eventos, corporativo y arte en Pucallpa.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_PE">
+  <link rel="canonical" href="servicios.html">
+  <title>Servicios | Studio 13</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="icon" href="camera.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <style>
+    body {
+      background: #faf9f7;
+    }
+    .page-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px clamp(22px, 6vw, 80px);
+      background: rgba(255, 253, 249, 0.98);
+      border-bottom: 1px solid rgba(17, 17, 17, 0.08);
+      backdrop-filter: blur(16px);
+    }
+    .page-header .brand {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+    .page-header .brand img {
+      height: 60px;
+      width: auto;
+    }
+    .page-header .back-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.25s ease;
+    }
+    .page-header .back-btn:hover {
+      background: var(--ink);
+      color: #fff;
+    }
+    .page-container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 130px clamp(22px, 6vw, 80px) 80px;
+    }
+    .page-intro {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    .page-intro h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 800;
+      margin-bottom: 16px;
+      line-height: 1.1;
+    }
+    .page-intro p {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 720px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 32px;
+      margin: 50px 0;
+    }
+    .service-card {
+      padding: 42px 32px;
+      border: 2px solid rgba(17, 17, 17, 0.08);
+      border-radius: 16px;
+      background: #fff;
+      transition: all 0.35s ease;
+    }
+    .service-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 28px 64px rgba(17, 17, 17, 0.1);
+      border-color: var(--red);
+    }
+    .service-card .icon {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+    .service-card h3 {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+    .service-card p {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .service-card ul {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 24px;
+    }
+    .service-card li {
+      font-size: 14px;
+      color: var(--muted);
+      padding: 6px 0 6px 24px;
+      position: relative;
+    }
+    .service-card li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--red);
+      font-weight: 800;
+    }
+    .service-card a {
+      display: inline-flex;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      transition: all 0.25s ease;
+    }
+    .service-card a:hover {
+      background: var(--red);
+      transform: translateY(-2px);
+    }
+    .pricing-section {
+      margin-top: 80px;
+      padding: 50px 40px;
+      background: var(--ink);
+      color: #fff;
+      border-radius: 16px;
+      text-align: center;
+    }
+    .pricing-section h2 {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .pricing-section p {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 28px;
+      max-width: 540px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .pricing-section a {
+      display: inline-flex;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 999px;
+      background: var(--red);
+      color: #fff;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      transition: all 0.25s ease;
+    }
+    .pricing-section a:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(195, 13, 24, 0.4);
+    }
+    @media (max-width: 640px) {
+      .page-header {
+        padding: 14px clamp(18px, 4vw, 40px);
+      }
+      .page-header .brand img {
+        height: 48px;
+      }
+      .page-container {
+        padding: 110px clamp(18px, 4vw, 40px) 60px;
+      }
+      .services-grid {
+        gap: 20px;
+      }
+      .service-card {
+        padding: 28px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <a class="brand" href="index.html" aria-label="Volver a Studio 13">
+      <img src="logo1.PNG" alt="Studio 13" width="95" height="60">
+    </a>
+    <button class="back-btn" onclick="window.history.back();">← Volver</button>
+  </header>
+
+  <main class="page-container">
+    <style>
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(24px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(-30px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      .service-card {
+        animation: fadeInUp 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+        opacity: 0;
+      }
+      .service-card:nth-child(1) { animation-delay: 0.1s; }
+      .service-card:nth-child(2) { animation-delay: 0.2s; }
+      .service-card:nth-child(3) { animation-delay: 0.3s; }
+    </style>
+    <div class="page-intro" style="animation: slideInLeft 0.7s cubic-bezier(0.22,1,0.36,1) forwards;">
+      <h1>Nuestros Servicios</h1>
+      <p>Soluciones fotográficas profesionales adaptadas a cada necesidad: desde retratos personales hasta coberturas corporativas y experiencias artísticas.</p>
+    </div>
+
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="icon">📸</div>
+        <h3>Fotografía profesional</h3>
+        <p>Sesiones de retrato, books personales, familia, quinceaños, bodas y producciones comerciales con dirección visual especializada.</p>
+        <ul>
+          <li>Dirección de pose y luz</li>
+          <li>Sesión con estilista</li>
+          <li>Edición y color</li>
+          <li>Digital + impresión</li>
+        </ul>
+        <a href="index.html#contacto">Cotizar →</a>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">🎉</div>
+        <h3>Eventos y empresas</h3>
+        <p>Cobertura profesional para activaciones, reuniones corporativas, marcas, instituciones. Material audiovisual listo para comunicación digital.</p>
+        <ul>
+          <li>Cobertura completa</li>
+          <li>Momentos espontáneos</li>
+          <li>Retratos de asistentes</li>
+          <li>Entrega rápida</li>
+        </ul>
+        <a href="index.html#contacto">Planear →</a>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">🎨</div>
+        <h3>Arte y Colorimetría</h3>
+        <p>Espacios para artistas, exposiciones, registro de obra y experiencias visuales conectadas con la cultura amazónica y la identidad local.</p>
+        <ul>
+          <li>Galería virtual</li>
+          <li>Registro profesional</li>
+          <li>Curación de obra</li>
+          <li>Exhibiciones</li>
+        </ul>
+        <a href="colorimetria.html" target="_blank">Explorar →</a>
+      </div>
+    </div>
+
+    <div class="pricing-section" style="animation: fadeInUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.4s forwards; opacity: 0;">
+      <h2>¿Listo para tu próximo proyecto?</h2>
+      <p>Cada servicio es personalizado según tus necesidades. Contáctanos para una cotización detallada y sin compromiso. Conversamos, escuchamos y creamos juntos.</p>
+      <a href="index.html#contacto">Solicitar presupuesto →</a>
+    </div>
+  </main>
+
+  <script src="js/config.js" defer></script>
+  <script defer>
+    (function() {
+      'use strict';
+      
+      // Smooth Scroll Animation
+      if (window.IntersectionObserver) {
+        const observer = new IntersectionObserver(
+          function(entries) {
+            entries.forEach(function(entry) {
+              if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
+                entry.target.classList.add('animated');
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.05 }
+        );
+        
+        document.querySelectorAll('.service-card, .pricing-section').forEach(function(el) {
+          observer.observe(el);
+        });
+      }
+      
+      // Enhanced link behavior
+      document.querySelectorAll('a').forEach(function(link) {
+        if (!link.hasAttribute('target')) {
+          link.addEventListener('click', function(e) {
+            if (this.href && this.href !== '#') {
+              e.preventDefault();
+              window.location.href = this.href;
+            }
+          });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sobre nosotros - Studio 13, estudio fotográfico en Pucallpa con 7 años de experiencia.">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta property="og:title" content="Nosotros | Studio 13">
+  <meta property="og:description" content="Equipo y filosofía de Studio 13 — fotografía con identidad amazónica.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_PE">
+  <link rel="canonical" href="nosotros.html">
+  <title>Nosotros | Studio 13</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="icon" href="camera.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <style>
+    body {
+      background: #faf9f7;
+    }
+    .page-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px clamp(22px, 6vw, 80px);
+      background: rgba(255, 253, 249, 0.98);
+      border-bottom: 1px solid rgba(17, 17, 17, 0.08);
+      backdrop-filter: blur(16px);
+    }
+    .page-header .brand {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+    .page-header .brand img {
+      height: 60px;
+      width: auto;
+    }
+    .page-header .back-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.25s ease;
+    }
+    .page-header .back-btn:hover {
+      background: var(--ink);
+      color: #fff;
+    }
+    .page-container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 130px clamp(22px, 6vw, 80px) 80px;
+    }
+    .intro-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      margin-bottom: 80px;
+    }
+    .intro-copy h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 800;
+      margin-bottom: 20px;
+      line-height: 1.15;
+    }
+    .intro-copy p {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+    .intro-media {
+      width: 100%;
+      height: 420px;
+      background: linear-gradient(135deg, var(--ink), var(--red));
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 80px;
+      color: rgba(255, 255, 255, 0.1);
+    }
+    .intro-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 16px;
+    }
+    .stats-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 40px;
+      padding: 60px;
+      background: var(--ink);
+      color: #fff;
+      border-radius: 16px;
+      text-align: center;
+      margin-bottom: 80px;
+    }
+    .stat-item strong {
+      display: block;
+      font-size: 42px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .stat-item span {
+      display: block;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    .values-section h2 {
+      font-size: 36px;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+    .value-card {
+      padding: 40px;
+      border: 1px solid rgba(17, 17, 17, 0.08);
+      border-radius: 12px;
+      background: #fff;
+      transition: all 0.35s ease;
+    }
+    .value-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(17, 17, 17, 0.08);
+    }
+    .value-card .icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+    .value-card h3 {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    .value-card p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .process-section {
+      margin-top: 80px;
+      text-align: center;
+    }
+    .process-section h2 {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 50px;
+    }
+    .process-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 30px;
+    }
+    .process-step {
+      padding: 32px 24px;
+      border: 1px solid rgba(17, 17, 17, 0.08);
+      border-radius: 12px;
+      background: #fff;
+    }
+    .process-step span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: var(--red);
+      color: #fff;
+      border-radius: 50%;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .process-step h4 {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .process-step p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .cta-section {
+      text-align: center;
+      padding: 60px 40px;
+      margin-top: 80px;
+      border-top: 1px solid rgba(17, 17, 17, 0.08);
+    }
+    .cta-section h2 {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .cta-section p {
+      font-size: 16px;
+      color: var(--muted);
+      margin-bottom: 28px;
+      max-width: 540px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .cta-section a {
+      display: inline-flex;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 999px;
+      background: var(--red);
+      color: #fff;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      transition: all 0.25s ease;
+    }
+    .cta-section a:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(195, 13, 24, 0.3);
+    }
+    @media (max-width: 980px) {
+      .intro-section {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+    }
+    @media (max-width: 640px) {
+      .page-header {
+        padding: 14px clamp(18px, 4vw, 40px);
+      }
+      .page-header .brand img {
+        height: 48px;
+      }
+      .page-container {
+        padding: 110px clamp(18px, 4vw, 40px) 60px;
+      }
+      .intro-media {
+        height: 280px;
+      }
+      .stats-section {
+        gap: 20px;
+        padding: 40px 20px;
+      }
+      .stat-item strong {
+        font-size: 32px;
+      }
+      .values-grid {
+        gap: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <a class="brand" href="index.html" aria-label="Volver a Studio 13">
+      <img src="logo1.PNG" alt="Studio 13" width="95" height="60">
+    </a>
+    <button class="back-btn" onclick="window.history.back();">← Volver</button>
+  </header>
+
+  <main class="page-container">
+    <section class="intro-section">
+      <div class="intro-copy">
+        <h1>Más que fotografías, creamos experiencias.</h1>
+        <p>Studio 13 nace de la pasión por contar historias a través de la fotografía. Nos involucramos en el antes, durante y después de cada proyecto: escuchamos tu idea, definimos una ruta visual, producimos la sesión con dedicación y entregamos imágenes cuidadas para guardar, compartir o vender.</p>
+        <p>Con 7 años de experiencia en Pucallpa, hemos trabajado con más de 500 proyectos y 100 clientes, generando una comunidad creativa que trasciende la fotografía tradicional.</p>
+      </div>
+      <div class="intro-media">
+        <img src="logo1.PNG" alt="Studio 13" loading="lazy">
+      </div>
+    </section>
+
+    <section class="stats-section">
+      <div class="stat-item">
+        <strong>500+</strong>
+        <span>proyectos realizados</span>
+      </div>
+      <div class="stat-item">
+        <strong>100+</strong>
+        <span>clientes satisfechos</span>
+      </div>
+      <div class="stat-item">
+        <strong>7+</strong>
+        <span>años de experiencia</span>
+      </div>
+      <div class="stat-item">
+        <strong>100+</strong>
+        <span>colaboradores y artistas</span>
+      </div>
+    </section>
+
+    <section class="values-section">
+      <h2>Nuestros valores</h2>
+      <div class="values-grid">
+        <div class="value-card">
+          <div class="icon">🎯</div>
+          <h3>Precisión visual</h3>
+          <p>Cada foto cuenta. Buscamos la perfección en composición, luz, color y emoción para capturar la esencia de lo que quieres comunicar.</p>
+        </div>
+        <div class="value-card">
+          <div class="icon">🤝</div>
+          <h3>Cercanía genuina</h3>
+          <p>Nos importa tu visión. Trabajamos contigo, no para ti. Escuchamos, colaboramos y adaptamos cada proyecto a tus necesidades reales.</p>
+        </div>
+        <div class="value-card">
+          <div class="icon">🌿</div>
+          <h3>Identidad amazónica</h3>
+          <p>Celebramos la Amazonía y la cultura local. Cada proyecto es una oportunidad para contar historias que honren nuestro contexto visual y cultural.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="process-section">
+      <h2>Cómo trabajamos contigo</h2>
+      <div class="process-grid">
+        <div class="process-step">
+          <span>1</span>
+          <h4>Contacto y conversación</h4>
+          <p>Escuchamos tu idea, referencias, objetivo y presupuesto para definir la mejor ruta.</p>
+        </div>
+        <div class="process-step">
+          <span>2</span>
+          <h4>Conceptualización</h4>
+          <p>Planificamos cada detalle: locación, estilo, recursos visuales y dirección de sesión.</p>
+        </div>
+        <div class="process-step">
+          <span>3</span>
+          <h4>Producción</h4>
+          <p>Capturamos el material con profesionalismo, dirección cercana y atención a cada detalle.</p>
+        </div>
+        <div class="process-step">
+          <span>4</span>
+          <h4>Entrega</h4>
+          <p>Editamos, cuidamos el color, seleccionamos detalles y compartimos el resultado en múltiples formatos.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <h2>¿Listos para una conversación?</h2>
+      <p>Contáctanos sin compromiso. Queremos conocer tu proyecto y explorar juntos cómo hacer que tu visión sea realidad a través de la fotografía.</p>
+      <a href="index.html#contacto">Iniciar conversación →</a>
+    </section>
+  </main>
+</body>
+</html>

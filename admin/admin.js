@@ -9,21 +9,14 @@
     editingId: null,
   };
 
-  const categories = {
-    studio13: [
-      { value: "retrato", label: "Retrato" },
-      { value: "social", label: "Social" },
-      { value: "evento", label: "Eventos" },
-      { value: "arte", label: "Arte" },
-      { value: "creativa", label: "Creativa" },
-    ],
-    colorimetria: [
-      { value: "pintura", label: "Pintura" },
-      { value: "dibujo", label: "Dibujo" },
-      { value: "mixta", label: "Técnica mixta" },
-      { value: "general", label: "General" },
-    ],
-  };
+  const categories =
+    (window.STUDIO_CATEGORIES && {
+      studio13: window.STUDIO_CATEGORIES.studio13,
+      colorimetria: window.STUDIO_CATEGORIES.colorimetria,
+    }) || {
+      studio13: [],
+      colorimetria: [],
+    };
 
   const sections = {
     studio13: {
@@ -54,6 +47,9 @@
   }
 
   function escapeHtml(text) {
+    if (window.StudioUtils && window.StudioUtils.escapeHtml) {
+      return window.StudioUtils.escapeHtml(text);
+    }
     const el = document.createElement("div");
     el.textContent = text == null ? "" : String(text);
     return el.innerHTML;

@@ -1,5 +1,6 @@
 -- Studio 13 — ejecutar en Supabase → SQL Editor
 -- Datos de galería. Las imágenes viven en Cloudinary (storage_path = public_id).
+-- El bucket gallery-images es opcional (legado); el flujo actual usa solo Cloudinary.
 
 -- Tabla principal de galería
 create table if not exists public.gallery_items (

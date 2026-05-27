@@ -1,25 +1,27 @@
+/**
+ * Studio 13 — Páginas secundarias (fotografía, etc.)
+ * Contacto, navegación y filtros de galería SOLO en fotografia.html.
+ */
 (function () {
   "use strict";
 
   const config = window.STUDIO_CONFIG;
   if (!config) return;
 
-  /* —— Barra de navegación al hacer scroll —— */
   const nav = document.getElementById("nav");
   if (nav) {
     window.addEventListener(
       "scroll",
-      () => {
-        nav.classList.toggle("scrolled", window.scrollY > 0);
+      function () {
+        nav.classList.toggle("scrolled", window.scrollY > 12);
       },
       { passive: true }
     );
   }
 
-  /* —— Enlaces de contacto desde config —— */
   const whatsappUrl = "https://wa.me/" + config.whatsapp;
 
-  document.querySelectorAll("[data-contact]").forEach((el) => {
+  document.querySelectorAll("[data-contact]").forEach(function (el) {
     const type = el.getAttribute("data-contact");
     switch (type) {
       case "phone":
@@ -27,9 +29,7 @@
         break;
       case "email":
         el.textContent = config.email;
-        if (el.tagName === "A") {
-          el.href = "mailto:" + config.email;
-        }
+        if (el.tagName === "A") el.href = "mailto:" + config.email;
         break;
       case "address":
         el.textContent = config.address;
@@ -56,7 +56,7 @@
     }
   });
 
-  document.querySelectorAll("[data-social]").forEach((el) => {
+  document.querySelectorAll("[data-social]").forEach(function (el) {
     const network = el.getAttribute("data-social");
     const url = config.social[network];
     if (url) {
@@ -68,33 +68,39 @@
     }
   });
 
-  /* —— Filtros del portafolio (solo en index) —— */
-  const filterButtons = document.querySelectorAll("[data-filter]");
+  /* —— Filtros solo en página de fotografías —— */
+  if (!document.body.classList.contains("photo-page")) return;
 
-  if (filterButtons.length) {
-    filterButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        filterButtons.forEach((item) => {
-          item.classList.remove("active");
-          item.setAttribute("aria-pressed", "false");
-        });
-        button.classList.add("active");
-        button.setAttribute("aria-pressed", "true");
+  const filterButtons = document.querySelectorAll("[data-photo-filter]");
+  const sections = document.querySelectorAll(".photo-section[data-photo-category]");
 
-        const filter = button.dataset.filter;
-        const galleryCards = document.querySelectorAll(".grid .card");
+  if (!filterButtons.length || !sections.length) return;
 
-        galleryCards.forEach((card) => {
-          const show = filter === "all" || card.dataset.category === filter;
-          card.hidden = !show;
-        });
-
-        const portafolio = document.querySelector("#portafolio");
-        if (portafolio) {
-          portafolio.scrollIntoView({ behavior: "smooth" });
-        }
-      });
+  function applyPhotoFilter(filter) {
+    sections.forEach(function (section) {
+      const cat = section.getAttribute("data-photo-category");
+      const show = filter === "all" || cat === filter;
+      section.hidden = !show;
+      section.classList.toggle("is-filter-hidden", !show);
     });
   }
 
+  filterButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      filterButtons.forEach(function (btn) {
+        btn.classList.remove("active");
+        btn.setAttribute("aria-pressed", "false");
+      });
+      button.classList.add("active");
+      button.setAttribute("aria-pressed", "true");
+
+      const filter = button.getAttribute("data-photo-filter");
+      applyPhotoFilter(filter);
+
+      const target = document.getElementById("galeria-fotos");
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+  });
 })();

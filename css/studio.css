@@ -459,6 +459,56 @@ color:var(--muted);
 background:var(--paper);
 }
 
+.photo-filters-wrap{
+max-width:var(--max);
+margin:0 auto;
+padding:28px clamp(22px,6vw,80px) 8px;
+text-align:center;
+}
+
+.photo-filters{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:10px;
+margin-bottom:10px;
+}
+
+.photo-filters button{
+min-height:42px;
+padding:0 20px;
+border:1px solid var(--line);
+border-radius:999px;
+background:#ffffff;
+color:var(--ink);
+font-family:inherit;
+font-size:13px;
+font-weight:700;
+cursor:pointer;
+transition:background .25s,color .25s,border-color .25s,transform .25s;
+}
+
+.photo-filters button:hover{
+transform:translateY(-2px);
+border-color:var(--red);
+}
+
+.photo-filters button.active{
+background:var(--ink);
+border-color:var(--ink);
+color:#ffffff;
+}
+
+.photo-filters-note{
+font-size:13px;
+color:var(--muted);
+}
+
+.photo-section[hidden],
+.photo-section.is-filter-hidden{
+display:none !important;
+}
+
 .photo-hero{
 min-height:92vh;
 display:grid;

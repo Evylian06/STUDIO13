@@ -1,17 +1,20 @@
 (function () {
   "use strict";
 
+  function escapeHtml(text) {
+    if (window.StudioUtils && window.StudioUtils.escapeHtml) {
+      return window.StudioUtils.escapeHtml(text);
+    }
+    const div = document.createElement("div");
+    div.textContent = text == null ? "" : String(text);
+    return div.innerHTML;
+  }
+
   function imageSrc(url, width) {
     if (window.CloudinaryStudio && window.CloudinaryStudio.optimizeUrl) {
       return window.CloudinaryStudio.optimizeUrl(url, { width: width || 900 });
     }
     return url || "";
-  }
-
-  function escapeHtml(text) {
-    const div = document.createElement("div");
-    div.textContent = text == null ? "" : String(text);
-    return div.innerHTML;
   }
 
   function layoutClass(layout) {
@@ -30,14 +33,34 @@
     const tag = escapeHtml(item.tag || item.category);
     const title = escapeHtml(item.title);
     const alt = escapeHtml(item.description || item.title);
-    return `
-      <article class="card ${extra}" data-category="${escapeHtml(item.category)}">
-        <img src="${escapeHtml(imageSrc(item.image_url, 800))}" alt="${alt}" loading="lazy" width="600" height="600">
-        <div class="overlay">
-          <span>${tag}</span>
-          <strong>${title}</strong>
-        </div>
-      </article>`;
+    const category = escapeHtml(item.category || "general");
+    return (
+      '<article class="card ' +
+      extra +
+      '" data-category="' +
+      category +
+      '">' +
+      '<img src="' +
+      escapeHtml(imageSrc(item.image_url, 800)) +
+      '" alt="' +
+      alt +
+      '" loading="lazy" width="600" height="600">' +
+      '<div class="overlay"><span>' +
+      tag +
+      "</span><strong>" +
+      title +
+      "</strong></div></article>"
+    );
+  }
+
+  function categoryLabel(section, value) {
+    const list =
+      window.STUDIO_CATEGORIES && window.STUDIO_CATEGORIES[section];
+    if (!list) return value || "General";
+    const found = list.find(function (c) {
+      return c.value === value;
+    });
+    return found ? found.label : value;
   }
 
   function renderArtworkCard(item) {
@@ -45,15 +68,37 @@
     const artist = escapeHtml(item.artist || "—");
     const title = escapeHtml(item.title);
     const alt = escapeHtml(item.description || item.title);
-    return `
-      <article class="item-card">
-        <img src="${escapeHtml(imageSrc(item.image_url, 600))}" alt="${alt}" loading="lazy" width="500" height="320">
-        <div class="item-info">
-          <strong>Título: ${title}</strong><br>
-          Técnica: ${technique}<br>
-          Artista: ${artist}
-        </div>
-      </article>`;
+    const category = escapeHtml(item.category || "general");
+    const catLabel = escapeHtml(
+      categoryLabel("colorimetria", item.category || "general")
+    );
+    return (
+      '<article class="item-card reveal" data-category="' +
+      category +
+      '">' +
+      '<a class="item-card-media" href="#" data-lightbox-open aria-label="Ver ' +
+      title +
+      '">' +
+      '<img src="' +
+      escapeHtml(imageSrc(item.image_url, 600)) +
+      '" alt="' +
+      alt +
+      '" loading="lazy" width="500" height="320">' +
+      '<span class="item-card-badge">' +
+      catLabel +
+      '</span><span class="item-card-zoom">Ver obra</span></a>' +
+      '<div class="item-info">' +
+      '<h3 class="item-title">' +
+      title +
+      "</h3>" +
+      '<p class="item-meta">' +
+      technique +
+      " · " +
+      artist +
+      '</p><a class="item-cta" data-artwork-consult data-artwork-title="' +
+      title +
+      '" href="#">Consultar obra</a></div></article>'
+    );
   }
 
   function renderPhotoTile(item, large) {
@@ -61,30 +106,52 @@
     const title = escapeHtml(item.title);
     const alt = escapeHtml(item.description || item.title);
     const cls = large ? "photo-tile large" : "photo-tile";
-    return `
-      <article class="${cls}">
-        <img src="${escapeHtml(imageSrc(item.image_url, 800))}" alt="${alt}" loading="lazy" width="600" height="600">
-        <div><span>${tag}</span><strong>${title}</strong></div>
-      </article>`;
+    return (
+      '<article class="' +
+      cls +
+      '">' +
+      '<img src="' +
+      escapeHtml(imageSrc(item.image_url, 800)) +
+      '" alt="' +
+      alt +
+      '" loading="lazy" width="600" height="600">' +
+      "<div><span>" +
+      tag +
+      "</span><strong>" +
+      title +
+      "</strong></div></article>"
+    );
   }
 
   function renderPhotoStrip(item) {
     const label = escapeHtml(item.tag || item.title);
     const alt = escapeHtml(item.description || item.title);
-    return `
-      <article>
-        <img src="${escapeHtml(imageSrc(item.image_url, 700))}" alt="${alt}" loading="lazy" width="600" height="800">
-        <span>${label}</span>
-      </article>`;
+    return (
+      "<article>" +
+      '<img src="' +
+      escapeHtml(imageSrc(item.image_url, 700)) +
+      '" alt="' +
+      alt +
+      '" loading="lazy" width="600" height="800">' +
+      "<span>" +
+      label +
+      "</span></article>"
+    );
   }
 
   function renderPhotoGridImg(item) {
     const alt = escapeHtml(item.description || item.title);
-    return `<img src="${escapeHtml(imageSrc(item.image_url, 700))}" alt="${alt}" loading="lazy" width="600" height="600">`;
+    return (
+      '<img src="' +
+      escapeHtml(imageSrc(item.image_url, 700)) +
+      '" alt="' +
+      alt +
+      '" loading="lazy" width="600" height="600">'
+    );
   }
 
   async function fetchItems(section, category) {
-    const client = window.getSupabaseClient();
+    const client = window.getSupabaseClient && window.getSupabaseClient();
     if (!client) return null;
 
     let query = client
@@ -107,25 +174,28 @@
     return data;
   }
 
+  function hideGalleryNote(mount) {
+    const note = mount.closest("section") && mount.closest("section").querySelector(".gallery-note");
+    if (note) note.hidden = true;
+  }
+
   function mountPortfolioGrid(mount, items) {
     if (!items.length) return;
     mount.innerHTML = items.map(renderPortfolioCard).join("");
-    const note = mount.closest("section")?.querySelector(".gallery-note");
-    if (note) note.hidden = true;
+    hideGalleryNote(mount);
   }
 
   function mountArtworkGrid(mount, items) {
     if (!items.length) return;
     mount.innerHTML = items.map(renderArtworkCard).join("");
-    const note = mount.closest("section")?.querySelector(".gallery-note");
-    if (note) note.hidden = true;
+    hideGalleryNote(mount);
   }
 
   function mountPhotoMosaic(mount, items) {
     if (!items.length) return;
-    mount.innerHTML = items
-      .map((item, i) => renderPhotoTile(item, i === 0))
-      .join("");
+    mount.innerHTML = items.map(function (item, i) {
+      return renderPhotoTile(item, i === 0);
+    }).join("");
   }
 
   function mountPhotoStrip(mount, items) {
@@ -138,6 +208,19 @@
     mount.innerHTML = items.map(renderPhotoGridImg).join("");
   }
 
+  function dispatchMounted(mount, itemCount) {
+    mount.dispatchEvent(
+      new CustomEvent("studio13:gallery-mounted", {
+        bubbles: true,
+        detail: {
+          section: mount.dataset.gallerySection,
+          template: mount.dataset.galleryTemplate,
+          itemCount: itemCount,
+        },
+      })
+    );
+  }
+
   async function initMount(mount) {
     const section = mount.dataset.gallerySection;
     const category = mount.dataset.galleryCategory || null;
@@ -146,7 +229,10 @@
     if (!section || !template) return;
 
     const items = await fetchItems(section, category);
-    if (!items || !items.length) return;
+    if (!items || !items.length) {
+      dispatchMounted(mount, 0);
+      return;
+    }
 
     switch (template) {
       case "portfolio":
@@ -168,13 +254,13 @@
         break;
     }
 
-    mount.dispatchEvent(
-      new CustomEvent("studio13:gallery-mounted", { bubbles: true })
-    );
+    dispatchMounted(mount, items.length);
   }
 
   async function init() {
-    if (!window.isSupabaseConfigured || !window.isSupabaseConfigured()) return;
+    if (!window.isSupabaseConfigured || !window.isSupabaseConfigured()) {
+      return;
+    }
 
     const mounts = document.querySelectorAll("[data-gallery-mount]");
     await Promise.all(Array.from(mounts).map(initMount));

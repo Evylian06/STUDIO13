@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Galería fotográfica oficial de Studio 13 en Pucallpa — retratos, eventos, social y creativa.">
+  <meta property="og:title" content="Fotografías | Studio 13">
+  <meta property="og:description" content="Galería fotográfica — retratos, celebraciones, eventos y producción creativa en Pucallpa.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_PE">
+  <meta property="og:image" content="retrato.jpg">
   <link rel="canonical" href="fotografia.html">
   <title>Fotografías | Studio 13</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,7 +50,18 @@
       </div>
     </section>
 
-    <section class="photo-section" id="retratos">
+    <section class="photo-filters-wrap" id="galeria-fotos" aria-label="Filtros de galería">
+      <div class="photo-filters" role="group">
+        <button type="button" class="active" data-photo-filter="all" aria-pressed="true">Todo</button>
+        <button type="button" data-photo-filter="retratos" aria-pressed="false">Retratos</button>
+        <button type="button" data-photo-filter="social" aria-pressed="false">Social</button>
+        <button type="button" data-photo-filter="eventos" aria-pressed="false">Eventos</button>
+        <button type="button" data-photo-filter="creativa" aria-pressed="false">Creativa</button>
+      </div>
+      <p class="photo-filters-note">Filtra las secciones de la galería sin recargar la página.</p>
+    </section>
+
+    <section class="photo-section" id="retratos" data-photo-category="retratos">
       <div class="photo-section-head">
         <span class="kicker">Retratos</span>
         <h2>Presencia, gesto y carácter.</h2>
@@ -73,7 +89,7 @@
       </div>
     </section>
 
-    <section class="photo-section dark" id="social">
+    <section class="photo-section dark" id="social" data-photo-category="social">
       <div class="photo-section-head">
         <span class="kicker">Social</span>
         <h2>Celebraciones con memoria visual.</h2>
@@ -92,7 +108,7 @@
       </div>
     </section>
 
-    <section class="photo-section" id="eventos">
+    <section class="photo-section" id="eventos" data-photo-category="eventos">
       <div class="photo-section-head">
         <span class="kicker">Eventos</span>
         <h2>Cobertura clara, completa y oportuna.</h2>
@@ -106,9 +122,20 @@
           <a class="btn primary" href="index.html#contacto">Cotizar evento</a>
         </div>
       </div>
+      <div
+        class="photo-strip"
+        data-gallery-mount
+        data-gallery-section="studio13"
+        data-gallery-category="evento"
+        data-gallery-template="photo-strip"
+      >
+        <article><img src="evento.jpg" alt="Cobertura de evento" loading="lazy" width="600" height="800"><span>Eventos</span></article>
+        <article><img src="eventoteatro.jpeg" alt="Evento cultural" loading="lazy" width="600" height="800"><span>Producción en vivo</span></article>
+        <article><img src="eventomusic.jpeg" alt="Evento musical" loading="lazy" width="600" height="800"><span>Música y escena</span></article>
+      </div>
     </section>
 
-    <section class="photo-section dark" id="creativa">
+    <section class="photo-section dark" id="creativa" data-photo-category="creativa">
       <div class="photo-section-head">
         <span class="kicker">Creativa</span>
         <h2>Conceptos visuales para destacar.</h2>
@@ -132,7 +159,7 @@
 
     <section class="photo-final">
       <h2>Tu sesión puede ser la siguiente historia.</h2>
-      <a class="btn primary" data-contact="whatsapp" href="https://wa.me/51986627685" target="_blank" rel="noopener noreferrer">Agendar por WhatsApp</a>
+      <a class="btn primary" data-contact="whatsapp" href="#" target="_blank" rel="noopener noreferrer">Agendar por WhatsApp</a>
     </section>
   </main>
 
@@ -146,13 +173,14 @@
     </div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase-config.js"></script>
-  <script src="js/cloudinary-config.js"></script>
-  <script src="js/supabase-client.js"></script>
-  <script src="js/cloudinary-client.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/public-gallery.js"></script>
-  <script src="js/site.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="js/supabase-config.js" defer></script>
+  <script src="js/cloudinary-config.js" defer></script>
+  <script src="js/studio-utils.js" defer></script>
+  <script src="js/supabase-client.js" defer></script>
+  <script src="js/cloudinary-client.js" defer></script>
+  <script src="js/config.js" defer></script>
+  <script src="js/public-gallery.js" defer></script>
+  <script src="js/site.js" defer></script>
 </body>
 </html>

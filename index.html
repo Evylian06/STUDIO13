@@ -1,96 +1,166 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
+<!--
+  Rediseño premium Studio 13:
+  - Experiencia editorial inmersiva con navegación fluida y secciones comerciales claras.
+  - Portafolio filtrable en tiempo real con lightbox full-screen y microinteracciones.
+  - Formulario inteligente conectado a WhatsApp para cerrar cotizaciones sin fricción.
+-->
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Studio 13 — Fotografía profesional, eventos y Colorimetría Amazónica en Pucallpa, Ucayali.">
-  <meta property="og:title" content="Studio 13 | Fotografía y Colorimetría Amazónica">
-  <meta property="og:description" content="Estudio fotográfico y galería de arte con identidad amazónica en Pucallpa.">
+  <meta name="description" content="Studio 13: fotografía profesional, eventos y Colorimetría Amazónica en Pucallpa, Ucayali.">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta property="og:title" content="Studio 13 | Fotografía premium y Colorimetría Amazónica">
+  <meta property="og:description" content="Experiencias fotográficas, arte visual y dirección creativa con identidad amazónica.">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="es_PE">
-  <title>Studio 13 | Fotografía, arte y Colorimetría Amazónica</title>
+  <meta property="og:image" content="logo1.PNG">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="index.html">
+  <title>Studio 13 | Fotografía Premium y Colorimetría Amazónica</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="image" href="fondo1.jpeg">
+  <link rel="preload" as="image" href="logo1.PNG">
   <link rel="icon" href="camera.ico" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/studio.css">
+  <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
-  <nav id="nav" class="site-nav" aria-label="Navegación principal">
-    <a class="brand" href="#inicio" aria-label="Inicio Studio 13">
-      <img src="logo1.PNG" alt="Studio 13" width="95" height="95">
-    </a>
-    <div class="menu">
-      <a href="#portafolio">Portafolio</a>
-      <a href="fotografia.html">Fotografías</a>
-      <a href="#actividades">Actividades</a>
-      <a href="#servicios">Servicios</a>
-      <a href="colorimetria.html">Colorimetría</a>
-      <a href="#nosotros">Nosotros</a>
-    </div>
-    <a class="nav-cta" href="#contacto">Reservar sesión</a>
-  </nav>
+<body class="index-page">
+  <header>
+    <nav id="nav" class="site-nav" aria-label="Navegación principal">
+      <a class="brand" href="#inicio" aria-label="Inicio Studio 13">
+        <img src="logo1.PNG" alt="Studio 13" width="95" height="95">
+      </a>
+      <button type="button" class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="main-menu">Menú</button>
+      <div class="menu" id="main-menu">
+        <a href="#portafolio">Portafolio</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#colorimetria-preview">Colorimetría</a>
+        <a href="#proceso">Proceso</a>
+        <a href="#nosotros">Nosotros</a>
+      </div>
+      <a class="nav-cta" href="#contacto">Reservar sesión</a>
+    </nav>
+  </header>
 
   <main>
-    <section class="hero" id="inicio">
+    <section class="hero reveal" id="inicio" aria-labelledby="hero-title">
       <div class="hero-copy">
         <span class="eyebrow">Studio 13 Pucallpa</span>
-        <h1>Fotografía, arte y cultura visual para contar lo que eres.</h1>
-        <p>Producimos sesiones profesionales, eventos y experiencias creativas conectadas con Colorimetría Amazónica, nuestra línea dedicada al arte y la identidad local.</p>
+        <h1 id="hero-title">Fotografía premium con alma amazónica.</h1>
+        <p>Retratos, eventos y dirección visual para personas, marcas y proyectos culturales que necesitan verse memorables, confiables y profundamente humanos.</p>
         <div class="hero-actions">
-          <a class="btn primary" href="fotografia.html">Ver fotografías</a>
-          <a class="btn ghost" href="colorimetria.html">Explorar Colorimetría</a>
+          <a class="btn primary" href="#portafolio">Ver portafolio</a>
+          <a class="btn ghost" href="#contacto">Cotizar experiencia</a>
         </div>
       </div>
-      <div class="hero-panel" aria-label="Resumen de Studio 13">
+      <aside class="hero-panel" aria-label="Indicadores de Studio 13">
         <div>
           <strong>500+</strong>
           <span>proyectos realizados</span>
         </div>
         <div>
           <strong>7+</strong>
-          <span>años de experiencia</span>
+          <span>años creando imagen</span>
         </div>
+      </aside>
+    </section>
+
+    <section class="trust-strip" aria-label="Ventajas del estudio">
+      <div class="trust-badge reveal">
+        <strong>Dirección visual</strong>
+        <span>Concepto, pose, luz y narrativa para cada sesión</span>
+      </div>
+      <div class="trust-badge reveal">
+        <strong>Entrega profesional</strong>
+        <span>Selección, edición y color listos para publicar</span>
+      </div>
+      <div class="trust-badge reveal">
+        <strong>Experiencia premium</strong>
+        <span>Flujo claro desde la cotización hasta la entrega</span>
+      </div>
+      <div class="trust-badge reveal">
+        <strong>Colorimetría Amazónica</strong>
+        <span>Arte, cultura visual y memoria local</span>
       </div>
     </section>
 
-    <section class="company-block">
+    <nav class="activity-strip" aria-label="Accesos rápidos">
+      <a href="#portafolio">Portafolio</a>
+      <a href="#servicios">Servicios</a>
+      <a href="#colorimetria-preview">Colorimetría</a>
+      <a href="#proceso">Proceso</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+
+    <section class="company-block reveal" id="estudio">
       <div class="company-copy">
-        <span class="kicker">La empresa</span>
-        <h2>Un estudio fotográfico con mirada cultural.</h2>
+        <span class="kicker">La experiencia</span>
+        <h2>Una producción fotográfica pensada como pieza de marca.</h2>
         <p>
-          Studio 13 acompaña a personas, familias, emprendimientos y artistas
-          desde la idea hasta la entrega final. La fotografía es el centro,
-          pero el enfoque es más amplio: dirección creativa, color,
-          memoria visual y una experiencia cercana para cada proyecto.
+          Studio 13 acompaña a personas, familias, emprendimientos e instituciones
+          desde la idea hasta la entrega final. Cada proyecto combina dirección,
+          sensibilidad cultural, edición cuidada y una experiencia cercana.
         </p>
-        <a class="btn primary" href="fotografia.html">Entrar a la galería</a>
+        <a class="btn primary" href="#contacto">Diseñar mi sesión</a>
       </div>
-      <div class="company-media">
+      <div class="company-media" aria-label="Identidad Studio 13">
         <img src="logo1.PNG" alt="Logo Studio 13" loading="lazy" width="340" height="340">
       </div>
     </section>
 
-    <section class="portfolio section" id="portafolio">
+    <section class="explore-section reveal" aria-labelledby="explore-title">
+      <div class="section-head centered">
+        <span class="kicker">Servicios insignia</span>
+        <h2 id="explore-title">Elige la experiencia que necesitas elevar.</h2>
+        <p class="section-subtitle">Sesiones pensadas para vender, recordar, presentar y conectar con una audiencia real.</p>
+      </div>
+      <div class="explore-grid">
+        <a class="explore-card" href="#contacto" data-service-intent="Retrato premium">
+          <span>01</span>
+          <h3>Retratos premium</h3>
+          <p>Books, familia y marca personal con dirección visual completa.</p>
+          <em>Cotizar</em>
+        </a>
+        <a class="explore-card" href="#contacto" data-service-intent="Evento social">
+          <span>02</span>
+          <h3>Eventos</h3>
+          <p>Cobertura para celebraciones, instituciones y marcas.</p>
+          <em>Planear</em>
+        </a>
+        <a class="explore-card" href="#colorimetria-preview">
+          <span>03</span>
+          <h3>Colorimetría</h3>
+          <p>Arte amazónico, paletas, obra y memoria visual.</p>
+          <em>Explorar</em>
+        </a>
+        <a class="explore-card" href="#contacto" data-service-intent="Producción creativa">
+          <span>04</span>
+          <h3>Producción creativa</h3>
+          <p>Campañas, artistas y contenido comercial de alto impacto.</p>
+          <em>Crear</em>
+        </a>
+      </div>
+    </section>
+
+    <section class="portfolio section reveal" id="portafolio" aria-labelledby="portfolio-title">
       <div class="section-head">
         <div>
           <span class="kicker">Portafolio</span>
+          <h2 id="portfolio-title">Selección visual destacada.</h2>
         </div>
-        <p>Explora estilos de trabajo para eventos, retratos, quinceaños, naturaleza y propuestas artísticas. La colección completa vive en una galería independiente.</p>
+        <p>Filtra por categoría y abre cada imagen en pantalla completa para apreciar iluminación, color, composición y detalle.</p>
       </div>
-      <div class="categorias" role="group" aria-label="Filtrar portafolio">
-        <button type="button" class="active" data-filter="all" aria-pressed="true">Todo</button>
-        <button type="button" data-filter="retrato" aria-pressed="false">Retrato</button>
-        <button type="button" data-filter="social" aria-pressed="false">Social</button>
-        <button type="button" data-filter="evento" aria-pressed="false">Eventos</button>
-        <button type="button" data-filter="arte" aria-pressed="false">Arte</button>
+      <div class="portfolio-filters" data-portfolio-filter-group aria-label="Filtros de portafolio">
+        <button type="button" class="active" data-portfolio-filter="all" aria-pressed="true">Todo</button>
+        <button type="button" data-portfolio-filter="retrato" aria-pressed="false">Retrato</button>
+        <button type="button" data-portfolio-filter="social" aria-pressed="false">Social</button>
+        <button type="button" data-portfolio-filter="evento" aria-pressed="false">Eventos</button>
+        <button type="button" data-portfolio-filter="colorimetria" aria-pressed="false">Colorimetría</button>
       </div>
-      <div
-        class="grid"
-        data-gallery-mount
-        data-gallery-section="studio13"
-        data-gallery-template="portfolio"
-      >
+      <div class="grid" data-gallery-mount data-gallery-section="studio13" data-gallery-template="portfolio">
         <article class="card wide" data-category="social">
           <img src="quince.jpg" alt="Sesión social de quinceañeros" loading="lazy" width="800" height="600">
           <div class="overlay">
@@ -105,11 +175,11 @@
             <strong>Books, familia y marca personal</strong>
           </div>
         </article>
-        <article class="card" data-category="arte">
+        <article class="card" data-category="retrato">
           <img src="creativo.JPG" alt="Fotografía creativa y artística" loading="lazy" width="600" height="600">
           <div class="overlay">
-            <span>Arte</span>
-            <strong>Producción creativa</strong>
+            <span>Producción creativa</span>
+            <strong>Conceptos para campañas</strong>
           </div>
         </article>
         <article class="card" data-category="evento">
@@ -119,7 +189,7 @@
             <strong>Cobertura completa</strong>
           </div>
         </article>
-        <article class="card color-card" data-category="arte">
+        <article class="card color-card" data-category="colorimetria">
           <img src="colorimetria3.jpeg" alt="Obra vinculada a Colorimetría Amazónica" loading="lazy" width="600" height="600">
           <div class="overlay">
             <span>Colorimetría</span>
@@ -128,60 +198,60 @@
         </article>
       </div>
       <div class="portfolio-cta">
-        <span>Galería oficial de Studio 13</span>
+        <span>Galería completa disponible</span>
         <a class="btn primary" href="fotografia.html">Abrir fotografías</a>
       </div>
     </section>
 
-    <section class="color-block" id="colorimetria-preview">
+    <section class="color-block reveal" id="colorimetria-preview" aria-labelledby="color-title">
       <div class="color-media">
-        <img src="colorimetria5.jpeg" alt="Colorimetría Amazónica — arte y cultura visual" loading="lazy" width="420" height="420">
+        <img src="colorimetria5.jpeg" alt="Colorimetría Amazónica: arte y cultura visual" loading="lazy" width="420" height="420">
       </div>
       <div class="color-copy">
         <span class="kicker">Línea cultural</span>
-        <h2>Colorimetría Amazónica</h2>
+        <h2 id="color-title">Colorimetría Amazónica</h2>
         <p>Un espacio de Studio 13 para presentar obras, artistas, paletas y relatos visuales inspirados en la Amazonía. Funciona como galería, museo virtual y punto de encuentro creativo.</p>
         <div class="feature-list">
           <span>Galería de arte</span>
           <span>Artistas destacados</span>
-          <span>Exposiciones y tienda</span>
+          <span>Exposiciones</span>
         </div>
         <a class="btn primary" href="colorimetria.html">Entrar a la galería</a>
       </div>
     </section>
 
-    <section class="services section" id="servicios">
+    <section class="services section reveal" id="servicios" aria-labelledby="services-title">
       <div class="section-head centered">
         <span class="kicker">Servicios</span>
-        <h2>Soluciones creativas para cada necesidad.</h2>
+        <h2 id="services-title">Soluciones visuales para cada momento importante.</h2>
       </div>
       <div class="service-grid">
         <article class="service-card">
           <span class="service-icon">01</span>
           <h3>Fotografía profesional</h3>
           <p>Retratos, books, familia, quinceaños, bodas y sesiones personalizadas con dirección de pose, luz y estilo.</p>
-          <a href="#contacto">Cotizar sesión</a>
+          <a href="#contacto" data-service-intent="Retrato premium">Cotizar sesión</a>
         </article>
         <article class="service-card">
           <span class="service-icon">02</span>
           <h3>Eventos y empresas</h3>
           <p>Cobertura para activaciones, reuniones, marcas, instituciones y contenidos comerciales listos para publicar.</p>
-          <a href="#contacto">Planear evento</a>
+          <a href="#contacto" data-service-intent="Evento social">Planear evento</a>
         </article>
         <article class="service-card">
           <span class="service-icon">03</span>
           <h3>Arte y Colorimetría</h3>
           <p>Espacios para artistas, exposiciones, registro de obra y experiencias visuales conectadas con cultura amazónica.</p>
-          <a href="colorimetria.html">Ver proyecto</a>
+          <a href="#contacto" data-service-intent="Colorimetría Amazónica">Consultar proyecto</a>
         </article>
       </div>
     </section>
 
-    <section class="artists" id="actividades">
+    <section class="artists reveal" id="actividades" aria-labelledby="creative-title">
       <div class="section-head centered">
         <span class="kicker">Comunidad creativa</span>
-        <h2>Talento que inspira.</h2>
-        <p>Una red de fotógrafos, artistas y creadores que hacen de cada proyecto una pieza con identidad.</p>
+        <h2 id="creative-title">Talento, dirección y producción con identidad.</h2>
+        <p>Una red de fotógrafos, artistas y creadores que hacen de cada proyecto una pieza con presencia comercial y valor cultural.</p>
       </div>
       <div class="artist-grid">
         <article>
@@ -202,11 +272,11 @@
       </div>
     </section>
 
-    <section class="about" id="nosotros">
+    <section class="about reveal" id="nosotros" aria-labelledby="about-title">
       <div class="about-copy">
         <img src="logo1.PNG" alt="Studio 13" loading="lazy" width="94" height="94">
         <span class="kicker">Nosotros</span>
-        <h2>Más que fotografías, creamos experiencias.</h2>
+        <h2 id="about-title">Más que fotografías, diseñamos experiencias visuales.</h2>
         <p>Nos involucramos en el antes, durante y después: escuchamos tu idea, definimos una ruta visual, producimos la sesión y entregamos imágenes cuidadas para guardar, compartir o vender.</p>
         <div class="stats">
           <div><strong>500+</strong><span>proyectos</span></div>
@@ -214,16 +284,16 @@
           <div><strong>100+</strong><span>colaboradores</span></div>
         </div>
       </div>
-      <div class="about-image" role="img" aria-label="Equipo fotográfico de Studio 13"></div>
+      <div class="about-image" role="img" aria-label="Producción creativa de Studio 13"></div>
     </section>
 
-    <section class="process section">
+    <section class="process section reveal" id="proceso" aria-labelledby="process-title">
       <div class="section-head centered">
         <span class="kicker">Proceso</span>
-        <h2>Así trabajamos contigo.</h2>
+        <h2 id="process-title">Un flujo simple, premium y sin incertidumbre.</h2>
       </div>
       <div class="steps">
-        <article><span>1</span><strong>Contacto</strong><p>Conversamos sobre la idea, fecha, referencias y objetivo.</p></article>
+        <article><span>1</span><strong>Brief</strong><p>Conversamos sobre la idea, fecha, referencias y objetivo comercial o emocional.</p></article>
         <article><span>2</span><strong>Producción</strong><p>Preparamos locación, estilo, encuadres y recursos visuales.</p></article>
         <article><span>3</span><strong>Sesión</strong><p>Capturamos el material con dirección cercana y profesional.</p></article>
         <article><span>4</span><strong>Entrega</strong><p>Editamos color, seleccionamos detalles y compartimos el resultado final.</p></article>
@@ -233,22 +303,47 @@
 
   <footer id="contacto">
     <div class="footer-main">
-      <div>
+      <div class="footer-cta">
+        <span class="kicker">Cotización</span>
         <h2>Hagamos visible tu próxima historia.</h2>
-        <a class="btn primary" data-contact="whatsapp" href="https://wa.me/51986627685" target="_blank" rel="noopener noreferrer">Escribir por WhatsApp</a>
+        <p>Completa esta solicitud y abriremos WhatsApp con un mensaje profesional listo para enviar al equipo de Studio 13.</p>
+        <form id="whatsapp-form">
+          <div class="form-field">
+            <label for="client-name">Nombre</label>
+            <input id="client-name" name="name" type="text" placeholder="Tu nombre completo" autocomplete="name" required>
+          </div>
+          <div class="form-field">
+            <label for="client-phone">Teléfono</label>
+            <input id="client-phone" name="phone" type="tel" placeholder="+51 9XXXXXXXX" autocomplete="tel" required>
+          </div>
+          <div class="form-field">
+            <label for="client-service">Servicio</label>
+            <select id="client-service" name="service" required>
+              <option value="Retrato premium">Retrato premium</option>
+              <option value="Evento social">Evento social</option>
+              <option value="Fotografía corporativa">Fotografía corporativa</option>
+              <option value="Colorimetría Amazónica">Colorimetría Amazónica</option>
+              <option value="Producción creativa">Producción creativa</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="client-date">Fecha tentativa</label>
+            <input id="client-date" name="date" type="date" required>
+          </div>
+          <button class="btn primary" type="submit">Enviar por WhatsApp</button>
+        </form>
       </div>
       <div class="footer-col">
         <h3>Navegación</h3>
         <a href="#inicio">Inicio</a>
         <a href="#portafolio">Portafolio</a>
-        <a href="fotografia.html">Fotografías</a>
         <a href="#servicios">Servicios</a>
-        <a href="colorimetria.html">Colorimetría</a>
+        <a href="#colorimetria-preview">Colorimetría</a>
       </div>
       <div class="footer-col">
         <h3>Contacto</h3>
         <p data-contact="phone"></p>
-        <p><a data-contact="email" href="mailto:studio13@gmail.com"></a></p>
+        <p><a data-contact="email" href="#"></a></p>
         <p data-contact="address"></p>
       </div>
       <div class="footer-col">
@@ -266,13 +361,39 @@
     </div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase-config.js"></script>
-  <script src="js/cloudinary-config.js"></script>
-  <script src="js/supabase-client.js"></script>
-  <script src="js/cloudinary-client.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/public-gallery.js"></script>
-  <script src="js/site.js"></script>
+  <div id="portfolio-lightbox" class="portfolio-lightbox" hidden role="dialog" aria-modal="true" aria-label="Vista ampliada del portafolio">
+    <div class="lightbox-backdrop" data-lightbox-close></div>
+    <div class="lightbox-panel">
+      <button type="button" class="lightbox-close" data-lightbox-close aria-label="Cerrar galería">×</button>
+      <button type="button" class="lightbox-arrow prev" data-lightbox-prev aria-label="Foto anterior">‹</button>
+      <button type="button" class="lightbox-arrow next" data-lightbox-next aria-label="Foto siguiente">›</button>
+      <figure>
+        <img class="lightbox-img" src="" alt="">
+        <figcaption class="lightbox-caption"></figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "Studio 13",
+    "description": "Estudio fotográfico premium y galería de arte con identidad amazónica en Pucallpa, Ucayali.",
+    "areaServed": "Pucallpa, Ucayali, Perú",
+    "telephone": "+51 986 627 685",
+    "email": "studio13@gmail.com"
+  }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="js/supabase-config.js" defer></script>
+  <script src="js/cloudinary-config.js" defer></script>
+  <script src="js/studio-utils.js" defer></script>
+  <script src="js/supabase-client.js" defer></script>
+  <script src="js/cloudinary-client.js" defer></script>
+  <script src="js/config.js" defer></script>
+  <script src="js/public-gallery.js" defer></script>
+  <script src="js/script.js" defer></script>
+  <script src="js/premium-session.js" defer></script>
 </body>
 </html>

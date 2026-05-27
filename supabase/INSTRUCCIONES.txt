@@ -58,3 +58,6 @@ NOTAS
 - Sube JPG o WebP optimizados (no RAW/TIFF en la web).
 - storage_path en la base de datos guarda el public_id de Cloudinary.
 - Si falta configuración, la web muestra el HTML estático de respaldo.
+- Categorías del sitio: js/categories.js (deben coincidir con el panel admin).
+- No subas js/supabase-config.js ni js/cloudinary-config.js al repositorio público;
+  usa los archivos .example.js y configura en el servidor de despliegue.

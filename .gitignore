@@ -1,0 +1,9 @@
+# Credenciales locales (usar archivos .example.js como plantilla)
+js/supabase-config.js
+js/cloudinary-config.js
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
+node_modules/
