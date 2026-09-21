@@ -1,32 +1,119 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,400;1,9..144,200;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500&display=swap');
+@import 'tailwindcss';
 
-:root {
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color: #111827;
-  background: #ffffff;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
-  margin: 0;
-  min-width: 320px;
+  background: #ffffff;
+  color: #1a1818;
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
 }
 
-#root {
-  min-height: 100vh;
+/* --- Typography scale --- */
+.t-display {
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic;
+  font-weight: 200;
+  letter-spacing: 0.01em;
+  line-height: 1.0;
 }
 
-* {
-  box-sizing: border-box;
+.t-heading {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.15;
+}
+
+.t-label {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 0.65rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #9a9490;
+}
+
+.t-body {
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: #7a7875;
+}
+
+/* --- Accent rule (red, only used sparingly) --- */
+.accent-rule {
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: #a51c1c;
+  margin: 0.75rem 0;
+}
+
+/* --- Buttons --- */
+.btn-ghost {
+  display: inline-block;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #1a1818;
+  text-decoration: none;
+  padding-bottom: 2px;
+  border-bottom: 1px solid #1a1818;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.btn-ghost:hover {
+  color: #a51c1c;
+  border-color: #a51c1c;
+}
+
+.btn-ghost-white {
+  display: inline-block;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-decoration: none;
+  padding-bottom: 2px;
+  border-bottom: 1px solid rgba(244,243,240,0.5);
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.btn-ghost-white:hover {
+  color: #fff;
+  border-color: #fff;
+}
+
+/* --- Scrollbar --- */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c9c6c0; }
+
+/* --- Responsive helpers --- */
+@media (max-width: 768px) {
+  .hide-sm { display: none !important; }
+  .show-sm { display: block !important; }
+}
+@media (min-width: 769px) {
+  .hide-sm { display: block !important; }
+  .show-sm { display: none !important; }
 }
