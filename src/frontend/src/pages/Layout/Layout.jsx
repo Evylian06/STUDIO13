@@ -1,100 +1,84 @@
-
-import { useState, useEffect } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router'
+import { useState, useEffect } from "react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
+import studio13Logo from "../../assets/studio13.PNG";
 
 const navLinks = [
-  { to: '/', label: 'Inicio' },
-  { to: '/servicios', label: 'Servicios' },
-  { to: '/portafolio', label: 'Portafolio' },
-  { to: '/paquetes', label: 'Paquetes' },
-  { to: '/nosotros', label: 'Nosotros' },
-  { to: '/contacto', label: 'Contacto' },
-]
+  { to: "/", label: "Inicio" },
+  { to: "/servicios", label: "Servicios" },
+  { to: "/portafolio", label: "Portafolio" },
+  { to: "/paquetes", label: "Paquetes" },
+  { to: "/nosotros", label: "Nosotros" },
+  { to: "/contacto", label: "Contacto" },
+];
 
-export default function Layout() {
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const location = useLocation()
-  const isHome = location.pathname === '/'
+export default function Layout({ children }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
+  const isHome = location.pathname === "/";
+  const onLight = !isHome;
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60)
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-  useEffect(() => { setMenuOpen(false) }, [location.pathname])
-
-  // On home: nav is transparent over the hero until scrolled, then opaque dark.
-  // On other pages: nav is always white with dark text.
-  const onLight = !isHome
-  const navBg = isHome
-    ? scrolled ? 'rgba(12,11,11,0.97)' : 'transparent'
-    : '#ffffff'
-  const textColor = onLight ? '#1a1818' : '#ffffff'
-  const borderColor = onLight ? 'rgba(26,24,24,0.08)' : scrolled ? 'rgba(255,255,255,0.06)' : 'transparent'
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#ffffff' }}>
-
+    <div className="min-h-screen flex flex-col bg-white">
       {/* ── NAV ── */}
-      <nav style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        background: navBg,
-        borderBottom: `1px solid ${borderColor}`,
-        backdropFilter: (isHome && scrolled) ? 'blur(12px)' : 'none',
-        transition: 'background 0.4s, border-color 0.4s',
-      }}>
-        <div style={{
-          maxWidth: 1360, margin: '0 auto',
-          padding: '0 2.5rem',
-          height: 58,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        }}>
-
+      <nav
+        className={[
+          "fixed top-0 left-0 right-0 z-[100] border-b transition-all duration-400",
+          isHome
+            ? scrolled
+              ? "bg-[rgba(12,11,11,0.97)] border-white/5 backdrop-blur-md"
+              : "bg-transparent border-transparent"
+            : "bg-white border-black/[0.08]",
+        ].join(" ")}
+      >
+        <div className="max-w-[1360px] mx-auto px-10 h-[58px] flex items-center justify-between">
           {/* Logo */}
-          <NavLink to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
-             <img src="/src/assets/studio13.png" alt="Studio13" className="w-25 h-25 object-cover"/>
+          <NavLink to="/" className="no-underline flex items-baseline">
+            <img
+              src={studio13Logo}
+              alt="Studio13"
+              className="h-10 w-auto object-contain"
+            />
           </NavLink>
 
           {/* Desktop links */}
-          <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }} className="hide-sm">
-            {navLinks.map(link => (
+          <div className="hidden md:flex items-center gap-10">
+            {navLinks.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
-                end={link.to === '/'}
-                style={({ isActive }) => ({
-                  fontFamily: 'Inter, sans-serif',
-                  fontWeight: 400,
-                  fontSize: '0.65rem',
-                  letterSpacing: '0.22em',
-                  textTransform: 'uppercase',
-                  color: isActive ? '#a51c1c' : textColor,
-                  textDecoration: 'none',
-                  opacity: isActive ? 1 : 0.75,
-                  transition: 'color 0.2s, opacity 0.2s',
-                })}
-                onMouseEnter={e => { e.currentTarget.style.opacity = '1' }}
-                onMouseLeave={e => {}}
+                end={link.to === "/"}
+                className={({ isActive }) =>
+                  [
+                    "font-['Inter'] text-[0.65rem] tracking-[0.22em] uppercase no-underline transition-all duration-200",
+                    isActive
+                      ? "text-[#a51c1c] opacity-100"
+                      : onLight
+                        ? "text-[#1a1818] opacity-75 hover:opacity-100"
+                        : "text-white opacity-75 hover:opacity-100",
+                  ].join(" ")
+                }
               >
                 {link.label}
               </NavLink>
             ))}
+
             <NavLink
               to="/contacto"
-              style={{
-                fontFamily: 'Inter, sans-serif',
-                fontWeight: 400,
-                fontSize: '0.65rem',
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                color: textColor,
-                textDecoration: 'none',
-                paddingBottom: '2px',
-                borderBottom: '1px solid #a51c1c',
-                transition: 'color 0.2s',
-              }}
+              className={[
+                "font-['Inter'] text-[0.65rem] tracking-[0.22em] uppercase no-underline pb-0.5 border-b border-[#a51c1c] transition-colors duration-200",
+                onLight ? "text-[#1a1818]" : "text-white",
+              ].join(" ")}
             >
               Reservar
             </NavLink>
@@ -103,50 +87,38 @@ export default function Layout() {
           {/* Mobile hamburger */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="show-sm"
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              display: 'none', flexDirection: 'column', gap: 5, padding: 4,
-            }}
+            className="md:hidden flex flex-col gap-[5px] p-1 bg-transparent border-0 cursor-pointer"
             aria-label="Menú"
           >
-            {[0, 1, 2].map(i => (
-              <span key={i} style={{
-                display: 'block', width: 22, height: 1,
-                background: textColor,
-                transition: 'all 0.25s',
-                opacity: i === 1 && menuOpen ? 0 : 1,
-                transform: i === 0 && menuOpen ? 'rotate(45deg) translate(4px, 4px)'
-                  : i === 2 && menuOpen ? 'rotate(-45deg) translate(4px, -4px)' : 'none',
-              }} />
+            {[0, 1, 2].map((i) => (
+              <span
+                key={i}
+                className={[
+                  "block w-[22px] h-px transition-all duration-250",
+                  onLight ? "bg-[#1a1818]" : "bg-white",
+                  i === 1 && menuOpen ? "opacity-0" : "",
+                  i === 0 && menuOpen ? "rotate-45 translate-y-[6px]" : "",
+                  i === 2 && menuOpen ? "-rotate-45 -translate-y-[6px]" : "",
+                ].join(" ")}
+              />
             ))}
           </button>
         </div>
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div style={{
-            background: '#ffffff',
-            borderTop: '1px solid rgba(26,24,24,0.08)',
-            padding: '1.5rem 2.5rem 2rem',
-          }}>
-            {navLinks.map(link => (
+          <div className="md:hidden bg-white border-t border-black/[0.08] px-10 pt-6 pb-8">
+            {navLinks.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
-                end={link.to === '/'}
-                style={({ isActive }) => ({
-                  display: 'block',
-                  fontFamily: 'Inter, sans-serif',
-                  fontWeight: 400,
-                  fontSize: '0.7rem',
-                  letterSpacing: '0.22em',
-                  textTransform: 'uppercase',
-                  color: isActive ? '#a51c1c' : '#1a1818',
-                  textDecoration: 'none',
-                  padding: '0.75rem 0',
-                  borderBottom: '1px solid rgba(26,24,24,0.06)',
-                })}
+                end={link.to === "/"}
+                className={({ isActive }) =>
+                  [
+                    "block font-['Inter'] text-[0.7rem] tracking-[0.22em] uppercase no-underline py-3 border-b border-black/[0.06]",
+                    isActive ? "text-[#a51c1c]" : "text-[#1a1818]",
+                  ].join(" ")
+                }
               >
                 {link.label}
               </NavLink>
@@ -155,100 +127,77 @@ export default function Layout() {
         )}
       </nav>
 
-      <style>{`
-        @media (max-width: 768px) {
-          .hide-sm { display: none !important; }
-          .show-sm { display: flex !important; }
-        }
-        @media (min-width: 769px) {
-          .hide-sm { display: flex !important; }
-          .show-sm { display: none !important; }
-        }
-      `}</style>
-
       {/* ── PAGE ── */}
-      <div style={{ paddingTop: isHome ? 0 : 58 }}>
-        <Outlet />
-      </div>
+      <main className={`flex-1 ${isHome ? "pt-0" : "pt-[58px]"}`}>
+        {children ?? <Outlet />}
+      </main>
 
       {/* ── FOOTER ── */}
-      <footer style={{
-        background: '#111010',
-        color: '#ffffff',
-      }}>
-        <div style={{
-          maxWidth: 1360, margin: '0 auto',
-          padding: '4rem 2.5rem 2.5rem',
-          display: 'grid',
-          gridTemplateColumns: '2fr 1fr 1fr 1fr',
-          gap: '3rem',
-        }}>
+      <footer className="bg-[#111010] text-white mt-auto">
+        <div className="max-w-[1360px] mx-auto px-10 pt-16 pb-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] gap-12">
           <div>
-            <div style={{ fontFamily: 'Fraunces, Georgia, serif', fontStyle: 'italic', fontWeight: 200, fontSize: '1.8rem', marginBottom: '1.25rem', letterSpacing: '0.04em' }}>
-              <span style={{ color: '#ffffff' }}>Studio</span>
-              <span style={{ color: '#a51c1c' }}>13</span>
+            <div className="font-['Fraunces',Georgia,serif] italic font-[200] text-[1.8rem] mb-5 tracking-[0.04em]">
+              <img src={studio13Logo} alt="Studio13" className="h-10 w-auto object-contain" />
             </div>
-            <p className="t-body" style={{ color: '#5a5856', maxWidth: 260, lineHeight: 1.8 }}>
-              Cada imagen es una forma de volver a vivir. Puerto Cito, Costa Rica.
+            <p className="font-['Inter'] font-light text-[0.875rem] leading-[1.8] tracking-wide text-[#5a5856] max-w-[260px]">
+              Cada imagen es una forma de volver a vivir. Puerto Cito, Costa
+              Rica.
             </p>
           </div>
 
           {[
             {
-              label: 'Páginas',
-              links: navLinks.map(l => ({ href: l.to, text: l.label })),
+              label: "Páginas",
+              links: navLinks.map((l) => ({ href: l.to, text: l.label })),
             },
             {
-              label: 'Contacto',
+              label: "Contacto",
               links: [
-                { href: 'https://wa.me/50688862187', text: '+506 8886‑2187' },
-                { href: 'mailto:studio13@gmail.com', text: 'studio13@gmail.com' },
-                { href: '#', text: 'Puerto Cito, CR' },
+                { href: "https://wa.me/50688862187", text: "+506 8886‑2187" },
+                {
+                  href: "mailto:studio13@gmail.com",
+                  text: "studio13@gmail.com",
+                },
+                { href: "#", text: "Puerto Cito, CR" },
               ],
             },
             {
-              label: 'Horario',
+              label: "Horario",
               links: [
-                { href: '#', text: 'L–V  8–18 h' },
-                { href: '#', text: 'Sáb  8–16 h' },
-                { href: '#', text: 'Dom  con cita' },
+                { href: "#", text: "L–V  8–18 h" },
+                { href: "#", text: "Sáb  8–16 h" },
+                { href: "#", text: "Dom  con cita" },
               ],
             },
-          ].map(col => (
+          ].map((col) => (
             <div key={col.label}>
-              <p className="t-label" style={{ color: '#4a4846', marginBottom: '1.25rem' }}>{col.label}</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                {col.links.map(l => (
-                  <a key={l.text} href={l.href} style={{
-                    fontFamily: 'Inter, sans-serif',
-                    fontWeight: 300,
-                    fontSize: '0.8rem',
-                    color: '#7a7875',
-                    textDecoration: 'none',
-                    transition: 'color 0.2s',
-                  }}
-                    onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')}
-                    onMouseLeave={e => (e.currentTarget.style.color = '#7a7875')}
-                  >{l.text}</a>
+              <p className="font-['Inter'] text-[0.62rem] tracking-[0.32em] uppercase text-[#4a4846] mb-5">
+                {col.label}
+              </p>
+              <div className="flex flex-col gap-2.5">
+                {col.links.map((l) => (
+                  <a
+                    key={l.text}
+                    href={l.href}
+                    className="font-['Inter'] font-light text-[0.8rem] text-[#7a7875] no-underline transition-colors duration-200 hover:text-white"
+                  >
+                    {l.text}
+                  </a>
                 ))}
               </div>
             </div>
           ))}
         </div>
 
-        <div style={{
-          borderTop: '1px solid rgba(244,243,240,0.06)',
-          padding: '1.25rem 2.5rem',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        }}>
-          <p style={{ fontFamily: 'Inter', fontWeight: 300, fontSize: '0.7rem', color: '#3a3836', letterSpacing: '0.05em' }}>
+        <div className="border-t border-white/[0.06] px-10 py-5 flex flex-col sm:flex-row justify-between items-center gap-2">
+          <p className="font-['Inter'] font-light text-[0.7rem] text-[#3a3836] tracking-[0.05em]">
             © 2025 Studio13
           </p>
-          <p style={{ fontFamily: 'Inter', fontWeight: 300, fontSize: '0.7rem', color: '#3a3836', letterSpacing: '0.05em' }}>
+          <p className="font-['Inter'] font-light text-[0.7rem] text-[#3a3836] tracking-[0.05em]">
             Fotografía Profesional · Costa Rica
           </p>
         </div>
       </footer>
     </div>
-  )
+  );
 }
