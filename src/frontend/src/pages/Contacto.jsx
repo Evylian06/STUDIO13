@@ -20,7 +20,7 @@ export default function Contacto() {
     <Layout>
       <div className="bg-white">
         {/* ── HERO ── */}
-        <section className="relative h-[60vh] min-h-[400px] overflow-hidden bg-[#1a1818]">
+        <section className="relative h-[60vh] min-h-100 overflow-hidden bg-[#1a1818]">
           <img
             src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1800&h=900&fit=crop&auto=format&q=85"
             alt="Estudio fotográfico Studio13"
@@ -29,19 +29,19 @@ export default function Contacto() {
 
           <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(12,11,11,0.8)_0%,transparent_65%)]" />
 
-          <div className="absolute bottom-12 left-12 max-w-[31.25rem]">
-            <p className="t-label mb-4 !text-[rgba(244,243,240,0.4)]">
+          <div className="absolute bottom-12 left-12 max-w-125">
+            <p className="t-label mb-4 text-[rgba(244,243,240,0.4)]!">
               Contacto
             </p>
 
-            <h1 className="font-[Fraunces,Georgia,serif] italic font-[200] text-[clamp(2.5rem,5vw,4.5rem)] text-white tracking-[0.04em] leading-none">
+            <h1 className="font-[Fraunces,Georgia,serif] italic font-extralight text-[clamp(2.5rem,5vw,4.5rem)] text-white tracking-[0.04em] leading-none">
               Agenda tu sesión
             </h1>
           </div>
         </section>
 
         {/* ── MAIN CONTENT ── */}
-        <section className="py-20 px-12 max-w-[85rem] mx-auto">
+        <section className="py-20 px-12 max-w-340 mx-auto">
           <div className="grid grid-cols-[1fr_1.2fr] gap-20 items-start">
             {/* ── LEFT: info ── */}
             <div>
@@ -93,7 +93,7 @@ export default function Contacto() {
                   key={day}
                   className="flex justify-between py-[0.6rem] border-b border-[rgba(26,24,24,0.06)]"
                 >
-                  <span className="t-body !text-[0.8rem]">{day}</span>
+                  <span className="t-body text-[0.8rem]!">{day}</span>
 
                   <span className="font-['Inter'] font-normal text-[0.8rem] text-[#1a1818]">
                     {time}
@@ -112,13 +112,13 @@ export default function Contacto() {
                   <div
                     key={i}
                     className={`overflow-hidden bg-[#dedad4] ${
-                      i < 2 ? "aspect-[5/4]" : "aspect-[4/3]"
+                      i < 2 ? "aspect-5/4" : "aspect-4/3"
                     }`}
                   >
                     <img
                       src={src}
                       alt="Studio13"
-                      className="w-full h-full object-cover block opacity-[0.88] transition-transform duration-[600ms] ease-out hover:scale-[1.05]"
+                      className="w-full h-full object-cover block opacity-[0.88] transition-transform duration-600 ease-out hover:scale-[1.05]"
                     />
                   </div>
                 ))}
@@ -131,7 +131,7 @@ export default function Contacto() {
                 <div className="py-16 text-center">
                   <span className="accent-rule mx-auto mb-8" />
 
-                  <h2 className="font-[Fraunces,Georgia,serif] italic font-[200] text-[2.5rem] text-[#1a1818] mb-4">
+                  <h2 className="font-[Fraunces,Georgia,serif] italic font-extralight text-[2.5rem] text-[#1a1818] mb-4">
                     ¡Listo!
                   </h2>
 
@@ -238,7 +238,7 @@ export default function Contacto() {
                         Enviar solicitud
                       </button>
 
-                      <p className="t-body !text-[0.7rem] mt-4 !text-[#aaa8a4]">
+                      <p className="t-body text-[0.7rem]! mt-4 text-[#aaa8a4]!">
                         Respondemos en menos de 24 horas.
                       </p>
                     </div>
@@ -269,14 +269,14 @@ export default function Contacto() {
                   ],
                 ].map(([title, desc]) => (
                   <div key={title} className="flex gap-4 mb-5">
-                    <span className="w-px bg-[#a51c1c] shrink-0 mt-[3px]" />
+                    <span className="w-px bg-[#a51c1c] shrink-0 mt-0.75" />
 
                     <div>
                       <p className="font-['Inter'] font-normal text-[0.78rem] text-[#1a1818] mb-[0.2rem]">
                         {title}
                       </p>
 
-                      <p className="t-body !text-[0.75rem]">{desc}</p>
+                      <p className="t-body text-[0.75rem]!">{desc}</p>
                     </div>
                   </div>
                 ))}
