@@ -54,15 +54,15 @@ const Inicio = () => {
     <Layout>
       <div className="bg-white">
         {/* ── HERO ── */}
-        <section className="relative h-svh min-h-[600px] overflow-hidden bg-[#0c0b0b]">
+        <section className="relative h-svh min-h-150 overflow-hidden bg-[#0c0b0b]">
           <img
             src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=2000&h=1300&fit=crop&auto=format&q=90"
             alt="Studio 13 — fotografía profesional"
             className="absolute inset-0 w-full h-full object-cover object-[center_30%] opacity-70"
           />
-          <div className="absolute bottom-0 left-0 right-0 h-[55%] bg-gradient-to-t from-[rgba(12,11,11,0.88)] to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-[55%] bg-linear-to-t from-[rgba(12,11,11,0.88)] to-transparent" />
 
-          <div className="absolute bottom-16 left-12 max-w-[560px]">
+          <div className="absolute bottom-16 left-12 max-w-140">
             <p className="font-['Inter'] font-normal text-[0.62rem] tracking-[0.32em] uppercase text-[rgba(244,243,240,0.5)] mb-[1.1rem]">
               Puerto Cito, Costa Rica — Est. 2017
             </p>
@@ -71,7 +71,7 @@ const Inicio = () => {
               alt="Studio13"
               className="h-10 w-auto object-contain mb-8"
             />
-            <p className="font-['Inter'] font-light text-[0.82rem] tracking-[0.12em] text-[rgba(244,243,240,0.6)] leading-[1.7] max-w-[340px] mb-8">
+            <p className="font-['Inter'] font-light text-[0.82rem] tracking-[0.12em] text-[rgba(244,243,240,0.6)] leading-[1.7] max-w-85 mb-8">
               Fotografía profesional que convierte momentos en imágenes que
               duran para siempre.
             </p>
@@ -92,25 +92,27 @@ const Inicio = () => {
           </div>
 
           <div className="absolute bottom-8 right-12 flex flex-col items-center gap-2">
-            <div className="w-px h-12 bg-gradient-to-b from-transparent to-[rgba(244,243,240,0.35)]" />
+            <div className="w-px h-12 bg-linear-to-b from-transparent to-[rgba(244,243,240,0.35)]" />
             <p className="font-['Inter'] text-[0.58rem] tracking-[0.2em] uppercase text-[rgba(244,243,240,0.3)] [writing-mode:vertical-rl]">
               scroll
             </p>
           </div>
         </section>
 
-        <section className="min-h-[720px] py-24 px-8 md:px-12 max-w-[1360px] mx-auto flex items-center">
+        <section className="min-h-212.5 py-24 px-8 md:px-12 max-w-340 mx-auto flex items-center">
           <div className="w-full grid grid-cols-1 xl:grid-cols-[1fr_1fr] gap-10 xl:gap-12 items-center">
             {/* Texto */}
-            <div className="w-full flex flex-col justify-center items-center text-left">
-              <div className="w-full">
-                <p className="font-['Inter'] text-[0.62rem] tracking-[0.32em] uppercase text-[#4a4846] mb-8">
+           <div className="w-full h-full flex flex-col items-center text-center">
+              {/* Etiqueta */}
+              <div className="mb-10">
+                <p className="font-['Inter'] text-[0.62rem] tracking-[0.32em] uppercase text-[#4a4846]">
                   Nuestra especialidad
                 </p>
               </div>
 
-              <div className="w-full">
-                <h2 className="font-['Fraunces',Georgia,serif] italic font-[200] text-[clamp(3.5rem,5vw,5.5rem)] leading-[0.95] tracking-[-0.02em] text-[#1a1818] mb-10">
+              {/* Título completo */}
+              <div className="w-full mb-10 flex justify-center">
+                <h2 className="font-['Fraunces',Georgia,serif] italic font-extralight text-[clamp(3.5rem,5vw,5.5rem)] leading-[0.95] tracking-[-0.02em] text-[#1a1818] text-left">
                   Fotografías
                   <span className="block">que</span>
                   <span className="block">cuentan</span>
@@ -118,18 +120,21 @@ const Inicio = () => {
                 </h2>
               </div>
 
-              <div className="w-full">
-                <span className="block w-10 h-px bg-[#a51c1c] mb-8" />
+              {/* Línea */}
+              <div className="w-full mb-20 flex justify-center">
+                <span className="block w-10 h-px bg-[#a51c1c]" />
               </div>
 
-              <div className="w-full">
-                <p className="font-['Inter'] font-light text-[0.95rem] leading-[1.9] tracking-[0.01em] text-[#5a5856] max-w-[360px] mb-10">
+              {/* Descripción */}
+              <div className="mb-10">
+                <p className="font-['Inter'] font-light text-[0.95rem] leading-[1.9] tracking-[0.01em] text-[#5a5856] max-w-90">
                   Desde sesiones íntimas en nuestro estudio equipado hasta
                   exteriores y eventos. Cada encuadre, deliberado.
                 </p>
               </div>
 
-              <div className="w-full">
+              {/* Botón */}
+              <div>
                 <Link
                   to="/servicios"
                   className="inline-block font-['Inter'] text-[0.7rem] tracking-[0.18em] uppercase text-[#1a1818] border-b border-[#1a1818] pb-3 transition-all duration-300 hover:text-[#a51c1c] hover:border-[#a51c1c]"
@@ -140,9 +145,9 @@ const Inicio = () => {
             </div>
 
             {/* Imágenes */}
-            <div className="grid grid-cols-[1.15fr_1fr] gap-3 w-full max-w-[780px] h-[520px]">
+            <div className="grid grid-cols-[1.15fr_1fr] gap-3 w-full max-w-195 h-130">
               {/* Imagen principal */}
-              <div className="relative overflow-hidden h-[520px]">
+              <div className="relative overflow-hidden h-130">
                 <img
                   src="https://images.unsplash.com/photo-1529636798458-92182e662485?w=900&h=1100&fit=crop&auto=format&q=85"
                   alt="Boda con ramo"
@@ -151,7 +156,7 @@ const Inicio = () => {
               </div>
 
               {/* Columna derecha */}
-              <div className="grid grid-rows-2 gap-3 h-[520px]">
+              <div className="grid grid-rows-2 gap-3 h-130">
                 <div className="relative overflow-hidden">
                   <img
                     src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=900&h=900&fit=crop&auto=format&q=85"
@@ -191,9 +196,9 @@ const Inicio = () => {
                   alt={cat.label}
                   className="w-full h-full object-cover block transition-all duration-700 ease-out opacity-75 group-hover:scale-105 group-hover:opacity-90"
                 />
-                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[rgba(12,11,11,0.7)] to-transparent">
+                <div className="absolute bottom-0 left-0 right-0 p-6 bg-linear-to-t from-[rgba(12,11,11,0.7)] to-transparent">
                   <p
-                    className={`font-['Fraunces',Georgia,serif] italic font-[200] text-white tracking-[0.04em] ${i === 0 ? "text-[2.2rem]" : "text-[1.4rem]"}`}
+                    className={`font-['Fraunces',Georgia,serif] italic font-extralight text-white tracking-[0.04em] ${i === 0 ? "text-[2.2rem]" : "text-[1.4rem]"}`}
                   >
                     {cat.label}
                   </p>
@@ -212,15 +217,15 @@ const Inicio = () => {
           </div>
         </section>
         {/* ── STATEMENT ── */}
-        <section className="py-32 px-12 max-w-[900px] mx-auto text-center">
+        <section className="py-32 px-12 max-w-225 mx-auto text-center">
           <p className="font-['Inter'] text-[0.62rem] tracking-[0.32em] uppercase text-[#4a4846] mb-10">
             Filosofía
           </p>
-          <blockquote className="font-['Fraunces',Georgia,serif] italic font-[200] text-[clamp(1.8rem,3.5vw,3.2rem)] leading-[1.25] tracking-[0.02em] text-[#1a1818]">
+          <blockquote className="font-['Fraunces',Georgia,serif] italic font-extralight text-[clamp(1.8rem,3.5vw,3.2rem)] leading-tight tracking-[0.02em] text-[#1a1818]">
             &ldquo;Cada fotografía es una forma de volver a vivir.&rdquo;
           </blockquote>
           <span className="block w-10 h-px bg-[#a51c1c] mx-auto my-8" />
-          <p className="font-['Inter'] font-light text-[0.875rem] leading-relaxed tracking-wide text-[#5a5856] max-w-[420px] mx-auto">
+          <p className="font-['Inter'] font-light text-[0.875rem] leading-relaxed tracking-wide text-[#5a5856] max-w-105 mx-auto">
             En Studio13 creamos imágenes que resisten el paso del tiempo. No
             poses forzadas — momentos auténticos, luz cuidada, historias
             verdaderas.
@@ -228,17 +233,17 @@ const Inicio = () => {
         </section>
         {/* ── TESTIMONIALS ── */}
         <section className="py-20 px-12 pb-24 bg-[#111010]">
-          <div className="max-w-[1360px] mx-auto">
+          <div className="max-w-340 mx-auto">
             <p className="font-['Inter'] text-[0.62rem] tracking-[0.32em] uppercase text-[#4a4846] mb-12">
               Testimonios
             </p>
 
             <div className="grid grid-cols-[1fr_1.6fr] gap-20 items-start">
               <div>
-                <p className="font-['Fraunces',Georgia,serif] italic font-[200] text-[clamp(1.4rem,2.5vw,2rem)] text-[#e8e6e2] leading-[1.45] tracking-[0.02em] mb-8">
+                <p className="font-['Fraunces',Georgia,serif] italic font-extralight text-[clamp(1.4rem,2.5vw,2rem)] text-[#e8e6e2] leading-[1.45] tracking-[0.02em] mb-8">
                   &ldquo;{testimonials[activeT].text}&rdquo;
                 </p>
-                <p className="font-['Inter'] font-light text-[0.78rem] text-[#5a5856] tracking-[0.1em]">
+                <p className="font-['Inter'] font-light text-[0.78rem] text-[#5a5856] tracking-widest">
                   — {testimonials[activeT].name}
                 </p>
                 <p className="font-['Inter'] font-light text-[0.7rem] text-[#3a3836] tracking-[0.08em] mt-1">
@@ -271,7 +276,7 @@ const Inicio = () => {
                     }`}
                   >
                     <p
-                      className={`font-['Inter'] font-normal text-[0.75rem] tracking-[0.05em] mb-0.5 transition-colors duration-200 ${
+                      className={`font-['Inter'] font-normal text-[0.75rem] tracking-wider mb-0.5 transition-colors duration-200 ${
                         i === activeT ? "text-[#e8e6e2]" : "text-[#5a5856]"
                       }`}
                     >
@@ -291,7 +296,7 @@ const Inicio = () => {
           <p className="font-['Inter'] text-[0.62rem] tracking-[0.32em] uppercase text-[#4a4846] mb-8">
             ¿Listo para comenzar?
           </p>
-          <h2 className="font-['Fraunces',Georgia,serif] italic font-[200] text-[clamp(2rem,4vw,3.8rem)] tracking-[0.03em] text-[#1a1818] mb-10 leading-[1.1]">
+          <h2 className="font-['Fraunces',Georgia,serif] italic font-extralight text-[clamp(2rem,4vw,3.8rem)] tracking-[0.03em] text-[#1a1818] mb-10 leading-[1.1]">
             Agenda tu sesión
           </h2>
           <Link

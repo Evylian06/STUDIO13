@@ -33,15 +33,15 @@ export default function Layout({ children }) {
       {/* ── NAV ── */}
       <nav
         className={[
-          "fixed top-0 left-0 right-0 z-[100] border-b transition-all duration-400",
+          "fixed top-0 left-0 right-0 z-100 border-b transition-all duration-400",
           isHome
             ? scrolled
               ? "bg-[rgba(12,11,11,0.97)] border-white/5 backdrop-blur-md"
               : "bg-transparent border-transparent"
-            : "bg-white border-black/[0.08]",
+            : "bg-white border-black/8",
         ].join(" ")}
       >
-        <div className="max-w-[1360px] mx-auto px-10 h-[58px] flex items-center justify-between">
+        <div className="max-w-340 mx-auto px-10 h-14.5 flex items-center justify-between">
           {/* Logo */}
           <NavLink to="/" className="no-underline flex items-baseline">
             <img
@@ -87,18 +87,18 @@ export default function Layout({ children }) {
           {/* Mobile hamburger */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden flex flex-col gap-[5px] p-1 bg-transparent border-0 cursor-pointer"
+            className="md:hidden flex flex-col gap-1.25 p-1 bg-transparent border-0 cursor-pointer"
             aria-label="Menú"
           >
             {[0, 1, 2].map((i) => (
               <span
                 key={i}
                 className={[
-                  "block w-[22px] h-px transition-all duration-250",
+                  "block w-5.5 h-px transition-all duration-250",
                   onLight ? "bg-[#1a1818]" : "bg-white",
                   i === 1 && menuOpen ? "opacity-0" : "",
-                  i === 0 && menuOpen ? "rotate-45 translate-y-[6px]" : "",
-                  i === 2 && menuOpen ? "-rotate-45 -translate-y-[6px]" : "",
+                  i === 0 && menuOpen ? "rotate-45 translate-y-1.5" : "",
+                  i === 2 && menuOpen ? "-rotate-45 -translate-y-1.5" : "",
                 ].join(" ")}
               />
             ))}
@@ -107,7 +107,7 @@ export default function Layout({ children }) {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="md:hidden bg-white border-t border-black/[0.08] px-10 pt-6 pb-8">
+          <div className="md:hidden bg-white border-t border-black/8 px-10 pt-6 pb-8">
             {navLinks.map((link) => (
               <NavLink
                 key={link.to}
@@ -115,7 +115,7 @@ export default function Layout({ children }) {
                 end={link.to === "/"}
                 className={({ isActive }) =>
                   [
-                    "block font-['Inter'] text-[0.7rem] tracking-[0.22em] uppercase no-underline py-3 border-b border-black/[0.06]",
+                    "block font-['Inter'] text-[0.7rem] tracking-[0.22em] uppercase no-underline py-3 border-b border-black/6",
                     isActive ? "text-[#a51c1c]" : "text-[#1a1818]",
                   ].join(" ")
                 }
@@ -128,18 +128,18 @@ export default function Layout({ children }) {
       </nav>
 
       {/* ── PAGE ── */}
-      <main className={`flex-1 ${isHome ? "pt-0" : "pt-[58px]"}`}>
+      <main className={`flex-1 ${isHome ? "pt-0" : "pt-14.5"}`}>
         {children ?? <Outlet />}
       </main>
 
       {/* ── FOOTER ── */}
       <footer className="bg-[#111010] text-white mt-auto">
-        <div className="max-w-[1360px] mx-auto px-10 pt-16 pb-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] gap-12">
+        <div className="max-w-340 mx-auto px-10 pt-16 pb-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] gap-12">
           <div>
-            <div className="font-['Fraunces',Georgia,serif] italic font-[200] text-[1.8rem] mb-5 tracking-[0.04em]">
+            <div className="font-['Fraunces',Georgia,serif] italic font-extralight text-[1.8rem] mb-5 tracking-[0.04em]">
               <img src={studio13Logo} alt="Studio13" className="h-10 w-auto object-contain" />
             </div>
-            <p className="font-['Inter'] font-light text-[0.875rem] leading-[1.8] tracking-wide text-[#5a5856] max-w-[260px]">
+            <p className="font-['Inter'] font-light text-[0.875rem] leading-[1.8] tracking-wide text-[#5a5856] max-w-65">
               Cada imagen es una forma de volver a vivir. Puerto Cito, Costa
               Rica.
             </p>
@@ -189,11 +189,11 @@ export default function Layout({ children }) {
           ))}
         </div>
 
-        <div className="border-t border-white/[0.06] px-10 py-5 flex flex-col sm:flex-row justify-between items-center gap-2">
-          <p className="font-['Inter'] font-light text-[0.7rem] text-[#3a3836] tracking-[0.05em]">
+        <div className="border-t border-white/6 px-10 py-5 flex flex-col sm:flex-row justify-between items-center gap-2">
+          <p className="font-['Inter'] font-light text-[0.7rem] text-[#3a3836] tracking-wider">
             © 2025 Studio13
           </p>
-          <p className="font-['Inter'] font-light text-[0.7rem] text-[#3a3836] tracking-[0.05em]">
+          <p className="font-['Inter'] font-light text-[0.7rem] text-[#3a3836] tracking-wider">
             Fotografía Profesional · Costa Rica
           </p>
         </div>
