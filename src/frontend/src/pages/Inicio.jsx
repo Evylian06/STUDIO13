@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Layout from "../pages/Layout/Layout.jsx";
-import studio13Logo from "../assets/studio13.PNG";
+import studio13Logo from "../assets/studio13_blanco.png";
 import { Link } from "react-router-dom";
 
 const Inicio = () => {
@@ -69,7 +69,7 @@ const Inicio = () => {
             <img
               src={studio13Logo}
               alt="Studio13"
-              className="h-10 w-auto object-contain mb-8"
+              className="h-30 w-auto object-contain mb-8"
             />
             <p className="font-['Inter'] font-light text-[0.82rem] tracking-[0.12em] text-[rgba(244,243,240,0.6)] leading-[1.7] max-w-85 mb-8">
               Fotografía profesional que convierte momentos en imágenes que
