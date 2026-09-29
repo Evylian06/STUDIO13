@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import studio13Logo from "../../assets/studio13.PNG";
+import studio13Logo from "../../assets/studio13_negro.PNG";
+import studio13LogoWhite from "../../assets/studio13_blanco.png";
 
 const navLinks = [
   { to: "/", label: "Inicio" },
@@ -45,9 +46,9 @@ export default function Layout({ children }) {
           {/* Logo */}
           <NavLink to="/" className="no-underline flex items-baseline">
             <img
-              src={studio13Logo}
+              src={location.pathname === "/" ? studio13LogoWhite : studio13Logo}
               alt="Studio13"
-              className="h-10 w-auto object-contain"
+              className="h-8 w-auto object-contain"
             />
           </NavLink>
 
@@ -137,7 +138,11 @@ export default function Layout({ children }) {
         <div className="max-w-340 mx-auto px-10 pt-16 pb-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] gap-12">
           <div>
             <div className="font-['Fraunces',Georgia,serif] italic font-extralight text-[1.8rem] mb-5 tracking-[0.04em]">
-              <img src={studio13Logo} alt="Studio13" className="h-10 w-auto object-contain" />
+              <img
+                src={studio13Logo}
+                alt="Studio13"
+                className="h-10 w-auto object-contain"
+              />
             </div>
             <p className="font-['Inter'] font-light text-[0.875rem] leading-[1.8] tracking-wide text-[#5a5856] max-w-65">
               Cada imagen es una forma de volver a vivir. Puerto Cito, Costa
