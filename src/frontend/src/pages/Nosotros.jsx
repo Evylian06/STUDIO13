@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import Layout from "../pages/Layout/Layout";
+import studio13LogoWhite from "../assets/studio13_blanco.png";
 
 const milestones = [
   {
@@ -65,13 +66,14 @@ export default function Nosotros() {
 
           <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(12,11,11,0.85)_0%,transparent_60%)]" />
 
-          <div className="absolute bottom-14 left-8 md:left-12 max-w-130">
+          <div className="absolute bottom-14 left-8 md:left-12 max-w-200">
             <p className="t-label text-[rgba(244,243,240,0.4)] mb-4">
               Nosotros
             </p>
 
-            <h1 className="font-['Fraunces',Georgia,serif] italic font-extralight text-[clamp(2.5rem,5.5vw,5rem)] text-white tracking-[0.04em] leading-none">
-              Somos Studio13
+            <h1 className="font-[Fraunces,Georgia,serif] italic font-extralight text-[clamp(2.5rem,5.5vw,5rem)] text-white tracking-[0.04em] leading-none">
+              Somos 
+              <img src={studio13LogoWhite} alt="Studio13" className="inline-block h-20 w-auto object-contain mx-5" />
             </h1>
           </div>
         </section>
@@ -82,7 +84,7 @@ export default function Nosotros() {
             <div>
               <p className="t-label mb-8">La historia</p>
 
-              <h2 className="font-['Fraunces',Georgia,serif] italic font-extralight text-[clamp(2rem,3.5vw,3.2rem)] text-[#1a1818] leading-[1.1] mb-8">
+              <h2 className="font-[Fraunces,Georgia,serif] italic font-extralight text-[clamp(2rem,3.5vw,3.2rem)] text-[#1a1818] leading-[1.1] mb-8">
                 Una historia de
                 <br />
                 pasión y arte
@@ -129,7 +131,7 @@ export default function Nosotros() {
                 >
                   <p
                     className={`
-                    font-['Fraunces',Georgia,serif]
+                    font-[Fraunces,Georgia,serif]
                     italic
                     font-extralight
                     text-[1.5rem]
@@ -200,7 +202,7 @@ export default function Nosotros() {
                 />
 
                 <div className="absolute bottom-3 left-3">
-                  <p className="font-['Inter',sans-serif] font-light text-[0.6rem] tracking-[0.18em] uppercase text-[rgba(244,243,240,0.4)]">
+                  <p className="font-['Inter'] font-light text-[0.6rem] tracking-[0.18em] uppercase text-[rgba(244,243,240,0.4)]">
                     {photo.caption}
                   </p>
                 </div>
@@ -213,7 +215,7 @@ export default function Nosotros() {
         <section className="px-8 md:px-12 py-20 border-t border-[rgba(26,24,24,0.08)] text-center">
           <p className="t-label mb-8">¿Trabajamos juntos?</p>
 
-          <h2 className="font-['Fraunces',Georgia,serif] italic font-extralight text-[clamp(2rem,4vw,3.5rem)] text-[#1a1818] mb-10 tracking-[0.03em]">
+          <h2 className="font-[Fraunces,Georgia,serif] italic font-extralight text-[clamp(2rem,4vw,3.5rem)] text-[#1a1818] mb-10 tracking-[0.03em]">
             Tu historia merece
             <br />
             ser contada bien

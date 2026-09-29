@@ -141,7 +141,7 @@ export default function Portafolio() {
         <header className="px-8 md:px-12 pt-20 pb-10 border-b border-[rgba(26,24,24,0.08)]">
           <p className="t-label mb-6">Portafolio</p>
 
-          <h1 className="font-['Fraunces',Georgia,serif] italic font-extralight text-[clamp(3rem,6vw,5.5rem)] tracking-[0.02em] leading-none text-[#1a1818]">
+          <h1 className="font-[Fraunces,Georgia,serif] italic font-extralight text-[clamp(3rem,6vw,5.5rem)] tracking-[0.02em] leading-none text-[#1a1818]">
             Galería
           </h1>
         </header>
@@ -150,7 +150,7 @@ export default function Portafolio() {
         <div className="sticky top-14.5 z-50 bg-white border-b border-[rgba(26,24,24,0.08)] px-8 md:px-12 flex gap-0 overflow-x-auto">
           {filters.map((filter) => (
             <button key={filter} onClick={() => setActive(filter)}
-              className={`shrink-0 font-['Inter',sans-serif] font-normal text-[0.65rem] tracking-[0.22em] uppercase bg-transparent border-0 border-b px-5 py-[1.1rem] cursor-pointer whitespace-nowrap transition-colors duration-200
+              className={`shrink-0 font-['Inter'] font-normal text-[0.65rem] tracking-[0.22em] uppercase bg-transparent border-0 border-b px-5 py-[1.1rem] cursor-pointer whitespace-nowrap transition-colors duration-200
               ${
                 active === filter
                   ? "text-[#1a1818] border-[#a51c1c]"
@@ -176,7 +176,7 @@ export default function Portafolio() {
                 {/* CATEGORY LABEL */}
                 <div className="absolute bottom-0 left-0 right-0 px-4 pt-10 pb-3 bg-[linear-gradient(to_top,rgba(12,11,11,0.45)_0%,transparent_100%)] opacity-0 transition-opacity duration-300 hover:opacity-100"
                 >
-                  <p className="font-['Inter',sans-serif] font-normal text-[0.6rem] tracking-[0.2em] uppercase text-[rgba(244,243,240,0.7)]">
+                  <p className="font-['Inter'] font-normal text-[0.6rem] tracking-[0.2em] uppercase text-[rgba(244,243,240,0.7)]">
                     {photo.cat}
                   </p>
                 </div>
@@ -197,7 +197,7 @@ export default function Portafolio() {
           >
             <button
               onClick={() => setLightbox(null)}
-              className="absolute top-7 right-8 bg-transparent border-0 font-['Inter',sans-serif] text-[0.65rem] tracking-[0.2em] uppercase text-[rgba(244,243,240,0.4)] cursor-pointer"
+              className="absolute top-7 right-8 bg-transparent border-0 font-['Inter'] text-[0.65rem] tracking-[0.2em] uppercase text-[rgba(244,243,240,0.4)] cursor-pointer"
             >
               cerrar ×
             </button>

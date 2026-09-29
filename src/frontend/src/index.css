@@ -1,5 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,400;1,9..144,200;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Montserrat:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
+
+:root {
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-sans: "Montserrat", Arial, sans-serif;
+}
 
 * { box-sizing: border-box }
 
@@ -8,31 +13,59 @@ html { scroll-behavior: smooth; }
 body {
   background: #ffffff;
   color: #1a1818;
-  font-family: 'Inter', sans-serif;
-  font-weight: 300;
+  font-family: var(--font-sans);
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
+}
+
+body :where(*) {
+  font-family: var(--font-sans) !important;
+  font-weight: 400 !important;
+}
+
+nav a,
+nav button,
+button,
+.btn-ghost,
+.btn-ghost-white,
+label,
+[class*="uppercase"] {
+  font-family: var(--font-sans) !important;
+  font-weight: 600 !important;
+}
+
+h1,
+h2,
+h3,
+.t-display,
+.t-heading,
+[class*="Fraunces"] {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+}
+
+p:not([class*="Fraunces"]):not([class*="uppercase"]),
+blockquote:not([class*="Fraunces"]),
+.t-body {
+  letter-spacing: 0 !important;
 }
 
 /* --- Typography scale --- */
 .t-display {
-  font-family: 'Fraunces', Georgia, serif;
   font-style: italic;
-  font-weight: 200;
   letter-spacing: 0.01em;
   line-height: 1.0;
 }
 
 .t-heading {
-  font-family: 'Fraunces', Georgia, serif;
-  font-weight: 300;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   line-height: 1.15;
 }
 
 .t-label {
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
+  font-family: var(--font-sans);
+  font-weight: 600;
   font-size: 0.65rem;
   letter-spacing: 0.28em;
   text-transform: uppercase;
@@ -40,8 +73,8 @@ body {
 }
 
 .t-body {
-  font-family: 'Inter', sans-serif;
-  font-weight: 300;
+  font-family: var(--font-sans);
+  font-weight: 400;
   font-size: 0.875rem;
   line-height: 1.75;
   color: #7a7875;
@@ -59,8 +92,8 @@ body {
 /* --- Buttons --- */
 .btn-ghost {
   display: inline-block;
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
+  font-family: var(--font-sans);
+  font-weight: 600;
   font-size: 0.7rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -82,8 +115,8 @@ body {
 
 .btn-ghost-white {
   display: inline-block;
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
+  font-family: var(--font-sans);
+  font-weight: 600;
   font-size: 0.7rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;

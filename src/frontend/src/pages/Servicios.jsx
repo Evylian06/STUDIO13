@@ -65,7 +65,7 @@ export default function Servicios() {
         <header className="py-20 px-12 pb-12 border-b border-[rgba(26,24,24,0.08)]">
           <p className="t-label mb-6">Servicios</p>
 
-          <h1 className="font-['Fraunces',Georgia,serif] italic font-extralight text-[clamp(3rem,6vw,5.5rem)] tracking-[0.02em] leading-none text-[#1a1818] max-w-175">
+          <h1 className="font-[Fraunces,Georgia,serif] italic font-extralight text-[clamp(3rem,6vw,5.5rem)] tracking-[0.02em] leading-none text-[#1a1818] max-w-175">
             Lo que
             <br />
             fotografiamos
@@ -105,7 +105,7 @@ export default function Servicios() {
                 {String(specialties.length).padStart(2, "0")}
               </p>
 
-              <h2 className="font-['Fraunces',Georgia,serif] italic font-extralight text-[clamp(2.5rem,5vw,4.5rem)] tracking-[0.04em] text-white leading-none mb-5">
+              <h2 className="font-[Fraunces,Georgia,serif] italic font-extralight text-[clamp(2.5rem,5vw,4.5rem)] tracking-[0.04em] text-white leading-none mb-5">
                 {s.label}
               </h2>
 
@@ -135,11 +135,11 @@ export default function Servicios() {
                   key={s.n}
                   className="p-8 pr-8 pl-10 border-r border-[rgba(26,24,24,0.1)]"
                 >
-                  <p className="font-['Fraunces',Georgia,serif] italic font-extralight text-[3rem] text-[rgba(26,24,24,0.08)] leading-none mb-4">
+                  <p className="font-[Fraunces,Georgia,serif] italic font-extralight text-[3rem] text-[rgba(26,24,24,0.08)] leading-none mb-4">
                     {s.n}
                   </p>
 
-                  <h3 className="font-['Fraunces',Georgia,serif] font-light text-[1.2rem] tracking-[0.06em] text-[#1a1818] mb-2">
+                  <h3 className="font-[Fraunces,Georgia,serif] font-light text-[1.2rem] tracking-[0.06em] text-[#1a1818] mb-2">
                     {s.title}
                   </h3>
 
@@ -165,7 +165,7 @@ export default function Servicios() {
               También disponible
             </p>
 
-            <h2 className="font-['Fraunces',Georgia,serif] italic font-extralight text-[clamp(2rem,4vw,3.8rem)] text-white leading-[1.05] mb-6 tracking-[0.03em]">
+            <h2 className="font-[Fraunces,Georgia,serif] italic font-extralight text-[clamp(2rem,4vw,3.8rem)] text-white leading-[1.05] mb-6 tracking-[0.03em]">
               Alquiler de
               <br />
               estudio

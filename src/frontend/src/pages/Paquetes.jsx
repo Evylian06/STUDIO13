@@ -126,7 +126,7 @@ export default function Paquetes() {
         <header className="px-8 md:px-12 pt-20 pb-12 border-b border-[rgba(26,24,24,0.08)]">
           <p className="t-label mb-6">Tarifas</p>
 
-          <h1 className="font-['Fraunces',Georgia,serif] italic font-extralight text-[clamp(3rem,6vw,5.5rem)] tracking-[0.02em] leading-none text-[#1a1818] max-w-150">
+          <h1 className="font-[Fraunces,Georgia,serif] italic font-extralight text-[clamp(3rem,6vw,5.5rem)] tracking-[0.02em] leading-none text-[#1a1818] max-w-150">
             Encuentra tu
             <br />
             paquete
@@ -139,7 +139,7 @@ export default function Paquetes() {
             <button
               key={type}
               onClick={() => setTab(type)}
-              className={`font-['Inter',sans-serif] font-normal text-[0.65rem] tracking-[0.22em] uppercase bg-transparent border-0 border-b pt-[1.1rem] pb-[1.1rem] pr-6 mr-6 cursor-pointer transition-colors duration-200
+              className={`font-['Inter'] font-normal text-[0.65rem] tracking-[0.22em] uppercase bg-transparent border-0 border-b pt-[1.1rem] pb-[1.1rem] pr-6 mr-6 cursor-pointer transition-colors duration-200
               ${
                 tab === type
                   ? "text-[#1a1818] border-[#a51c1c]"
@@ -178,27 +178,27 @@ export default function Paquetes() {
                 `}
                 >
                   {pkg.featured && (
-                    <span className="absolute top-5 right-5 font-['Inter',sans-serif] font-normal text-[0.58rem] tracking-[0.2em] uppercase text-[#a51c1c] border-b border-[#a51c1c] pb-px">
+                    <span className="absolute top-5 right-5 font-['Inter'] font-normal text-[0.58rem] tracking-[0.2em] uppercase text-[#a51c1c] border-b border-[#a51c1c] pb-px">
                       Popular
                     </span>
                   )}
 
-                  <p className="font-['Fraunces',Georgia,serif] font-light text-base tracking-widest uppercase text-[#8a8880] mb-6">
+                  <p className="font-[Fraunces,Georgia,serif] font-light text-base tracking-widest uppercase text-[#8a8880] mb-6">
                     {pkg.name}
                   </p>
 
-                  <p className="font-['Fraunces',Georgia,serif] italic font-extralight text-[2.4rem] text-[#1a1818] leading-none mb-1">
+                  <p className="font-[Fraunces,Georgia,serif] italic font-extralight text-[2.4rem] text-[#1a1818] leading-none mb-1">
                     {pkg.price}
                   </p>
 
                   <p className="t-body text-[0.72rem] mb-3">{pkg.usd}</p>
 
                   <div className="flex gap-5 mb-8">
-                    <span className="font-['Inter',sans-serif] font-light text-[0.75rem] text-[#8a8880]">
+                    <span className="font-['Inter'] font-light text-[0.75rem] text-[#8a8880]">
                       {pkg.duration}
                     </span>
 
-                    <span className="font-['Inter',sans-serif] font-light text-[0.75rem] text-[#8a8880]">
+                    <span className="font-['Inter'] font-light text-[0.75rem] text-[#8a8880]">
                       {pkg.photos}
                     </span>
                   </div>
@@ -211,7 +211,7 @@ export default function Paquetes() {
                       >
                         <span className="w-1 h-1 rounded-full bg-[#a51c1c] shrink-0 mt-1.25" />
 
-                        <span className="font-['Inter',sans-serif] font-light text-[0.78rem] text-[#5a5856] leading-[1.4]">
+                        <span className="font-['Inter'] font-light text-[0.78rem] text-[#5a5856] leading-[1.4]">
                           {bullet}
                         </span>
                       </div>
@@ -248,7 +248,7 @@ export default function Paquetes() {
                   >
                     <span className="t-body text-[0.8rem]">{item}</span>
 
-                    <span className="font-['Fraunces',Georgia,serif] font-light text-[0.9rem] text-[#1a1818]">
+                    <span className="font-[Fraunces,Georgia,serif] font-light text-[0.9rem] text-[#1a1818]">
                       {price}
                     </span>
                   </div>
@@ -270,7 +270,7 @@ export default function Paquetes() {
               />
 
               <div className="absolute bottom-8 left-8">
-                <p className="font-['Fraunces',Georgia,serif] italic font-extralight text-[2rem] text-white tracking-[0.04em]">
+                <p className="font-[Fraunces,Georgia,serif] italic font-extralight text-[2rem] text-white tracking-[0.04em]">
                   Estudio profesional disponible
                   <br />
                   para fotógrafos y marcas
@@ -291,16 +291,16 @@ export default function Paquetes() {
                 `}
                 >
                   {pkg.featured && (
-                    <span className="absolute top-5 right-5 font-['Inter',sans-serif] font-normal text-[0.58rem] tracking-[0.2em] uppercase text-[#a51c1c] border-b border-[#a51c1c] pb-px">
+                    <span className="absolute top-5 right-5 font-['Inter'] font-normal text-[0.58rem] tracking-[0.2em] uppercase text-[#a51c1c] border-b border-[#a51c1c] pb-px">
                       Popular
                     </span>
                   )}
 
-                  <p className="font-['Fraunces',Georgia,serif] font-light text-base tracking-widest uppercase text-[#8a8880] mb-6">
+                  <p className="font-[Fraunces,Georgia,serif] font-light text-base tracking-widest uppercase text-[#8a8880] mb-6">
                     {pkg.name}
                   </p>
 
-                  <p className="font-['Fraunces',Georgia,serif] italic font-extralight text-[2.4rem] text-[#1a1818] leading-none mb-1">
+                  <p className="font-[Fraunces,Georgia,serif] italic font-extralight text-[2.4rem] text-[#1a1818] leading-none mb-1">
                     {pkg.price}
                   </p>
 
@@ -314,7 +314,7 @@ export default function Paquetes() {
                       >
                         <span className="w-1 h-1 rounded-full bg-[#a51c1c] shrink-0 mt-1.25" />
 
-                        <span className="font-['Inter',sans-serif] font-light text-[0.78rem] text-[#5a5856] leading-[1.4]">
+                        <span className="font-['Inter'] font-light text-[0.78rem] text-[#5a5856] leading-[1.4]">
                           {bullet}
                         </span>
                       </div>
@@ -421,7 +421,7 @@ export default function Paquetes() {
                     {row.servicio}
                   </span>
 
-                  <span className="font-['Fraunces',Georgia,serif] font-light text-[0.95rem] text-[#1a1818] whitespace-nowrap shrink-0">
+                  <span className="font-[Fraunces,Georgia,serif] font-light text-[0.95rem] text-[#1a1818] whitespace-nowrap shrink-0">
                     {row.rango}
                   </span>
                 </div>
@@ -460,13 +460,13 @@ export default function Paquetes() {
                   gap-4
                 "
                 >
-                  <span className="font-['Fraunces',Georgia,serif] font-light text-base tracking-[0.03em] text-[#1a1818]">
+                  <span className="font-[Fraunces,Georgia,serif] font-light text-base tracking-[0.03em] text-[#1a1818]">
                     {faq.q}
                   </span>
 
                   <span
                     className={`
-                    font-['Inter',sans-serif]
+                    font-['Inter']
                     font-light
                     text-base
                     shrink-0

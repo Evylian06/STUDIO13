@@ -137,11 +137,11 @@ export default function Layout({ children }) {
       <footer className="bg-[#111010] text-white mt-auto">
         <div className="max-w-340 mx-auto px-10 pt-16 pb-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] gap-12">
           <div>
-            <div className="font-['Fraunces',Georgia,serif] italic font-extralight text-[1.8rem] mb-5 tracking-[0.04em]">
+            <div className="font-[Fraunces,Georgia,serif] italic font-extralight text-[1.8rem] mb-5 tracking-[0.04em]">
               <img
-                src={studio13Logo}
+                src={studio13LogoWhite}
                 alt="Studio13"
-                className="h-10 w-auto object-contain"
+                className="h-20 w-auto object-contain"
               />
             </div>
             <p className="font-['Inter'] font-light text-[0.875rem] leading-[1.8] tracking-wide text-[#5a5856] max-w-65">
