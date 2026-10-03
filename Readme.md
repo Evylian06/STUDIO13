@@ -1,4 +1,4 @@
-# 🎨 Colorimetría Amazónica
+# 🎨 Studio13 Sesiones fotograficas
 
 ## Descripción
 Studio13 es un sitio web desarrollado para una empresa de fotografía, diseñado para presentar de manera profesional sus servicios, trabajos y diferentes tipos de sesiones fotográficas.
