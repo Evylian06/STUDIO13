@@ -15,7 +15,7 @@ const router = Router();
  *       content:
  *         application/json:
  *           schema:
- *             type: object
+ *             $ref: '#/components/schemas/ReservacionActualizacion'
  *             required: [nombre, email, tipoSesion, fecha]
  *             properties:
  *               nombre:
@@ -43,6 +43,10 @@ const router = Router();
  *     responses:
  *       201:
  *         description: Reservación creada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Reservacion'
  *       400:
  *         description: Datos o estado inválidos.
  */
@@ -57,6 +61,12 @@ router.post("/", reservacionController.create);
  *     responses:
  *       200:
  *         description: Lista de reservaciones.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Reservacion'
  */
 router.get("/", reservacionController.list);
 /**
@@ -75,6 +85,10 @@ router.get("/", reservacionController.list);
  *     responses:
  *       200:
  *         description: Reservación encontrada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Reservacion'
  *       404:
  *         description: Reservación no encontrada.
  */
@@ -101,6 +115,10 @@ router.get("/:id", reservacionController.getById);
  *     responses:
  *       200:
  *         description: Reservación actualizada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Reservacion'
  *       404:
  *         description: Reservación no encontrada.
  */

@@ -11,7 +11,7 @@ const router = Router();
  * @swagger
  * /api/admin/imagenes:
  *   post:
- *     tags: [Administración]
+ *     tags: [Imágenes]
  *     summary: Crear una imagen
  *     description: Crea un registro de imagen. No carga archivos; recibe sus metadatos y URL.
  *     requestBody:
@@ -39,6 +39,10 @@ const router = Router();
  *     responses:
  *       201:
  *         description: Imagen creada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Imagen'
  *       400:
  *         description: Datos inválidos.
  */
@@ -47,7 +51,7 @@ router.post("/imagenes", imagenController.create);
  * @swagger
  * /api/admin/imagenes/{id}:
  *   patch:
- *     tags: [Administración]
+ *     tags: [Imágenes]
  *     summary: Actualizar una imagen
  *     parameters:
  *       - in: path
@@ -60,10 +64,14 @@ router.post("/imagenes", imagenController.create);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
+ *             $ref: '#/components/schemas/ImagenActualizacion'
  *     responses:
  *       200:
  *         description: Imagen actualizada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Imagen'
  *       404:
  *         description: Imagen no encontrada.
  */
@@ -72,7 +80,7 @@ router.patch("/imagenes/:id", imagenController.update);
  * @swagger
  * /api/admin/imagenes/{id}:
  *   delete:
- *     tags: [Administración]
+ *     tags: [Imágenes]
  *     summary: Eliminar una imagen
  *     parameters:
  *       - in: path
@@ -92,7 +100,7 @@ router.delete("/imagenes/:id", imagenController.remove);
  * @swagger
  * /api/admin/galerias:
  *   post:
- *     tags: [Administración]
+ *     tags: [Galerías]
  *     summary: Crear una galería
  *     requestBody:
  *       required: true
@@ -115,6 +123,10 @@ router.delete("/imagenes/:id", imagenController.remove);
  *     responses:
  *       201:
  *         description: Galería creada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Galeria'
  *       400:
  *         description: Datos inválidos.
  */
@@ -123,7 +135,7 @@ router.post("/galerias", galeriaController.create);
  * @swagger
  * /api/admin/galerias/{id}:
  *   patch:
- *     tags: [Administración]
+ *     tags: [Galerías]
  *     summary: Actualizar una galería
  *     parameters:
  *       - in: path
@@ -136,10 +148,14 @@ router.post("/galerias", galeriaController.create);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
+ *             $ref: '#/components/schemas/GaleriaActualizacion'
  *     responses:
  *       200:
  *         description: Galería actualizada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Galeria'
  *       404:
  *         description: Galería no encontrada.
  */
@@ -148,7 +164,7 @@ router.patch("/galerias/:id", galeriaController.update);
  * @swagger
  * /api/admin/galerias/{id}:
  *   delete:
- *     tags: [Administración]
+ *     tags: [Galerías]
  *     summary: Eliminar una galería
  *     description: También elimina sus imágenes relacionadas por la cascada definida en Prisma.
  *     parameters:
@@ -168,7 +184,7 @@ router.delete("/galerias/:id", galeriaController.remove);
  * @swagger
  * /api/admin/galerias/{id}/imagenes:
  *   post:
- *     tags: [Administración]
+ *     tags: [Galerías]
  *     summary: Añadir una imagen a una galería
  *     parameters:
  *       - in: path
@@ -181,7 +197,7 @@ router.delete("/galerias/:id", galeriaController.remove);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
+ *             $ref: '#/components/schemas/PaqueteActualizacion'
  *             required: [url]
  *             properties:
  *               url:
@@ -199,6 +215,10 @@ router.delete("/galerias/:id", galeriaController.remove);
  *     responses:
  *       201:
  *         description: Imagen agregada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GaleriaImagen'
  *       404:
  *         description: Galería no encontrada.
  */
@@ -207,7 +227,7 @@ router.post("/galerias/:id/imagenes", galeriaController.addImage);
  * @swagger
  * /api/admin/galerias/{id}/imagenes/{imagenId}:
  *   patch:
- *     tags: [Administración]
+ *     tags: [Galerías]
  *     summary: Actualizar una imagen de galería
  *     parameters:
  *       - in: path
@@ -225,10 +245,14 @@ router.post("/galerias/:id/imagenes", galeriaController.addImage);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
+ *             $ref: '#/components/schemas/GaleriaImagenActualizacion'
  *     responses:
  *       200:
  *         description: Imagen actualizada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GaleriaImagen'
  *       404:
  *         description: Imagen de galería no encontrada.
  */
@@ -237,7 +261,7 @@ router.patch("/galerias/:id/imagenes/:imagenId", galeriaController.updateImage);
  * @swagger
  * /api/admin/galerias/{id}/imagenes/{imagenId}:
  *   delete:
- *     tags: [Administración]
+ *     tags: [Galerías]
  *     summary: Eliminar una imagen de galería
  *     parameters:
  *       - in: path
@@ -262,7 +286,7 @@ router.delete("/galerias/:id/imagenes/:imagenId", galeriaController.removeImage)
  * @swagger
  * /api/admin/servicios:
  *   post:
- *     tags: [Administración]
+ *     tags: [Servicios]
  *     summary: Crear un servicio
  *     requestBody:
  *       required: true
@@ -289,13 +313,17 @@ router.delete("/galerias/:id/imagenes/:imagenId", galeriaController.removeImage)
  *     responses:
  *       201:
  *         description: Servicio creado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Servicio'
  */
 router.post("/servicios", servicioController.create);
 /**
  * @swagger
  * /api/admin/servicios/{id}:
  *   patch:
- *     tags: [Administración]
+ *     tags: [Servicios]
  *     summary: Actualizar un servicio
  *     parameters:
  *       - in: path
@@ -308,10 +336,14 @@ router.post("/servicios", servicioController.create);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
+ *             $ref: '#/components/schemas/ServicioActualizacion'
  *     responses:
  *       200:
  *         description: Servicio actualizado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Servicio'
  *       404:
  *         description: Servicio no encontrado.
  */
@@ -320,7 +352,7 @@ router.patch("/servicios/:id", servicioController.update);
  * @swagger
  * /api/admin/servicios/{id}:
  *   delete:
- *     tags: [Administración]
+ *     tags: [Servicios]
  *     summary: Eliminar un servicio
  *     parameters:
  *       - in: path
@@ -340,7 +372,7 @@ router.delete("/servicios/:id", servicioController.remove);
  * @swagger
  * /api/admin/paquetes:
  *   post:
- *     tags: [Administración]
+ *     tags: [Paquetes]
  *     summary: Crear un paquete
  *     requestBody:
  *       required: true
@@ -367,13 +399,17 @@ router.delete("/servicios/:id", servicioController.remove);
  *     responses:
  *       201:
  *         description: Paquete creado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Paquete'
  */
 router.post("/paquetes", paqueteController.create);
 /**
  * @swagger
  * /api/admin/paquetes/{id}:
  *   patch:
- *     tags: [Administración]
+ *     tags: [Paquetes]
  *     summary: Actualizar un paquete
  *     parameters:
  *       - in: path
@@ -386,10 +422,14 @@ router.post("/paquetes", paqueteController.create);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
+ *             $ref: '#/components/schemas/PaqueteActualizacion'
  *     responses:
  *       200:
  *         description: Paquete actualizado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Paquete'
  *       404:
  *         description: Paquete no encontrado.
  */
@@ -398,7 +438,7 @@ router.patch("/paquetes/:id", paqueteController.update);
  * @swagger
  * /api/admin/paquetes/{id}:
  *   delete:
- *     tags: [Administración]
+ *     tags: [Paquetes]
  *     summary: Eliminar un paquete
  *     description: También elimina sus características relacionadas por la cascada definida en Prisma.
  *     parameters:
@@ -418,7 +458,7 @@ router.delete("/paquetes/:id", paqueteController.remove);
  * @swagger
  * /api/admin/paquetes/{id}/caracteristicas:
  *   post:
- *     tags: [Administración]
+ *     tags: [Paquetes]
  *     summary: Añadir una característica a un paquete
  *     parameters:
  *       - in: path
@@ -441,6 +481,10 @@ router.delete("/paquetes/:id", paqueteController.remove);
  *     responses:
  *       201:
  *         description: Característica agregada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaqueteCaracteristica'
  *       404:
  *         description: Paquete no encontrado.
  */
@@ -449,7 +493,7 @@ router.post("/paquetes/:id/caracteristicas", paqueteController.addCharacteristic
  * @swagger
  * /api/admin/paquetes/{id}/caracteristicas/{caracteristicaId}:
  *   patch:
- *     tags: [Administración]
+ *     tags: [Paquetes]
  *     summary: Actualizar una característica
  *     parameters:
  *       - in: path
@@ -467,10 +511,14 @@ router.post("/paquetes/:id/caracteristicas", paqueteController.addCharacteristic
  *       content:
  *         application/json:
  *           schema:
- *             type: object
+ *             $ref: '#/components/schemas/PaqueteCaracteristicaActualizacion'
  *     responses:
  *       200:
  *         description: Característica actualizada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaqueteCaracteristica'
  *       404:
  *         description: Característica no encontrada.
  */
@@ -482,7 +530,7 @@ router.patch(
  * @swagger
  * /api/admin/paquetes/{id}/caracteristicas/{caracteristicaId}:
  *   delete:
- *     tags: [Administración]
+ *     tags: [Paquetes]
  *     summary: Eliminar una característica
  *     parameters:
  *       - in: path
@@ -510,7 +558,7 @@ router.delete(
  * @swagger
  * /api/admin/planes-membresia:
  *   post:
- *     tags: [Administración]
+ *     tags: [Planes de membresía]
  *     summary: Crear un plan de membresía
  *     requestBody:
  *       required: true
@@ -535,13 +583,17 @@ router.delete(
  *     responses:
  *       201:
  *         description: Plan creado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PlanMembresia'
  */
 router.post("/planes-membresia", planMembresiaController.create);
 /**
  * @swagger
  * /api/admin/planes-membresia/{id}:
  *   patch:
- *     tags: [Administración]
+ *     tags: [Planes de membresía]
  *     summary: Actualizar un plan de membresía
  *     parameters:
  *       - in: path
@@ -554,10 +606,14 @@ router.post("/planes-membresia", planMembresiaController.create);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
+ *             $ref: '#/components/schemas/PlanMembresiaActualizacion'
  *     responses:
  *       200:
  *         description: Plan actualizado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PlanMembresia'
  *       404:
  *         description: Plan no encontrado.
  */
@@ -566,7 +622,7 @@ router.patch("/planes-membresia/:id", planMembresiaController.update);
  * @swagger
  * /api/admin/planes-membresia/{id}:
  *   delete:
- *     tags: [Administración]
+ *     tags: [Planes de membresía]
  *     summary: Eliminar un plan de membresía
  *     parameters:
  *       - in: path

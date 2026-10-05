@@ -13,6 +13,12 @@ const router = Router();
  *     responses:
  *       200:
  *         description: Lista de membresías.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Membresia'
  */
 router.get("/", membresiaController.list);
 /**
@@ -27,7 +33,7 @@ router.get("/", membresiaController.list);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
+ *             $ref: '#/components/schemas/MembresiaActualizacion'
  *             required: [fechaFin, clienteId, planId]
  *             properties:
  *               fechaInicio:
@@ -46,6 +52,10 @@ router.get("/", membresiaController.list);
  *     responses:
  *       201:
  *         description: Membresía creada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Membresia'
  *       400:
  *         description: Datos o estado inválidos.
  */
@@ -66,6 +76,10 @@ router.post("/", membresiaController.create);
  *     responses:
  *       200:
  *         description: Membresía encontrada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Membresia'
  *       404:
  *         description: Membresía no encontrada.
  */
@@ -92,6 +106,10 @@ router.get("/:id", membresiaController.getById);
  *     responses:
  *       200:
  *         description: Membresía actualizada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Membresia'
  *       404:
  *         description: Membresía no encontrada.
  */

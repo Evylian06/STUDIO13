@@ -14,22 +14,14 @@ const router = Router();
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required: [nombre, email, password]
- *             properties:
- *               nombre:
- *                 type: string
- *               email:
- *                 type: string
- *                 format: email
- *               telefono:
- *                 type: string
- *               password:
- *                 type: string
- *                 format: password
+ *             $ref: '#/components/schemas/ClienteRegistro'
  *     responses:
  *       201:
  *         description: Cliente registrado. No devuelve el hash de contraseña.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Cliente'
  *       400:
  *         description: Datos inválidos.
  */
@@ -44,6 +36,12 @@ router.post("/", clienteController.create);
  *     responses:
  *       200:
  *         description: Lista de clientes.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Cliente'
  */
 router.get("/", clienteController.list);
 /**
@@ -62,6 +60,10 @@ router.get("/", clienteController.list);
  *     responses:
  *       200:
  *         description: Cliente encontrado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Cliente'
  *       404:
  *         description: Cliente no encontrado.
  */
@@ -84,21 +86,14 @@ router.get("/:id", clienteController.getById);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               nombre:
- *                 type: string
- *               email:
- *                 type: string
- *                 format: email
- *               telefono:
- *                 type: string
- *               password:
- *                 type: string
- *                 format: password
+ *             $ref: '#/components/schemas/ClienteActualizacion'
  *     responses:
  *       200:
  *         description: Cliente actualizado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Cliente'
  *       404:
  *         description: Cliente no encontrado.
  */
