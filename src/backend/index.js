@@ -31,16 +31,21 @@ const startServer = async () => {
       { default: clientesRoutes },
       { default: membresiasRoutes },
       { default: reservacionesRoutes },
+      { default: authRoutes },
+      { default: requireAdmin },
     ] = await Promise.all([
       import("./routes/publicRoutes.js"),
       import("./routes/adminRoutes.js"),
       import("./routes/clientesRoutes.js"),
       import("./routes/membresiasRoutes.js"),
       import("./routes/reservacionesRoutes.js"),
+      import("./routes/authRoutes.js"),
+      import("./middleware/requireAdmin.js"),
     ]);
 
+    app.use("/api/auth", authRoutes);
     app.use("/api", publicRoutes);
-    app.use("/api/admin", adminRoutes);
+    app.use("/api/admin", requireAdmin, adminRoutes);
     app.use("/api/clientes", clientesRoutes);
     app.use("/api/membresias", membresiasRoutes);
     app.use("/api/reservaciones", reservacionesRoutes);

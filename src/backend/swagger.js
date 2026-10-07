@@ -14,7 +14,7 @@ const swaggerSpec = swaggerJSDoc({
     },
     servers: [{ url: "http://localhost:3000", description: "Servidor local" }],
     tags: [
-      { name: "Autenticación", description: "No hay endpoints de autenticación implementados actualmente." },
+      { name: "Autenticación", description: "Inicio de sesión para administradores." },
       { name: "Imágenes", description: "Imágenes generales organizadas por sección." },
       { name: "Galerías", description: "Galerías y sus imágenes asociadas." },
       { name: "Servicios", description: "Servicios publicados por Studio13." },
@@ -25,6 +25,13 @@ const swaggerSpec = swaggerJSDoc({
       { name: "Reservaciones", description: "Gestión de reservaciones." },
     ],
     components: {
+      securitySchemes: {
+        BearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          description: "Token de sesión administrativa devuelto por /api/auth/login.",
+        },
+      },
       schemas: {
         ApiError: {
           type: "object",
@@ -43,6 +50,22 @@ const swaggerSpec = swaggerJSDoc({
             passwordHash: { type: "string", writeOnly: true },
             createdAt: { type: "string", format: "date-time" },
             updatedAt: { type: "string", format: "date-time" },
+          },
+        },
+        AdminLoginResponse: {
+          type: "object",
+          required: ["token", "admin"],
+          properties: {
+            token: { type: "string" },
+            admin: {
+              type: "object",
+              required: ["name", "email", "role"],
+              properties: {
+                name: { type: "string" },
+                email: { type: "string", format: "email" },
+                role: { type: "string", enum: ["ADMIN", "OWNER"] },
+              },
+            },
           },
         },
         Imagen: {
@@ -376,6 +399,18 @@ const swaggerSpec = swaggerJSDoc({
 for (const [path, pathItem] of Object.entries(swaggerSpec.paths ?? {})) {
   for (const [method, operation] of Object.entries(pathItem)) {
     if (!["get", "post", "put", "patch", "delete"].includes(method)) continue;
+
+    if (path.startsWith("/api/admin/")) {
+      operation.security = [{ BearerAuth: [] }];
+      operation.responses["401"] ??= {
+        description: "Se requiere una sesión administrativa válida.",
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/ApiError" },
+          },
+        },
+      };
+    }
 
     const errorResponse = {
       description: "La solicitud no pudo completarse.",
