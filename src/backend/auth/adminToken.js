@@ -42,9 +42,8 @@ export const createAdminToken = (admin, secret) => {
   const now = Math.floor(Date.now() / 1000);
   const payload = encode(
     JSON.stringify({
-      sub: admin.email,
+      sub: String(admin.id),
       email: admin.email,
-      role: admin.role,
       iat: now,
       exp: now + TOKEN_LIFETIME_SECONDS,
     }),
@@ -69,14 +68,16 @@ export const verifyAdminToken = (token, secret) => {
       typeof claims.sub !== "string" ||
       !claims.sub ||
       typeof claims.email !== "string" ||
-      !["ADMIN", "OWNER"].includes(claims.role) ||
       !Number.isInteger(claims.exp) ||
       claims.exp <= Math.floor(Date.now() / 1000)
     ) {
       return null;
     }
 
-    return { id: claims.sub, email: claims.email, role: claims.role };
+    const id = Number(claims.sub);
+    if (!Number.isInteger(id) || id <= 0) return null;
+
+    return { id, email: claims.email };
   } catch {
     return null;
   }
