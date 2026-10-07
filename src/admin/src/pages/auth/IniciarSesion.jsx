@@ -4,14 +4,59 @@ import logoNegro from '../../assets/studio13_negro.PNG';
 import logoBlanco from '../../assets/Studio13_blanco.png';
 
 const portada = 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1600&h=1800&fit=crop&auto=format&q=90';
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/+$/, '');
 
 function IniciarSesion() {
 	const [isRecovery, setIsRecovery] = useState(false);
 	const [recoverySubmitted, setRecoverySubmitted] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [loginError, setLoginError] = useState('');
+	const [authenticatedAdmin, setAuthenticatedAdmin] = useState(null);
 
-	function handleSubmit(event) {
+	async function handleSubmit(event) {
 		event.preventDefault();
-		if (isRecovery) setRecoverySubmitted(true);
+		setLoginError('');
+		setAuthenticatedAdmin(null);
+
+		if (isRecovery) {
+			setRecoverySubmitted(true);
+			return;
+		}
+
+		const form = event.currentTarget;
+		const formData = new FormData(form);
+		const email = formData.get('email');
+		const password = formData.get('password');
+		setIsSubmitting(true);
+
+		try {
+			const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email, password }),
+			});
+			let result;
+			try {
+				result = await response.json();
+			} catch {
+				throw new Error('El servidor devolvió una respuesta no válida.');
+			}
+
+			if (!response.ok) {
+				throw new Error(result.error || 'No se pudo iniciar sesión.');
+			}
+			if (typeof result.token !== 'string' || !result.admin?.name) {
+				throw new Error('La respuesta del servidor no contiene una sesión administrativa válida.');
+			}
+
+			sessionStorage.setItem('studio13AdminToken', result.token);
+			setAuthenticatedAdmin(result.admin);
+			form.reset();
+		} catch (error) {
+			setLoginError(error instanceof Error ? error.message : 'No se pudo conectar con el servidor.');
+		} finally {
+			setIsSubmitting(false);
+		}
 	}
 
 	return (
@@ -63,7 +108,7 @@ function IniciarSesion() {
 								<button
 									type="button"
 									className="studio-login__forgot"
-									onClick={() => { setIsRecovery(true); setRecoverySubmitted(false); }}
+									onClick={() => { setIsRecovery(true); setRecoverySubmitted(false); setLoginError(''); setAuthenticatedAdmin(null); }}
 								>
 									¿Olvidaste tu contraseña?
 								</button>
@@ -78,8 +123,13 @@ function IniciarSesion() {
 							/>
 						</div>}
 
-						<button className="studio-login__submit" type="submit">
-							<span>{isRecovery ? 'Solicitar instrucciones' : 'Iniciar sesión'}</span>
+						{loginError && <p className="studio-login__notice" role="alert" style={{ color: 'var(--red)' }}>{loginError}</p>}
+						{authenticatedAdmin && <p className="studio-login__notice" role="status">
+							Sesión iniciada como {authenticatedAdmin.name}. El token se conservará hasta cerrar esta pestaña.
+						</p>}
+
+						<button className="studio-login__submit" type="submit" disabled={isSubmitting}>
+							<span>{isSubmitting ? 'Conectando…' : isRecovery ? 'Solicitar instrucciones' : 'Iniciar sesión'}</span>
 							<span className="studio-login__arrow" aria-hidden="true">→</span>
 						</button>
 					</form>
@@ -89,7 +139,7 @@ function IniciarSesion() {
 						<button
 							type="button"
 							className="studio-login__back"
-							onClick={() => { setIsRecovery(false); setRecoverySubmitted(false); }}
+							onClick={() => { setIsRecovery(false); setRecoverySubmitted(false); setLoginError(''); }}
 						>
 							Volver a iniciar sesión
 						</button>
