@@ -12,7 +12,7 @@ const swaggerSpec = swaggerJSDoc({
       description: "API backend para el sistema de gestión y sitio web de Studio13.",
       version: "1.0.0",
     },
-    servers: [{ url: "http://localhost:3000", description: "Servidor local" }],
+    servers: [{ url: "http://localhost:3001", description: "Servidor local" }],
     tags: [
       { name: "Autenticación", description: "Inicio de sesión para administradores." },
       { name: "Imágenes", description: "Imágenes generales organizadas por sección." },
