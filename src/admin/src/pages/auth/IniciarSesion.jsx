@@ -1,12 +1,14 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../App.css';
 import logoNegro from '../../assets/studio13_negro.PNG';
 import logoBlanco from '../../assets/Studio13_blanco.png';
 
 const portada = 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1600&h=1800&fit=crop&auto=format&q=90';
-const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/+$/, '');
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/+$/, '');
 
 function IniciarSesion() {
+	const navigate = useNavigate();
 	const [isRecovery, setIsRecovery] = useState(false);
 	const [recoverySubmitted, setRecoverySubmitted] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,8 +52,10 @@ function IniciarSesion() {
 			}
 
 			sessionStorage.setItem('studio13AdminToken', result.token);
+			sessionStorage.setItem('studio13Admin', JSON.stringify(result.admin));
 			setAuthenticatedAdmin(result.admin);
 			form.reset();
+			navigate('/admin/dashboard');
 		} catch (error) {
 			setLoginError(error instanceof Error ? error.message : 'No se pudo conectar con el servidor.');
 		} finally {
