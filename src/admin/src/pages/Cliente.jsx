@@ -1,14 +1,10 @@
-import { useEffect, useState } from "react";
-import AdminLayout from "./Layout/AdminLayout";
+import { AdminLista } from "./Layout/AdminLayout.jsx";
 
-function Clientes() {
-  return (
-    <AdminLayout>
-      <div>
-        <h1>Clientes</h1>
-        <p>Lista de clientes</p>
-      </div>
-    </AdminLayout>
-  );
+export default function Clientes() {
+  return <AdminLista titulo="Clientes" endpoint="/api/clientes" columnas={[
+    { key: "nombre", label: "Nombre" },
+    { key: "email", label: "Correo" },
+    { key: "telefono", label: "Teléfono" },
+    { key: "createdAt", label: "Registro", date: true },
+  ]} />;
 }
-export default Clientes;
