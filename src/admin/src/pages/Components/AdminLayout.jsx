@@ -51,7 +51,7 @@ function AdminLayout({ children }) {
 
 	return (
 		<MenuContext.Provider value={{ menuAbierto, setMenuAbierto }}>
-			<div className="flex min-h-screen bg-[#f7f7f6] text-[#171717] font-sans !font-normal">
+			<div className="flex min-h-screen bg-[#f7f7f6] text-[#171717] font-sans font-normal!">
 				{menuAbierto && <button className="fixed inset-0 z-20 bg-black/45 md:hidden" type="button" aria-label="Cerrar menÃº" onClick={() => setMenuAbierto(false)} />}
 				<aside className={`fixed inset-y-0 left-0 z-30 flex h-dvh w-66.25 shrink-0 flex-col bg-[#171717] px-4.75 pt-8.5 pb-5.5 text-white transition-transform duration-300 md:sticky md:top-0 md:z-auto md:h-screen md:w-61.5 md:translate-x-0 ${menuAbierto ? 'translate-x-0' : '-translate-x-full'}`}>
 					<a className="mb-15.25 ml-2.25 flex w-fit flex-col items-start text-white no-underline" href="/admin/dashboard" aria-label="Studio13, inicio">
@@ -61,7 +61,7 @@ function AdminLayout({ children }) {
 					<div className="mb-3.5 ml-2.75 text-[9px] font-semibold! tracking-[.17em] text-neutral-500 uppercase">Espacio de trabajo</div>
 					<nav className="grid gap-1.25" aria-label="NavegaciÃ³n administrativa">
 						{secciones.map((seccion) => seccion.active ? (
-							<a key={seccion.label} className="relative flex min-h-11.5 items-center gap-3.25 rounded-sm border-0 border-l-2 border-[#a51c1c] bg-[#282828] px-3 text-xs font-medium! text-white no-underline transition-colors" href="/admin/dashboard" aria-current="page" onClick={() => setMenuAbierto(false)}>
+							<a key={seccion.label} className="relative flex min-h-11.5 items-center gap-3.25 rounded-sm border-0 border-l-2 border-[#a51c1c] bg-[#282828] px-3 text-xs font-medium! text-white no-underline transition-colors" href="/admin/Inicio" aria-current="page" onClick={() => setMenuAbierto(false)}>
 								<Icono name={seccion.icon} size={18} /><span>{seccion.label}</span>
 							</a>
 						) : (
