@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import AdminLayout from "./Components/AdminLayout";
+import AdminLayout from "./Layout/AdminLayout";
 
 function Clientes() {
   return (
