@@ -139,7 +139,7 @@ model Reservacion {
   email      String
   telefono   String?
   tipoSesion String
-  fecha      DateTime
+  fecha      DateTime?
   hora       String?
   mensaje    String?
   estado     EstadoReservacion @default(PENDIENTE)

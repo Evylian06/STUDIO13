@@ -9,14 +9,14 @@ const router = Router();
  *   post:
  *     tags: [Reservaciones]
  *     summary: Crear una reservación
- *     description: clienteId es opcional; estado puede ser PENDIENTE, CONFIRMADA, RECHAZADA o CANCELADA.
+ *     description: Crea o reutiliza el cliente por correo, y registra la solicitud como PENDIENTE. fecha es opcional hasta coordinar la sesión.
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/ReservacionActualizacion'
- *             required: [nombre, email, tipoSesion, fecha]
+ *             required: [nombre, email, tipoSesion]
  *             properties:
  *               nombre:
  *                 type: string
@@ -30,16 +30,11 @@ const router = Router();
  *               fecha:
  *                 type: string
  *                 format: date-time
+ *                 nullable: true
  *               hora:
  *                 type: string
  *               mensaje:
  *                 type: string
- *               estado:
- *                 type: string
- *                 enum: [PENDIENTE, CONFIRMADA, RECHAZADA, CANCELADA]
- *               clienteId:
- *                 type: integer
- *                 nullable: true
  *     responses:
  *       201:
  *         description: Reservación creada.
