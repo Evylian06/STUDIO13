@@ -1,19 +1,55 @@
 import { useState } from "react";
 import Layout from "../pages/Layout/Layout";
 
+const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3001").replace(/\/+$/, "");
+const etiquetasPaquete = {
+  basico: "Básico",
+  estandar: "Estándar",
+  premium: "Premium",
+  elite: "Elite",
+  "alquiler-hora": "Alquiler por hora",
+  "alquiler-medio": "Alquiler medio día",
+  "alquiler-dia": "Alquiler día completo",
+  personalizado: "Cotización personalizada",
+};
+const formularioVacio = { nombre: "", email: "", telefono: "", paquete: "", mensaje: "" };
+
 export default function Contacto() {
-  const [form, setForm] = useState({
-    nombre: "",
-    telefono: "",
-    paquete: "",
-    mensaje: "",
-  });
-
+  const [form, setForm] = useState(formularioVacio);
   const [sent, setSent] = useState(false);
+  const [enviando, setEnviando] = useState(false);
+  const [errorEnvio, setErrorEnvio] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSent(true);
+    if (enviando) return;
+
+    setEnviando(true);
+    setErrorEnvio("");
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/reservaciones`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: form.nombre.trim(),
+          email: form.email.trim(),
+          telefono: form.telefono.trim(),
+          tipoSesion: etiquetasPaquete[form.paquete],
+          mensaje: form.mensaje.trim(),
+        }),
+      });
+      const body = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(body?.error || "No se pudo enviar la solicitud. Inténtalo nuevamente.");
+
+      setForm(formularioVacio);
+      setSent(true);
+    } catch (error) {
+      setErrorEnvio(error instanceof TypeError
+        ? "No se pudo contactar con el servidor. Inténtalo nuevamente más tarde."
+        : error.message);
+    } finally {
+      setEnviando(false);
+    }
   };
 
   return (
@@ -136,11 +172,10 @@ export default function Contacto() {
                   </h2>
 
                   <p className="t-body max-w-[20rem] mx-auto mb-10">
-                    Recibimos tu solicitud. Te contactaremos en menos de 24
-                    horas para coordinar los detalles.
+                    El estudio confirmó la recepción de tu solicitud. Te contactaremos en menos de 24 horas para coordinar los detalles.
                   </p>
 
-                  <button onClick={() => setSent(false)} className="btn-ghost">
+                  <button onClick={() => { setSent(false); setErrorEnvio(""); }} className="btn-ghost">
                     Enviar otra solicitud
                   </button>
                 </div>
@@ -160,6 +195,21 @@ export default function Contacto() {
                           setForm({ ...form, nombre: e.target.value })
                         }
                         placeholder="Tu nombre completo"
+                        className="w-full bg-transparent border-0 border-b border-[rgba(26,24,24,0.2)] py-3 font-['Inter'] font-light text-sm text-[#1a1818] outline-none transition-colors duration-200 focus:border-[#1a1818]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="t-label block mb-2">
+                        Correo electrónico
+                      </label>
+
+                      <input
+                        type="email"
+                        required
+                        value={form.email}
+                        onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        placeholder="ejemplo@gmail.com"
                         className="w-full bg-transparent border-0 border-b border-[rgba(26,24,24,0.2)] py-3 font-['Inter'] font-light text-sm text-[#1a1818] outline-none transition-colors duration-200 focus:border-[#1a1818]"
                       />
                     </div>
@@ -187,6 +237,7 @@ export default function Contacto() {
                       </label>
 
                       <select
+                        required
                         value={form.paquete}
                         onChange={(e) =>
                           setForm({ ...form, paquete: e.target.value })
@@ -218,24 +269,23 @@ export default function Contacto() {
                     </div>
 
                     <div>
-                      <label className="t-label block mb-2">
+                      <label className="t-label block mb-2" htmlFor="mensaje-reservacion">
                         Cuéntanos tu idea
                       </label>
-
                       <textarea
+                        id="mensaje-reservacion"
                         rows={5}
                         value={form.mensaje}
-                        onChange={(e) =>
-                          setForm({ ...form, mensaje: e.target.value })
-                        }
-                        placeholder="Tipo de sesión, fecha aproximada, número de personas, locación preferida..."
+                        onChange={(e) => setForm({ ...form, mensaje: e.target.value })}
+                        placeholder="Detalles de la sesión o solicitud..."
                         className="w-full bg-transparent resize-none border border-[rgba(26,24,24,0.15)] p-3 font-['Inter'] font-light text-sm text-[#1a1818] outline-none transition-colors duration-200 focus:border-[#1a1818]"
                       />
                     </div>
 
                     <div className="pt-2">
-                      <button type="submit" className="btn-ghost">
-                        Enviar solicitud
+                      {errorEnvio && <p className="mb-4 text-sm text-[#a51c1c]" role="alert">{errorEnvio}</p>}
+                      <button type="submit" className="btn-ghost" disabled={enviando}>
+                        {enviando ? "Enviando..." : "Enviar solicitud"}
                       </button>
 
                       <p className="t-body text-[0.7rem]! mt-4 text-[#aaa8a4]!">
