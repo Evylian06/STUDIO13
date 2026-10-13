@@ -39,12 +39,15 @@ export function useMenuAdmin() {
   return useContext(MenuContext);
 }
 
-export function AdminLista({ titulo, endpoint, columnas }) {
+export function AdminLista({ titulo, endpoint, columnas, busquedaPorNombre = false, edicionLocal = false }) {
   const navigate = useNavigate();
   const [filas, setFilas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
   const [actualizacion, setActualizacion] = useState(0);
+  const [busqueda, setBusqueda] = useState("");
+  const [clienteEditando, setClienteEditando] = useState(null);
+  const [borrador, setBorrador] = useState({ nombre: "", email: "", telefono: "" });
 
   useEffect(() => {
     const controller = new AbortController();
@@ -88,6 +91,18 @@ export function AdminLista({ titulo, endpoint, columnas }) {
     setCargando(true);
     setActualizacion((valor) => valor + 1);
   };
+  const filasVisibles = busquedaPorNombre
+    ? filas.filter((fila) => String(fila.nombre ?? "").toLocaleLowerCase().includes(busqueda.trim().toLocaleLowerCase()))
+    : filas;
+  const iniciarEdicion = (fila) => {
+    setClienteEditando(fila);
+    setBorrador({ nombre: fila.nombre ?? "", email: fila.email ?? "", telefono: fila.telefono ?? "" });
+  };
+  const guardarEdicion = (evento) => {
+    evento.preventDefault();
+    setFilas((actuales) => actuales.map((fila) => fila.id === clienteEditando.id ? { ...fila, ...borrador } : fila));
+    setClienteEditando(null);
+  };
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-350 px-5 py-8 sm:px-7 md:px-10 md:py-10 xl:px-12">
@@ -101,6 +116,13 @@ export function AdminLista({ titulo, endpoint, columnas }) {
           Actualizar
         </button>
       </div>
+
+      {busquedaPorNombre && (
+        <div className="mb-4 max-w-lg">
+          <label className="mb-2 block text-xs font-semibold! text-neutral-700" htmlFor="buscar-clientes">Buscar clientes por nombre</label>
+          <input id="buscar-clientes" type="search" value={busqueda} onChange={(evento) => setBusqueda(evento.target.value)} placeholder="Escribe un nombre..." className="w-full border border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition focus:border-[#a51c1c] focus:ring-2 focus:ring-[#a51c1c]/15" />
+        </div>
+      )}
 
       <div className="overflow-hidden border border-neutral-200 bg-white">
         {error ? (
@@ -117,23 +139,48 @@ export function AdminLista({ titulo, endpoint, columnas }) {
               <tbody>
                 {cargando ? (
                   <tr><td className="px-5 py-8 text-neutral-500" colSpan={columnas.length}>Cargando registros…</td></tr>
-                ) : filas.length ? filas.map((fila, indice) => (
+                ) : filasVisibles.length ? filasVisibles.map((fila, indice) => (
                   <tr className="border-t border-neutral-200 even:bg-[#faf9f8]" key={fila.id ?? indice}>
                     {columnas.map((columna) => {
+                      if (columna.key === "acciones" && edicionLocal) {
+                        return <td className="whitespace-nowrap px-5 py-4" key={columna.key}><button className="border border-[#a51c1c] px-3 py-2 text-xs font-semibold! text-[#a51c1c] transition-colors hover:bg-[#a51c1c] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a51c1c]" type="button" onClick={() => iniciarEdicion(fila)}>Editar</button></td>;
+                      }
                       const valor = columna.key.split(".").reduce((dato, llave) => dato?.[llave], fila);
                       const texto = valor == null || valor === "" ? "—" : typeof valor === "boolean" ? (valor ? "Activo" : "Inactivo") : columna.date && valor ? new Intl.DateTimeFormat("es", { dateStyle: "medium" }).format(new Date(valor)) : String(valor);
                       return <td className="max-w-80 px-5 py-4 text-neutral-700" key={columna.key}><span className="block overflow-hidden text-ellipsis">{texto}</span></td>;
                     })}
                   </tr>
                 )) : (
-                  <tr><td className="px-5 py-8 text-neutral-500" colSpan={columnas.length}>Todavía no hay registros para mostrar.</td></tr>
+                  <tr><td className="px-5 py-8 text-neutral-500" colSpan={columnas.length}>{busquedaPorNombre && busqueda.trim() ? "No hay clientes que coincidan con esa búsqueda." : "Todavía no hay registros para mostrar."}</td></tr>
                 )}
               </tbody>
             </table>
           </div>
         )}
       </div>
-      {!cargando && !error && <p className="mt-3 text-xs text-neutral-500">{filas.length} {filas.length === 1 ? "registro" : "registros"}</p>}
+      {!cargando && !error && <p className="mt-3 text-xs text-neutral-500">{filasVisibles.length} {busquedaPorNombre ? (filasVisibles.length === 1 ? "cliente" : "clientes") : (filasVisibles.length === 1 ? "registro" : "registros")}</p>}
+
+      {clienteEditando && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4" onMouseDown={(evento) => { if (evento.target === evento.currentTarget) setClienteEditando(null); }}>
+          <section role="dialog" aria-modal="true" aria-labelledby="editar-cliente-titulo" className="w-full max-w-lg border border-neutral-200 bg-white p-6 shadow-2xl sm:p-8">
+            <p className="mb-2 text-[10px] font-semibold! tracking-[.2em] text-[#a51c1c] uppercase">Clientes</p>
+            <h2 id="editar-cliente-titulo" className="mb-6 text-2xl text-neutral-900">Editar cliente</h2>
+            <form className="grid gap-5" onSubmit={guardarEdicion}>
+              {[{ key: "nombre", label: "Nombre", type: "text" }, { key: "email", label: "Correo electrónico", type: "email" }, { key: "telefono", label: "Teléfono", type: "tel" }].map((campo) => (
+                <label className="grid gap-2 text-xs font-semibold! text-neutral-700" key={campo.key}>
+                  {campo.label}
+                  <input required type={campo.type} value={borrador[campo.key]} onChange={(evento) => setBorrador((actual) => ({ ...actual, [campo.key]: evento.target.value }))} className="w-full border border-neutral-300 bg-white px-3 py-3 text-sm font-normal! text-neutral-900 outline-none focus:border-[#a51c1c] focus:ring-2 focus:ring-[#a51c1c]/15" />
+                </label>
+              ))}
+              <p className="text-xs text-neutral-500">La fecha de registro se conserva sin cambios. Estas modificaciones solo se reflejan en esta vista.</p>
+              <div className="mt-1 flex flex-wrap justify-end gap-3">
+                <button className="border border-neutral-300 bg-white px-4 py-2.5 text-xs font-semibold! text-neutral-700 transition-colors hover:border-neutral-500" type="button" onClick={() => setClienteEditando(null)}>Cancelar</button>
+                <button className="border border-[#a51c1c] bg-[#a51c1c] px-4 py-2.5 text-xs font-semibold! text-white transition-colors hover:border-black hover:bg-black" type="submit">Guardar cambios</button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
     </main>
   );
 }

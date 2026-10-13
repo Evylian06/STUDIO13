@@ -148,7 +148,7 @@ function Inicio() {
 
   return (
     <div className="min-h-screen bg-[#f5f4f2] text-[#171717]">
-      <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-neutral-200 bg-white/95 px-5 backdrop-blur sm:px-7 md:h-[72px] md:px-10">
+      <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-neutral-200 bg-white/95 px-5 backdrop-blur sm:px-7 md:h-18 md:px-10">
         <div className="flex items-center gap-3 text-xs text-neutral-500 sm:text-sm">
           <button
             className="mr-1 inline-flex border-0 bg-transparent p-1.5 text-neutral-800 md:hidden"
@@ -300,7 +300,7 @@ function Inicio() {
               {!cargando && siguientesReservaciones.length > 0 ? (
                 siguientesReservaciones.map((reserva) => (
                   <li
-                    className="grid min-h-16 grid-cols-[minmax(70px,90px)_minmax(0,1fr)_auto] items-center gap-3 border-b border-neutral-200 py-3 sm:min-h-[76px] sm:grid-cols-[100px_minmax(0,1fr)_auto] sm:gap-4"
+                    className="grid min-h-16 grid-cols-[minmax(70px,90px)_minmax(0,1fr)_auto] items-center gap-3 border-b border-neutral-200 py-3 sm:min-h-19 sm:grid-cols-[100px_minmax(0,1fr)_auto] sm:gap-4"
                     key={reserva.id}
                   >
                     <span className="text-[10px] leading-relaxed text-neutral-500 sm:text-xs">

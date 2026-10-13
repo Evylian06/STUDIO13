@@ -1,5 +1,6 @@
 ﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import logo from '../assets/Studio13_blanco.png';
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/+$/, '');
 
@@ -49,18 +50,9 @@ export default function Login() {
           
           {/* Logo */}
           <div className="text-center mb-9">
-            <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-linear-to-br from-[#c8102e] to-[#8b0000] flex items-center justify-center shadow-lg shadow-[#c8102e]/35">
-              {/* Icono cÃ¡mara */}
-              <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z" />
-                <path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />
-              </svg>
-            </div>
-            <h1 className="font-serif text-2xl font-bold tracking-wide text-white">
-              FotoStudio
-            </h1>
+           <img src={logo} alt="Studio13 Logo" className="mx-auto mb-2 w-50 h-auto" />
             <p className="text-xs text-zinc-400 mt-1.5 tracking-[2px] uppercase">
-              Panel de AdministraciÃ³n
+              Panel de Administración
             </p>
           </div>
 
@@ -69,7 +61,7 @@ export default function Login() {
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-zinc-300 mb-2">
-                Correo electrÃ³nico
+                Correo
               </label>
               <div className="relative">
                 <input
@@ -90,7 +82,7 @@ export default function Login() {
             {/* Password */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-zinc-300 mb-2">
-                ContraseÃ±a
+                Contraseña
               </label>
               <div className="relative">
                 <input
@@ -120,7 +112,7 @@ export default function Login() {
                 Recordarme
               </label>
               <a href="#" className="text-[#c8102e] font-medium hover:text-[#ff2a4a] transition-colors">
-                Â¿Olvidaste tu contraseÃ±a?
+                ¿Olvidaste tu contraseña?
               </a>
             </div>
 
@@ -131,13 +123,13 @@ export default function Login() {
               </div>
             )}
 
-            {/* BotÃ³n */}
+            {/* Botón */}
             <button
               type="submit"
               disabled={loading}
               className="w-full py-3.5 rounded-xl font-semibold text-white bg-linear-to-r from-[#c8102e] to-[#9b0a22] hover:from-[#e01235] hover:to-[#b00c26] shadow-lg shadow-[#c8102e]/40 hover:shadow-[#c8102e]/50 hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             >
-              {loading ? 'Iniciando sesiÃ³n...' : 'Iniciar SesiÃ³n'}
+              {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </button>
           </form>
 
@@ -145,7 +137,7 @@ export default function Login() {
           <div className="mt-8 pt-6 border-t border-zinc-800">
             <p className="text-center text-xs text-zinc-500 leading-relaxed">
               Solo personal autorizado.<br />
-              <span className="text-[#c8102e] font-medium">No hay registro pÃºblico.</span>
+              <span className="text-[#c8102e] font-medium">No hay registro público.</span>
             </p>
           </div>
         </div>
