@@ -346,7 +346,11 @@ const swaggerSpec = swaggerJSDoc({
         },
         EstadoReservacion: {
           type: "string",
-          enum: ["PENDIENTE", "CONFIRMADA", "RECHAZADA", "CANCELADA"],
+          enum: ["PENDIENTE", "CONFIRMADA", "RECHAZADA", "CANCELADA", "COMPLETADA"],
+        },
+        EstadoPagoReservacion: {
+          type: "string",
+          enum: ["PENDIENTE", "PAGADO"],
         },
         Reservacion: {
           type: "object",
@@ -370,6 +374,7 @@ const swaggerSpec = swaggerJSDoc({
             hora: { type: "string", nullable: true },
             mensaje: { type: "string", nullable: true },
             estado: { $ref: "#/components/schemas/EstadoReservacion" },
+            estadoPago: { $ref: "#/components/schemas/EstadoPagoReservacion" },
             clienteId: { type: "integer", nullable: true },
             createdAt: { type: "string", format: "date-time" },
             updatedAt: { type: "string", format: "date-time" },
@@ -410,6 +415,16 @@ for (const [path, pathItem] of Object.entries(swaggerSpec.paths ?? {})) {
           },
         },
       };
+    }
+    if (path.startsWith("/api/reservaciones") && method !== "post") {
+      operation.security = [{ BearerAuth: [] }];
+      operation.responses["401"] ??= {
+        description: "Se requiere una sesión administrativa válida.",
+        content: { "application/json": { schema: { $ref: "#/components/schemas/ApiError" } } },
+      };
+    }
+    if (path === "/api/reservaciones" && method === "post") {
+      operation.security = [{}, { BearerAuth: [] }];
     }
 
     const errorResponse = {

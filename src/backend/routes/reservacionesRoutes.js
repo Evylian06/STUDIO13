@@ -1,7 +1,20 @@
 import { Router } from "express";
 import reservacionController from "../controllers/reservacionController.js";
+import { getSigningSecret, verifyAdminToken } from "../auth/adminToken.js";
+import requireAdmin from "../middleware/requireAdmin.js";
 
 const router = Router();
+
+const allowPublicOrAdminCreate = (req, res, next) => {
+  const authorization = req.get("authorization");
+  if (!authorization) return next();
+  const match = authorization.match(/^Bearer ([^\s]+)$/i);
+  const secret = getSigningSecret();
+  const admin = match && secret ? verifyAdminToken(match[1], secret) : null;
+  if (!admin) return res.status(401).json({ error: "La sesión administrativa no es válida." });
+  req.admin = admin;
+  return next();
+};
 
 /**
  * @swagger
@@ -9,7 +22,7 @@ const router = Router();
  *   post:
  *     tags: [Reservaciones]
  *     summary: Crear una reservación
- *     description: Crea o reutiliza el cliente por correo, y registra la solicitud como PENDIENTE. fecha es opcional hasta coordinar la sesión.
+ *     description: Las solicitudes públicas crean o reutilizan el cliente por correo y quedan PENDIENTE. Una solicitud con token administrativo válido usa un cliente existente y queda CONFIRMADA.
  *     requestBody:
  *       required: true
  *       content:
@@ -45,14 +58,14 @@ const router = Router();
  *       400:
  *         description: Datos o estado inválidos.
  */
-router.post("/", reservacionController.create);
+router.post("/", allowPublicOrAdminCreate, reservacionController.create);
 /**
  * @swagger
  * /api/reservaciones:
  *   get:
  *     tags: [Reservaciones]
  *     summary: Listar reservaciones
- *     description: Incluye el cliente asociado si existe. El acceso no está protegido actualmente.
+ *     description: Incluye el cliente asociado. Requiere autenticación administrativa.
  *     responses:
  *       200:
  *         description: Lista de reservaciones.
@@ -63,14 +76,14 @@ router.post("/", reservacionController.create);
  *               items:
  *                 $ref: '#/components/schemas/Reservacion'
  */
-router.get("/", reservacionController.list);
+router.get("/", requireAdmin, reservacionController.list);
 /**
  * @swagger
  * /api/reservaciones/{id}:
  *   get:
  *     tags: [Reservaciones]
  *     summary: Obtener una reservación
- *     description: El acceso no está protegido actualmente.
+ *     description: Requiere autenticación administrativa.
  *     parameters:
  *       - in: path
  *         name: id
@@ -87,14 +100,14 @@ router.get("/", reservacionController.list);
  *       404:
  *         description: Reservación no encontrada.
  */
-router.get("/:id", reservacionController.getById);
+router.get("/:id", requireAdmin, reservacionController.getById);
 /**
  * @swagger
  * /api/reservaciones/{id}:
  *   patch:
  *     tags: [Reservaciones]
  *     summary: Actualizar una reservación
- *     description: El estado permitido es PENDIENTE, CONFIRMADA, RECHAZADA o CANCELADA. El acceso no está protegido actualmente.
+ *     description: Permite actualizar por separado los datos de agenda, el estado de la reservación o el estado del pago. Requiere autenticación administrativa.
  *     parameters:
  *       - in: path
  *         name: id
@@ -117,14 +130,14 @@ router.get("/:id", reservacionController.getById);
  *       404:
  *         description: Reservación no encontrada.
  */
-router.patch("/:id", reservacionController.update);
+router.patch("/:id", requireAdmin, reservacionController.update);
 /**
  * @swagger
  * /api/reservaciones/{id}:
  *   delete:
  *     tags: [Reservaciones]
  *     summary: Eliminar una reservación
- *     description: El acceso no está protegido actualmente.
+ *     description: Requiere autenticación administrativa.
  *     parameters:
  *       - in: path
  *         name: id
@@ -137,6 +150,6 @@ router.patch("/:id", reservacionController.update);
  *       404:
  *         description: Reservación no encontrada.
  */
-router.delete("/:id", reservacionController.remove);
+router.delete("/:id", requireAdmin, reservacionController.remove);
 
 export default router;

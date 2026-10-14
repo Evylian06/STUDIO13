@@ -15,6 +15,17 @@ const safeSelect = {
   telefono: true,
   createdAt: true,
   updatedAt: true,
+  reservaciones: {
+    select: {
+      id: true,
+      tipoSesion: true,
+      fecha: true,
+      hora: true,
+      estado: true,
+      estadoPago: true,
+    },
+    orderBy: [{ fecha: "desc" }, { id: "desc" }],
+  },
 };
 
 const list = async (_req, res) => {

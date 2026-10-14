@@ -143,6 +143,7 @@ model Reservacion {
   hora       String?
   mensaje    String?
   estado     EstadoReservacion @default(PENDIENTE)
+  estadoPago EstadoPagoReservacion @default(PENDIENTE)
   clienteId  Int?
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
@@ -163,4 +164,10 @@ enum EstadoReservacion {
   CONFIRMADA
   RECHAZADA
   CANCELADA
+  COMPLETADA
+}
+
+enum EstadoPagoReservacion {
+  PENDIENTE
+  PAGADO
 }
