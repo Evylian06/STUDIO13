@@ -1,4 +1,4 @@
-import { AdminLista } from "./Layout/AdminLayout.jsx";
+import { AdminLista } from "./AdminLista.jsx";
 
 export default function Membresias() {
   return <AdminLista titulo="Membresías" endpoint="/api/membresias" columnas={[

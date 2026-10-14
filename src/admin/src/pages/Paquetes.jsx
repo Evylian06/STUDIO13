@@ -1,4 +1,4 @@
-import { AdminLista } from "./Layout/AdminLayout.jsx";
+import { AdminLista } from "./AdminLista.jsx";
 
 export default function Paquetes() {
   return <AdminLista titulo="Paquetes" endpoint="/api/paquetes" columnas={[

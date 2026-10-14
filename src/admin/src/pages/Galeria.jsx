@@ -1,4 +1,4 @@
-import { AdminLista } from "./Layout/AdminLayout.jsx";
+import { AdminLista } from "./AdminLista.jsx";
 
 export default function Galeria() {
   return <AdminLista titulo="Galería" endpoint="/api/galerias" columnas={[

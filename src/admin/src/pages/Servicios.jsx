@@ -1,4 +1,4 @@
-import { AdminLista } from "./Layout/AdminLayout.jsx";
+import { AdminLista } from "./AdminLista.jsx";
 
 export default function Servicios() {
   return <AdminLista titulo="Servicios" endpoint="/api/servicios" columnas={[
