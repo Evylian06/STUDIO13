@@ -368,9 +368,22 @@ router.patch("/servicios/:id", servicioController.update);
  */
 router.delete("/servicios/:id", servicioController.remove);
 
+router.get("/paquetes", paqueteController.listAdmin);
 /**
  * @swagger
  * /api/admin/paquetes:
+ *   get:
+ *     tags: [Paquetes]
+ *     summary: Listar todos los paquetes para administración
+ *     responses:
+ *       200:
+ *         description: Paquetes publicados y ocultos con sus beneficios.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Paquete'
  *   post:
  *     tags: [Paquetes]
  *     summary: Crear un paquete

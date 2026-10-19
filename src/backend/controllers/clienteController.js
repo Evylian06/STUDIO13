@@ -30,7 +30,11 @@ const safeSelect = {
 
 const list = async (_req, res) => {
   try {
-    return res.json(await prisma.cliente.findMany({ select: safeSelect, orderBy: { id: "asc" } }));
+    return res.json(await prisma.cliente.findMany({
+      where: { reservaciones: { some: { estado: { not: "CANCELADA" } } } },
+      select: safeSelect,
+      orderBy: { id: "asc" },
+    }));
   } catch (error) {
     return reportControllerError(res, "obtener los clientes", error);
   }

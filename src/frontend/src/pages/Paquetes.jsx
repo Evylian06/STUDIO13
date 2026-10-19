@@ -1,96 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Layout from "../pages/Layout/Layout";
 
-const sessions = [
-  {
-    id: "basico",
-    name: "Básico",
-    price: "₡45,000",
-    usd: "≈ $85",
-    duration: "1 h",
-    photos: "20 fotos",
-    bullets: [
-      "1 hora · estudio",
-      "20 fotos editadas",
-      "1 look / fondo",
-      "Galería digital",
-    ],
-    note: "Retrato · contenido personal",
-  },
-  {
-    id: "estandar",
-    name: "Estándar",
-    price: "₡90,000",
-    usd: "≈ $165",
-    duration: "2 h",
-    photos: "50 fotos",
-    bullets: [
-      "2 horas · estudio",
-      "50 fotos editadas",
-      "3 looks / fondos",
-      "Reel 30 seg incluido",
-    ],
-    note: "Parejas · familia · quinceañera",
-    featured: true,
-  },
-  {
-    id: "premium",
-    name: "Premium",
-    price: "₡165,000",
-    usd: "≈ $305",
-    duration: "4 h",
-    photos: "100 fotos",
-    bullets: [
-      "4 h · estudio + exteriores",
-      "100 fotos editadas",
-      "Looks ilimitados",
-      "3 Reels + 5 impresiones",
-    ],
-    note: "Bodas civiles · marca personal",
-  },
-  {
-    id: "elite",
-    name: "Elite",
-    price: "₡300,000",
-    usd: "≈ $555",
-    duration: "Día completo",
-    photos: "Ilimitadas",
-    bullets: [
-      "8 h · estudio + locaciones",
-      "Fotos ilimitadas editadas",
-      "Reels ilimitados",
-      "Uso comercial incluido",
-    ],
-    note: "Bodas · campañas · producción",
-  },
-];
+const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3001").replace(/\/+$/, "");
 
-const rental = [
-  {
-    name: "Por hora",
-    price: "₡15,000",
-    usd: "≈ $28",
-    bullets: ["Estudio completo", "Iluminación básica", "Fondo blanco / negro"],
-  },
-  {
-    name: "Medio día",
-    price: "₡50,000",
-    usd: "≈ $92",
-    bullets: [
-      "4 horas",
-      "Toda la iluminación",
-      "Todos los fondos · área maquillaje",
-    ],
-    featured: true,
-  },
-  {
-    name: "Día completo",
-    price: "₡85,000",
-    usd: "≈ $157",
-    bullets: ["8 horas", "Equipo completo", "Asistencia técnica incluida"],
-  },
-];
+const mostrarPrecio = (valor) => valor == null || valor === ""? "Precio por definir": new Intl.NumberFormat("es-PE", {
+      style: "currency", currency: "PEN", minimumFractionDigits: 2, maximumFractionDigits: 2}).format(Number(valor));
 
 const faqs = [
   {
@@ -118,6 +33,45 @@ const faqs = [
 export default function Paquetes() {
   const [tab, setTab] = useState("session");
   const [openFaq, setOpenFaq] = useState(null);
+  const [paquetes, setPaquetes] = useState([]);
+  const [alquileres, setAlquileres] = useState([]);
+  const [tarifas, setTarifas] = useState([]);
+  const [cargandoPaquetes, setCargandoPaquetes] = useState(true);
+  const [errorPaquetes, setErrorPaquetes] = useState("");
+  const [cargandoCatalogo, setCargandoCatalogo] = useState(true);
+  const [errorCatalogo, setErrorCatalogo] = useState("");
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(`${API_BASE_URL}/api/paquetes`, { signal: controller.signal })
+      .then(async (response) => {
+        const body = await response.json();
+        if (!response.ok) throw new Error(body.error || "No se pudieron cargar los paquetes.");
+        return body;
+      })
+      .then((body) => { if (!controller.signal.aborted) setPaquetes(body); })
+      .catch((error) => { if (!controller.signal.aborted) setErrorPaquetes(error.message); })
+      .finally(() => { if (!controller.signal.aborted) setCargandoPaquetes(false); });
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    Promise.all(["ALQUILER", "TARIFA"].map(async (seccion) => {
+      const response = await fetch(`${API_BASE_URL}/api/paquetes?seccion=${seccion}`, { signal: controller.signal });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error || `No se pudieron cargar ${seccion.toLowerCase()}.`);
+      return [seccion, body];
+    }))
+      .then((resultados) => {
+        if (controller.signal.aborted) return;
+        setAlquileres(resultados.find(([seccion]) => seccion === "ALQUILER")?.[1] || []);
+        setTarifas(resultados.find(([seccion]) => seccion === "TARIFA")?.[1] || []);
+      })
+      .catch((error) => { if (!controller.signal.aborted) setErrorCatalogo(error.message); })
+      .finally(() => { if (!controller.signal.aborted) setCargandoCatalogo(false); });
+    return () => controller.abort();
+  }, []);
 
   return (
     <Layout>
@@ -157,26 +111,26 @@ export default function Paquetes() {
         {/* SESSION PACKAGES */}
         {tab === "session" && (
           <section className="px-8 md:px-12 py-12 max-w-340 mx-auto">
-            <p className="t-body max-w-135 mb-12">
-              Todos los paquetes incluyen uso del estudio, iluminación
-              profesional y galería digital privada.
-            </p>
 
             {/* PACKAGES GRID */}
+            {cargandoPaquetes && <p className="t-body py-8">Cargando paquetes...</p>}
+            {errorPaquetes && <p className="py-8 text-sm text-[#a51c1c]" role="alert">{errorPaquetes}</p>}
+            {!cargandoPaquetes && !errorPaquetes && paquetes.length === 0 && <p className="t-body py-8">Pronto publicaremos nuestros paquetes.</p>}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 border-t border-[rgba(26,24,24,0.1)]">
-              {sessions.map((pkg, index) => (
+              {paquetes.map((pkg, index) => (
                 <div
                   key={pkg.id}
                   className={`
                   p-8 relative
                   border-b border-[rgba(26,24,24,0.1)]
                   ${
-                    index < sessions.length - 1
+                    index < paquetes.length - 1
                       ? "xl:border-r border-[rgba(26,24,24,0.1)]"
                       : ""
                   }
                 `}
                 >
+                  {pkg.imagenUrl && <img src={pkg.imagenUrl} alt={pkg.nombre} className="-mx-8 -mt-8 mb-6 h-40 w-[calc(100%+4rem)] object-cover" />}
                   {pkg.featured && (
                     <span className="absolute top-5 right-5 font-['Inter'] font-normal text-[0.58rem] tracking-[0.2em] uppercase text-[#a51c1c] border-b border-[#a51c1c] pb-px">
                       Popular
@@ -184,42 +138,30 @@ export default function Paquetes() {
                   )}
 
                   <p className="font-[Fraunces,Georgia,serif] font-light text-base tracking-widest uppercase text-[#8a8880] mb-6">
-                    {pkg.name}
+                    {pkg.nombre}
                   </p>
 
                   <p className="font-[Fraunces,Georgia,serif] italic font-extralight text-[2.4rem] text-[#1a1818] leading-none mb-1">
-                    {pkg.price}
+                    {mostrarPrecio(pkg.precio)}
                   </p>
 
-                  <p className="t-body text-[0.72rem] mb-3">{pkg.usd}</p>
-
-                  <div className="flex gap-5 mb-8">
-                    <span className="font-['Inter'] font-light text-[0.75rem] text-[#8a8880]">
-                      {pkg.duration}
-                    </span>
-
-                    <span className="font-['Inter'] font-light text-[0.75rem] text-[#8a8880]">
-                      {pkg.photos}
-                    </span>
-                  </div>
-
                   <div className="border-t border-[rgba(26,24,24,0.08)] pt-6 mb-6">
-                    {pkg.bullets.map((bullet) => (
+                    {(pkg.caracteristicas || []).map((item) => (
                       <div
-                        key={bullet}
+                        key={item.id}
                         className="flex gap-[0.6rem] items-baseline mb-[0.55rem]"
                       >
                         <span className="w-1 h-1 rounded-full bg-[#a51c1c] shrink-0 mt-1.25" />
 
                         <span className="font-['Inter'] font-light text-[0.78rem] text-[#5a5856] leading-[1.4]">
-                          {bullet}
+                          {item.nombre}
                         </span>
                       </div>
                     ))}
                   </div>
 
                   <p className="t-body text-[0.7rem] text-[#aaa8a4] italic mb-8">
-                    {pkg.note}
+                    {pkg.descripcion}
                   </p>
 
                   <Link to="/contacto" className="btn-ghost text-[0.62rem]">
@@ -280,42 +222,41 @@ export default function Paquetes() {
 
             {/* RENTAL GRID */}
             <div className="grid grid-cols-1 md:grid-cols-3 border-t border-[rgba(26,24,24,0.1)]">
-              {rental.map((pkg, index) => (
+              {cargandoCatalogo && <p className="t-body py-8">Cargando servicios de alquiler...</p>}
+              {errorCatalogo && <p className="py-8 text-sm text-[#a51c1c]" role="alert">{errorCatalogo}</p>}
+              {!cargandoCatalogo && !errorCatalogo && alquileres.length === 0 && <p className="t-body py-8">Pronto publicaremos servicios de alquiler.</p>}
+              {alquileres.map((pkg, index) => (
                 <div
-                  key={pkg.name} className={` p-8 border-b border-[rgba(26,24,24,0.1)] relative
+                  key={pkg.id} className={` p-8 border-b border-[rgba(26,24,24,0.1)] relative
                   ${
-                    index < rental.length - 1
+                    index < alquileres.length - 1
                       ? "md:border-r border-[rgba(26,24,24,0.1)]"
                       : ""
                   }
                 `}
                 >
-                  {pkg.featured && (
-                    <span className="absolute top-5 right-5 font-['Inter'] font-normal text-[0.58rem] tracking-[0.2em] uppercase text-[#a51c1c] border-b border-[#a51c1c] pb-px">
-                      Popular
-                    </span>
-                  )}
+                  {pkg.imagenUrl && <img src={pkg.imagenUrl} alt={pkg.nombre} className="-mx-8 -mt-8 mb-6 h-40 w-[calc(100%+4rem)] object-cover" />}
 
                   <p className="font-[Fraunces,Georgia,serif] font-light text-base tracking-widest uppercase text-[#8a8880] mb-6">
-                    {pkg.name}
+                    {pkg.nombre}
                   </p>
 
                   <p className="font-[Fraunces,Georgia,serif] italic font-extralight text-[2.4rem] text-[#1a1818] leading-none mb-1">
-                    {pkg.price}
+                    {mostrarPrecio(pkg.precio)}
                   </p>
 
-                  <p className="t-body text-[0.72rem] mb-8">{pkg.usd}</p>
+                  {pkg.descripcion && <p className="t-body mb-5 whitespace-pre-wrap">{pkg.descripcion}</p>}
 
                   <div className="border-t border-[rgba(26,24,24,0.08)] pt-6 mb-8">
-                    {pkg.bullets.map((bullet) => (
+                    {(pkg.caracteristicas || []).map((item) => (
                       <div
-                        key={bullet}
+                        key={item.id}
                         className="flex gap-[0.6rem] items-baseline mb-[0.55rem]"
                       >
                         <span className="w-1 h-1 rounded-full bg-[#a51c1c] shrink-0 mt-1.25" />
 
                         <span className="font-['Inter'] font-light text-[0.78rem] text-[#5a5856] leading-[1.4]">
-                          {bullet}
+                          {item.nombre}
                         </span>
                       </div>
                     ))}
@@ -370,61 +311,18 @@ export default function Paquetes() {
               específicos de cada sesión.
             </p>
 
+            {cargandoCatalogo && <p className="t-body py-8">Cargando tarifas...</p>}
+            {errorCatalogo && <p className="py-8 text-sm text-[#a51c1c]" role="alert">{errorCatalogo}</p>}
+            {!cargandoCatalogo && !errorCatalogo && tarifas.length === 0 && <p className="t-body py-8">Pronto publicaremos nuestras tarifas.</p>}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 border-t border-[rgba(26,24,24,0.1)]">
-              {[
-                {
-                  servicio: "Fotografía corporativa",
-                  rango: "₡60,000 – ₡120,000",
-                },
-                {
-                  servicio: "Quinceañero",
-                  rango: "₡80,000 – ₡150,000",
-                },
-                {
-                  servicio: "Fotos familiares",
-                  rango: "₡45,000 – ₡90,000",
-                },
-                {
-                  servicio: "Sesión de embarazo",
-                  rango: "₡55,000 – ₡100,000",
-                },
-                {
-                  servicio: "Parejas",
-                  rango: "₡45,000 – ₡90,000",
-                },
-                {
-                  servicio: "Fotografía de producto (Snacks Queik)",
-                  rango: "₡40,000 – ₡80,000",
-                },
-                {
-                  servicio: "Cobertura de eventos",
-                  rango: "₡90,000 – ₡200,000",
-                },
-                {
-                  servicio: "Sesión en exteriores",
-                  rango: "₡55,000 – ₡110,000",
-                },
-                {
-                  servicio: "Talleres fotográficos",
-                  rango: "₡25,000 – ₡60,000 / persona",
-                },
-                {
-                  servicio: "Alquiler de estudio (hora)",
-                  rango: "₡15,000",
-                },
-              ].map((row) => (
-                <div
-                  key={row.servicio}
-                  className="flex justify-between items-baseline py-4 border-b border-[rgba(26,24,24,0.08)] gap-6"
-                >
-                  <span className="t-body text-[0.82rem] text-[#3a3836]">
-                    {row.servicio}
-                  </span>
-
-                  <span className="font-[Fraunces,Georgia,serif] font-light text-[0.95rem] text-[#1a1818] whitespace-nowrap shrink-0">
-                    {row.rango}
-                  </span>
-                </div>
+              {tarifas.map((tarifa) => (
+                <article key={tarifa.id} className="border-b border-[rgba(26,24,24,0.1)] p-6">
+                  {tarifa.imagenUrl && <img src={tarifa.imagenUrl} alt={tarifa.nombre} className="-mx-6 -mt-6 mb-5 h-40 w-[calc(100%+3rem)] object-cover" />}
+                  <h2 className="mb-3 font-[Fraunces,Georgia,serif] text-base font-light tracking-widest uppercase text-[#8a8880]">{tarifa.nombre}</h2>
+                  <p className="mb-4 font-[Fraunces,Georgia,serif] text-2xl font-light text-[#1a1818]">{mostrarPrecio(tarifa.precio)}</p>
+                  {tarifa.descripcion && <p className="t-body mb-5 whitespace-pre-wrap">{tarifa.descripcion}</p>}
+                  {(tarifa.caracteristicas || []).length > 0 && <ul className="grid gap-2 border-t border-[rgba(26,24,24,0.08)] pt-4 text-sm text-[#5a5856]">{tarifa.caracteristicas.map((item) => <li key={item.id} className="flex gap-2"><span className="text-[#a51c1c]">•</span><span>{item.nombre}</span></li>)}</ul>}
+                </article>
               ))}
             </div>
 

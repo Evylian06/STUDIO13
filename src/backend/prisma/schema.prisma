@@ -79,9 +79,16 @@ model Paquete {
   publicId        String?
   orden           Int                     @default(0)
   activo          Boolean                 @default(true)
+  seccion         SeccionPaquete          @default(SESION)
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
   caracteristicas PaqueteCaracteristica[]
+}
+
+enum SeccionPaquete {
+  SESION
+  ALQUILER
+  TARIFA
 }
 
 model PaqueteCaracteristica {

@@ -1,0 +1,4 @@
+CREATE TYPE "SeccionPaquete" AS ENUM ('SESION', 'ALQUILER', 'TARIFA');
+
+ALTER TABLE "Paquete"
+ADD COLUMN "seccion" "SeccionPaquete" NOT NULL DEFAULT 'SESION';

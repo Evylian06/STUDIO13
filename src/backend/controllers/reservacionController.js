@@ -21,6 +21,7 @@ const list = async (_req, res) => {
   try {
     return res.json(
       await prisma.reservacion.findMany({
+        where: { estado: { not: "CANCELADA" } },
         include: includeCliente,
         orderBy: [{ fecha: "asc" }, { id: "asc" }],
       }),
