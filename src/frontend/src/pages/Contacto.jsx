@@ -263,23 +263,25 @@ export default function Contacto() {
                           Alquiler día completo — ₡85,000
                         </option>
                         <option value="personalizado">
-                          Cotización personalizada
+                          Cotización personalizada — Precio por definir
                         </option>
                       </select>
                     </div>
 
                     <div>
                       <label className="t-label block mb-2" htmlFor="mensaje-reservacion">
-                        Cuéntanos tu idea
+                        {form.paquete === "personalizado" ? "Describe qué necesitas para la cotización" : "Cuéntanos tu idea"}
                       </label>
                       <textarea
                         id="mensaje-reservacion"
                         rows={5}
+                        required={form.paquete === "personalizado"}
                         value={form.mensaje}
                         onChange={(e) => setForm({ ...form, mensaje: e.target.value })}
                         placeholder="Detalles de la sesión o solicitud..."
                         className="w-full bg-transparent resize-none border border-[rgba(26,24,24,0.15)] p-3 font-['Inter'] font-light text-sm text-[#1a1818] outline-none transition-colors duration-200 focus:border-[#1a1818]"
                       />
+                      {form.paquete === "personalizado" && <p className="t-body mt-2 text-[0.75rem]!">Precio por definir según lo que necesites.</p>}
                     </div>
 
                     <div className="pt-2">
