@@ -8,9 +8,9 @@ const secciones = [
   { label: "Clientes", icon: "users", to: "/admin/Clientes" },
   { label: "Reservaciones", icon: "calendar", to: "/admin/Reservaciones" },
   { label: "Paquetes", icon: "layers", to: "/admin/Paquetes" },
-  { label: "MembresÃ­as", icon: "membership", to: "/admin/Membresias" },
+  { label: "Membresi­as", icon: "membership", to: "/admin/Membresias" },
   { label: "Servicios", icon: "camera", to: "/admin/Servicios" },
-  { label: "GalerÃ­a", icon: "image", to: "/admin/Galeria" },
+  { label: "Galeri­a", icon: "image", to: "/admin/Galeria" },
 ];
 
 const trazosIcono = {

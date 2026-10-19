@@ -6,7 +6,7 @@ const opcionesSesion = [
   ["Básico", "Básico — ₡45,000"], ["Estándar", "Estándar — ₡90,000"], ["Premium", "Premium — ₡165,000"],
   ["Elite", "Elite — ₡300,000"], ["Alquiler por hora", "Alquiler por hora — ₡15,000"],
   ["Alquiler medio día", "Alquiler medio día — ₡50,000"], ["Alquiler día completo", "Alquiler día completo — ₡85,000"],
-  ["Cotización personalizada", "Cotización personalizada — Precio por definir"],
+  ["Cotizaci\u00f3n personalizada", "Cotizaci\u00f3n personalizada — Precio por definir"],
 ];
 const paisesTelefono = [
   { codigo: "CR", prefijo: "+506", bandera: "🇨🇷" }, { codigo: "PE", prefijo: "+51", bandera: "🇵🇪" },
@@ -85,7 +85,6 @@ export default function Reservaciones() {
     }
   };
 
-  const actualizarReservacion = (actualizada) => setFilas((actuales) => actuales.map((fila) => fila.id === actualizada.id ? { ...fila, ...actualizada } : fila));
   const cambiarReservacion = async (id, payload) => {
     setErrorOperacion("");
     try {
@@ -93,7 +92,12 @@ export default function Reservaciones() {
       const body = await response.json();
       redirigirSiNoAutorizado(response, navigate);
       if (!response.ok) throw new Error(body.error || "No se pudo actualizar la reservación.");
-      actualizarReservacion(body);
+      if (payload.estado === "CANCELADA") {
+        setFilas((actuales) => actuales.filter((fila) => fila.id !== id));
+        setClientes((actuales) => actuales.filter((cliente) => cliente.id !== body.clienteId || (cliente.reservaciones || []).some((reserva) => reserva.id !== id && reserva.estado !== "CANCELADA")));
+      } else {
+        setFilas((actuales) => actuales.map((fila) => fila.id === body.id ? { ...fila, ...body } : fila));
+      }
     } catch (reason) {
       setErrorOperacion(mensajeError(reason));
     }
@@ -142,7 +146,7 @@ export default function Reservaciones() {
       <div className="mb-4 max-w-lg"><label className="mb-2 block text-xs font-semibold! text-neutral-700" htmlFor="buscar-reservaciones">Buscar reservaciones por nombre del cliente</label><input id="buscar-reservaciones" type="search" value={busqueda} onChange={(evento) => setBusqueda(evento.target.value)} placeholder="Escribe un nombre..." className="w-full border border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition focus:border-[#a51c1c] focus:ring-2 focus:ring-[#a51c1c]/15" /></div>
       <div className="overflow-hidden border border-neutral-200 bg-white">{error ? <div className="flex flex-wrap items-center justify-between gap-4 p-5 text-sm text-[#a51c1c]" role="alert"><span>{error}</span><button className="underline" type="button" onClick={recargar}>Reintentar</button></div> : <div className="overflow-x-auto"><table className="w-full min-w-155 border-collapse text-left text-sm"><thead className="bg-[#111] text-white"><tr>{["Cliente", "Sesión", "Fecha", "Hora", "Estado", "Pago", "Acciones"].map((titulo) => <th className="px-5 py-4 text-xs font-semibold! tracking-wide" key={titulo}>{titulo}</th>)}</tr></thead><tbody>
         {cargando ? <tr><td className="px-5 py-8 text-neutral-500" colSpan={7}>Cargando registros…</td></tr> : filasVisibles.length ? filasVisibles.map((reserva) => { const estado = { PENDIENTE: "Pendiente", CONFIRMADA: "Confirmada", CANCELADA: "Cancelada", COMPLETADA: "Completada", RECHAZADA: "Rechazada" }[reserva.estado] || reserva.estado; const tono = reserva.estado === "CONFIRMADA" || reserva.estado === "COMPLETADA" ? "border-green-200 bg-green-50 text-green-800" : reserva.estado === "CANCELADA" || reserva.estado === "RECHAZADA" ? "border-neutral-300 bg-neutral-100 text-neutral-600" : "border-[#e3b8bb] bg-red-50 text-[#a51c1c]"; const pagado = reserva.estadoPago === "PAGADO"; return <tr className="border-t border-neutral-200 even:bg-[#faf9f8]" key={reserva.id}>
-          <td className="px-5 py-4 text-neutral-700">{reserva.cliente?.nombre || "—"}</td><td className="px-5 py-4 text-neutral-700">{reserva.tipoSesion || "—"}</td><td className="whitespace-nowrap px-5 py-4 text-neutral-700">{reserva.fecha ? new Intl.DateTimeFormat("es", { dateStyle: "medium" }).format(new Date(reserva.fecha)) : "—"}</td><td className="px-5 py-4 text-neutral-700">{reserva.hora || "—"}</td>
+          <td className="px-5 py-4 text-neutral-700">{reserva.cliente?.nombre || "—"}</td><td className="px-5 py-4 text-neutral-700"><div>{reserva.tipoSesion || null}</div>{reserva.tipoSesion === "Cotizaci\u00f3n personalizada" && reserva.mensaje && <p className="mb-0 mt-2 whitespace-pre-wrap text-xs text-neutral-600">{reserva.mensaje}</p>}</td><td className="whitespace-nowrap px-5 py-4 text-neutral-700">{reserva.fecha ? new Intl.DateTimeFormat("es", { dateStyle: "medium" }).format(new Date(reserva.fecha)) : "—"}</td><td className="px-5 py-4 text-neutral-700">{reserva.hora || "—"}</td>
           <td className="whitespace-nowrap px-5 py-4"><div className="grid justify-items-start gap-2"><span className={`border px-2.5 py-1 text-[10px] font-semibold! uppercase ${tono}`}>{estado}</span>{reserva.estado !== "CANCELADA" && <select aria-label={`Cambiar estado de reservación de ${reserva.cliente?.nombre || "cliente"}`} value={reserva.estado} onChange={(evento) => cambiarEstado(reserva, evento.target.value)} className="border border-neutral-300 bg-white px-2 py-1 text-xs"><option value="PENDIENTE">Pendiente</option><option value="CONFIRMADA">Confirmada</option><option value="RECHAZADA">Rechazada</option><option value="COMPLETADA">Completada</option><option value="CANCELADA">Cancelada</option></select>}</div></td>
           <td className="whitespace-nowrap px-5 py-4"><span className={`border px-2.5 py-1 text-[10px] font-semibold! uppercase ${pagado ? "border-green-200 bg-green-50 text-green-800" : "border-[#e3b8bb] bg-red-50 text-[#a51c1c]"}`}>{pagado ? "Pagado" : "Pendiente de pago"}</span></td><td className="whitespace-nowrap px-5 py-4"><div className="flex gap-2"><button className="border border-[#a51c1c] px-3 py-2 text-xs font-semibold! text-[#a51c1c] transition-colors hover:bg-[#a51c1c] hover:text-white" type="button" onClick={() => iniciarEdicion(reserva)}>Editar</button><button className="border border-neutral-400 px-3 py-2 text-xs font-semibold! text-neutral-700 disabled:cursor-not-allowed disabled:opacity-45" type="button" disabled={reserva.estado === "CANCELADA"} onClick={() => cambiarEstado(reserva, "CANCELADA")}>{reserva.estado === "CANCELADA" ? "Cancelada" : "Cancelar"}</button></div></td>
         </tr>; }) : <tr><td className="px-5 py-8 text-neutral-500" colSpan={7}>{busqueda.trim() ? "No hay reservaciones que coincidan con esa búsqueda." : "Todavía no hay reservaciones para mostrar."}</td></tr>}
@@ -157,7 +161,7 @@ export default function Reservaciones() {
         </>}
         <label className="grid gap-2 text-xs font-semibold! text-neutral-700">Sesión<select required value={nuevaReservacion.tipoSesion} onChange={(evento) => setNuevaReservacion((actual) => ({ ...actual, tipoSesion: evento.target.value }))} className="w-full border border-neutral-300 bg-white px-3 py-3 text-sm font-normal! text-neutral-900"><option value="" disabled>Seleccionar sesión…</option>{opcionesSesion.map(([valor, etiqueta]) => <option key={valor} value={valor}>{etiqueta}</option>)}</select></label>
         <div className="grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-xs font-semibold! text-neutral-700">Fecha<input required type="date" value={nuevaReservacion.fecha} onChange={(evento) => setNuevaReservacion((actual) => ({ ...actual, fecha: evento.target.value }))} className="w-full border border-neutral-300 bg-white px-3 py-3 text-sm font-normal! text-neutral-900" /></label><label className="grid gap-2 text-xs font-semibold! text-neutral-700">Hora<input required type="time" value={nuevaReservacion.hora} onChange={(evento) => setNuevaReservacion((actual) => ({ ...actual, hora: evento.target.value }))} className="w-full border border-neutral-300 bg-white px-3 py-3 text-sm font-normal! text-neutral-900" /></label></div>
-        {nuevaReservacion.tipoSesion === "Cotización personalizada" && <label className="grid gap-2 text-xs font-semibold! text-neutral-700">Descripción de la cotización (precio por definir)<textarea required rows={4} value={nuevaReservacion.mensaje} onChange={(evento) => setNuevaReservacion((actual) => ({ ...actual, mensaje: evento.target.value }))} className="w-full border border-neutral-300 bg-white px-3 py-3 text-sm font-normal! text-neutral-900" /></label>}
+        {nuevaReservacion.tipoSesion === "Cotizaci\u00f3n personalizada" && <label className="grid gap-2 text-xs font-semibold! text-neutral-700">Descripción de la cotización (precio por definir)<textarea required rows={4} value={nuevaReservacion.mensaje} onChange={(evento) => setNuevaReservacion((actual) => ({ ...actual, mensaje: evento.target.value }))} className="w-full border border-neutral-300 bg-white px-3 py-3 text-sm font-normal! text-neutral-900" /></label>}
         <p className="m-0 text-xs text-neutral-500">Se registrará como Confirmada. El estado del pago se administra desde Clientes.</p>{errorOperacion && <p className="m-0 text-sm text-[#a51c1c]" role="alert">{errorOperacion}</p>}<div className="flex justify-end gap-3"><button type="button" disabled={guardandoNueva} onClick={() => setCrearAbierto(false)} className="border border-neutral-300 px-4 py-2.5 text-xs font-semibold! text-neutral-700">Cancelar</button><button type="submit" disabled={guardandoNueva || (!clienteSeleccionado && (!busquedaCliente.trim() || clientesVisibles.length > 0))} className="border border-[#a51c1c] bg-[#a51c1c] px-4 py-2.5 text-xs font-semibold! text-white disabled:opacity-60">{guardandoNueva ? "Guardando…" : "Crear reservación"}</button></div>
       </form></section></div>}
 
