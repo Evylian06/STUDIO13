@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL, adminHeaders, mensajeError, redirigirSiNoAutorizado, useAdminCollection } from "./useAdminCollection.js";
 
-const formularioVacio = { nombre: "", descripcion: "", precio: "", beneficios: "", imagenId: "", activo: true };
+const formularioVacio = { nombre: "", descripcion: "", precio: "", duracion: "", beneficios: "", imagenId: "", activo: true };
 const secciones = [
   { id: "SESION", nombre: "Sesiones" },
   { id: "ALQUILER", nombre: "Alquiler" },
   { id: "TARIFA", nombre: "Tarifas" },
 ];
+const tiposServicio = ["Corporativas", "Quinceañero", "Fotos Familiares", "Embarazo", "Parejas", "Snacks Queik", "Eventos", "Exteriores", "Talleres"];
 const campo = "w-full border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-[#a51c1c]";
 const etiqueta = "grid gap-1.5 text-xs font-semibold! text-neutral-700";
 
@@ -31,6 +32,7 @@ export default function Paquetes() {
   const filasVisibles = filas.filter((paquete) => (paquete.seccion || "SESION") === seccionActiva);
   const nombreSeccion = secciones.find((seccion) => seccion.id === seccionActiva)?.nombre || "Sesiones";
   const textoNuevo = seccionActiva === "SESION" ? "Nueva sesión" : seccionActiva === "ALQUILER" ? "Nuevo alquiler" : "Nueva tarifa";
+  const etiquetaNombre = seccionActiva === "TARIFA" ? "Nombre del servicio" : seccionActiva === "ALQUILER" ? "Nombre del alquiler" : "Nombre del paquete";
 
   useEffect(() => {
     const controller = new AbortController();
@@ -56,11 +58,13 @@ export default function Paquetes() {
 
   const abrirEdicion = (paquete) => {
     const imagen = imagenes.find((item) => item.url === paquete.imagenUrl && item.publicId === paquete.publicId);
+    const coincidenciaDuracion = paquete.seccion === "ALQUILER" ? paquete.descripcion?.match(/^Duración: ([^\n]+)\n?(?:\n)?/) : null;
     setPaqueteEditando(paquete);
     setBorrador({
       nombre: paquete.nombre || "",
-      descripcion: paquete.descripcion || "",
+      descripcion: coincidenciaDuracion ? paquete.descripcion.slice(coincidenciaDuracion[0].length) : paquete.descripcion || "",
       precio: paquete.precio == null ? "" : String(paquete.precio),
+      duracion: coincidenciaDuracion?.[1] || "",
       beneficios: (paquete.caracteristicas || []).map((item) => item.nombre).join("\n"),
       imagenId: imagen ? String(imagen.id) : "",
       activo: paquete.activo !== false,
@@ -74,14 +78,18 @@ export default function Paquetes() {
     evento.preventDefault();
     if (guardando) return;
     const precio = Number(borrador.precio);
+    if (seccionActiva === "TARIFA" && (!borrador.nombre.trim() || (!tiposServicio.includes(borrador.nombre) && borrador.nombre !== paqueteEditando?.nombre))) return setErrorOperacion("Selecciona un tipo de servicio.");
     if (!borrador.nombre.trim()) return setErrorOperacion("Escribe el nombre del paquete.");
     if (!borrador.precio || !Number.isFinite(precio) || precio < 0) return setErrorOperacion("Indica un precio válido igual o mayor que cero.");
 
     const imagen = imagenes.find((item) => String(item.id) === borrador.imagenId);
     const caracteristicas = borrador.beneficios.split("\n").map((item) => item.trim()).filter(Boolean);
+    const descripcion = seccionActiva === "ALQUILER" && borrador.duracion.trim()
+      ? `Duración: ${borrador.duracion.trim()}${borrador.descripcion.trim() ? `\n\n${borrador.descripcion.trim()}` : ""}`
+      : borrador.descripcion.trim() || null;
     const payload = {
       nombre: borrador.nombre.trim(),
-      descripcion: borrador.descripcion.trim() || null,
+      descripcion,
       precio,
       imagenUrl: imagen?.url || paqueteEditando?.imagenUrl || null,
       publicId: imagen?.publicId || paqueteEditando?.publicId || null,
@@ -169,20 +177,21 @@ export default function Paquetes() {
               {(paquete.caracteristicas || []).length > 0 && <ul className="mb-5 grid gap-2 border-t border-neutral-200 pt-4 text-sm text-neutral-700">{paquete.caracteristicas.map((item) => <li className="flex gap-2" key={item.id}><span className="text-[#a51c1c]">•</span><span>{item.nombre}</span></li>)}</ul>}
               <div className="flex flex-wrap gap-2 border-t border-neutral-200 pt-4"><button type="button" onClick={() => abrirEdicion(paquete)} className="border border-[#a51c1c] px-3 py-2 text-xs font-semibold! text-[#a51c1c] hover:bg-[#a51c1c] hover:text-white">Editar</button><button type="button" onClick={() => cambiarPublicacion(paquete)} className="border border-neutral-400 px-3 py-2 text-xs font-semibold! text-neutral-700 hover:border-black hover:text-black">{paquete.activo ? "Ocultar" : "Publicar"}</button><button type="button" onClick={() => eliminar(paquete)} className="border border-neutral-300 px-3 py-2 text-xs font-semibold! text-neutral-600 hover:border-[#a51c1c] hover:text-[#a51c1c]">Eliminar</button></div>
             </div></article>)}</div>
-          : <div className="border border-neutral-200 bg-white px-6 py-12 text-center"><h2 className="mb-2 font-[Georgia] text-xl font-normal! text-neutral-900">Todavía no hay paquetes</h2><p className="mb-5 text-sm text-neutral-500">Crea un paquete para comenzar a publicar opciones en el catálogo.</p><button type="button" onClick={abrirNuevo} className="border border-[#a51c1c] bg-[#a51c1c] px-4 py-2.5 text-xs font-semibold! text-white hover:bg-black">Nuevo paquete</button></div>}
+          : <div className="border border-neutral-200 bg-white px-6 py-12 text-center"><h2 className="mb-2 font-[Georgia] text-xl font-normal! text-neutral-900">Todavía no hay paquetes</h2><p className="mb-5 text-sm text-neutral-500">Crea un paquete para comenzar a publicar opciones en el catálogo.</p><button type="button" onClick={abrirNuevo} className="border border-[#a51c1c] bg-[#a51c1c] px-4 py-2.5 text-xs font-semibold! text-white hover:bg-black">Nuevo paquete </button></div>}
 
       {!cargando && !error && <p className="mt-3 text-xs text-neutral-500">{filasVisibles.length} {nombreSeccion.toLowerCase()}</p>}
 
       {modalAbierto && <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/55 p-3 sm:p-4" onMouseDown={(evento) => { if (evento.target === evento.currentTarget && !guardando) setModalAbierto(false); }}><section role="dialog" aria-modal="true" aria-labelledby="paquete-modal-titulo" className="my-auto max-h-[75vh] w-full max-w-105 overflow-y-auto rounded-xl border border-neutral-300 bg-white p-4 shadow-2xl sm:p-5">
-        <p className="mb-2 text-[10px] font-semibold! tracking-[.2em] text-[#a51c1c] uppercase">Catálogo</p><h2 id="paquete-modal-titulo" className="mb-4 font-[Georgia] text-xl font-normal! text-neutral-900">{paqueteEditando ? "Editar paquete" : "Nuevo paquete"}</h2>
+        <p className="mb-2 text-[10px] font-semibold! tracking-[.2em] text-[#a51c1c] uppercase">Catálogo</p><h2 id="paquete-modal-titulo" className="mb-4 font-[Georgia] text-xl font-normal! text-neutral-900">{paqueteEditando ? "Editar paquete" : seccionActiva === "SESION" ? "Nueva sesión" : seccionActiva === "ALQUILER" ? "Nuevo alquiler" : "Nueva tarifa"}</h2>
         <form className="grid gap-3" onSubmit={guardar}>
-          <label className={etiqueta}>Nombre del paquete<input className={campo} required maxLength={120} value={borrador.nombre} onChange={(evento) => setBorrador((actual) => ({ ...actual, nombre: evento.target.value }))} /></label>
+          <label className={etiqueta}>{etiquetaNombre}{seccionActiva === "TARIFA" ? <select className={campo} required value={borrador.nombre} onChange={(evento) => setBorrador((actual) => ({ ...actual, nombre: evento.target.value }))}><option value="">Selecciona un servicio</option>{paqueteEditando?.nombre && !tiposServicio.includes(paqueteEditando.nombre) && <option value={paqueteEditando.nombre}>{paqueteEditando.nombre}</option>}{tiposServicio.map((tipo) => <option key={tipo} value={tipo}>{tipo}</option>)}</select> : <input className={campo} required maxLength={120} value={borrador.nombre} onChange={(evento) => setBorrador((actual) => ({ ...actual, nombre: evento.target.value }))} />}</label>
           <label className={etiqueta}>Descripción<textarea className={campo} rows={2} value={borrador.descripcion} onChange={(evento) => setBorrador((actual) => ({ ...actual, descripcion: evento.target.value }))} /></label>
+          {seccionActiva === "ALQUILER" && <label className={etiqueta}>Duración<input className={campo} required maxLength={80} placeholder="Ej. 2 horas" value={borrador.duracion} onChange={(evento) => setBorrador((actual) => ({ ...actual, duracion: evento.target.value }))} /></label>}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className={etiqueta}>Precio (S/)<input className={campo} type="number" required min="0" step="0.01" value={borrador.precio} onChange={(evento) => setBorrador((actual) => ({ ...actual, precio: evento.target.value }))} /></label>
             <div className="flex items-end"><label className="flex items-center gap-3 text-xs font-semibold! text-neutral-700"><input type="checkbox" checked={borrador.activo} onChange={(evento) => setBorrador((actual) => ({ ...actual, activo: evento.target.checked }))} className="accent-[#a51c1c]" />Publicado en el sitio público</label></div>
           </div>
-          <label className={etiqueta}>Beneficios incluidos <span className="font-normal! text-neutral-500">{"Escribe un beneficio por l\u00ednea."}</span><textarea className={campo} rows={3} value={borrador.beneficios} onChange={(evento) => setBorrador((actual) => ({ ...actual, beneficios: evento.target.value }))} /></label>
+          <label className={etiqueta}>{seccionActiva === "TARIFA" ? "Detalles de la tarifa" : "Beneficios incluidos"} <span className="font-normal! text-neutral-500">{seccionActiva === "SESION" ? "Escribe un beneficio por l\u00ednea." : "Escribe un detalle por l\u00ednea."}</span><textarea className={campo} rows={3} value={borrador.beneficios} onChange={(evento) => setBorrador((actual) => ({ ...actual, beneficios: evento.target.value }))} /></label>
           <fieldset className="grid gap-2 border-0 p-0"><legend className="mb-1 text-xs font-semibold! text-neutral-700">Imagen de la biblioteca</legend>{imagenes.length ? <div className="grid max-h-40 grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3">{imagenes.map((imagen) => <button key={imagen.id} type="button" onClick={() => setBorrador((actual) => ({ ...actual, imagenId: actual.imagenId === String(imagen.id) ? "" : String(imagen.id) }))} className={`overflow-hidden border text-left ${borrador.imagenId === String(imagen.id) ? "border-[#a51c1c] ring-2 ring-[#a51c1c]/20" : "border-neutral-200"}`}><img src={imagen.url} alt={imagen.nombre} className="h-16 w-full object-cover" /><span className="block truncate px-2 py-1 text-xs text-neutral-700">{imagen.nombre}</span></button>)}</div> : <p className="m-0 text-xs text-neutral-500">{"No hay im\u00e1genes disponibles en la biblioteca."}</p>}</fieldset>
           {errorOperacion && <p className="m-0 text-sm text-[#a51c1c]" role="alert">{errorOperacion}</p>}
           <div className="sticky bottom-0 z-10 -mx-4 mt-1 flex justify-end gap-2 border-t border-neutral-200 bg-white px-4 pt-2 pb-1 sm:-mx-5 sm:px-5"><button type="button" disabled={guardando} onClick={() => setModalAbierto(false)} className="border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold! text-neutral-700">Cancelar</button><button type="submit" disabled={guardando} className="border border-[#a51c1c] bg-[#a51c1c] px-3 py-2 text-xs font-semibold! text-white disabled:opacity-60">{guardando ? "Guardando…" : "Guardar"}</button></div>

@@ -1,10 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Layout from "../pages/Layout/Layout.jsx";
 import studio13Logo from "../assets/studio13_blanco.png";
 import { Link } from "react-router-dom";
 import Testimonios from "../Components/Testimonios.jsx";
 
 const Inicio = () => {
+  const [planesMembresia, setPlanesMembresia] = useState([]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const apiBaseUrl = (import.meta.env.VITE_API_URL || "http://localhost:3001").replace(/\/+$/, "");
+    fetch(`${apiBaseUrl}/api/planes-membresia`, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error("No se pudieron cargar las membresías.");
+        return response.json();
+      })
+      .then((planes) => { if (!controller.signal.aborted) setPlanesMembresia(planes); })
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
 
   const categories = [
     {
@@ -217,6 +231,22 @@ const Inicio = () => {
         </section>
         {/* ── TESTIMONIALS ── */}
         <Testimonios />
+
+        <section id="membresias" className="border-t border-[rgba(26,24,24,0.08)] px-8 py-20 md:px-12">
+          <div className="mx-auto max-w-340">
+            <p className="t-label mb-5">Planes disponibles</p>
+            <h2 className="mb-10 font-[Fraunces,Georgia,serif] text-[clamp(2rem,4vw,3.8rem)] font-extralight italic text-[#1a1818]">Membresías Studio13</h2>
+            <div className="grid grid-cols-1 border-t border-[rgba(26,24,24,0.1)] md:grid-cols-2 xl:grid-cols-3">
+              {planesMembresia.filter((plan) => plan.agregarInicio).map((plan) => <article key={plan.id} className="border-b border-[rgba(26,24,24,0.1)] p-8 md:border-r md:border-[rgba(26,24,24,0.1)]">
+                <h3 className="mb-4 font-[Fraunces,Georgia,serif] text-xl font-light uppercase tracking-widest text-[#8a8880]">{plan.nombre}</h3>
+                <p className="mb-2 font-[Fraunces,Georgia,serif] text-3xl font-light text-[#1a1818]">{new Intl.NumberFormat("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(plan.precio))}</p>
+                <p className="mb-4 text-xs text-[#8a8880]">Vigencia de {plan.duracionDias} días</p>
+                {plan.descripcion && <p className="t-body whitespace-pre-wrap">{plan.descripcion}</p>}
+              </article>)}
+            </div>
+            {!planesMembresia.some((plan) => plan.agregarInicio) && <p className="t-body pt-6">No hay membresías destacadas en Inicio por el momento.</p>}
+          </div>
+        </section>
         
         {/* ── CTA ── */}
         <section className="py-28 px-12 text-center">

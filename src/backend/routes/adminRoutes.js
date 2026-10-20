@@ -570,6 +570,17 @@ router.delete(
 /**
  * @swagger
  * /api/admin/planes-membresia:
+ *   get:
+ *     tags: [Planes de membresía]
+ *     summary: Listar planes de membresía para administración
+ *     responses:
+ *       200:
+ *         description: Lista de planes con cantidad de membresías adquiridas.
+ */
+router.get("/planes-membresia", planMembresiaController.listAdmin);
+/**
+ * @swagger
+ * /api/admin/planes-membresia:
  *   post:
  *     tags: [Planes de membresía]
  *     summary: Crear un plan de membresía
@@ -579,7 +590,7 @@ router.delete(
  *         application/json:
  *           schema:
  *             type: object
- *             required: [nombre, precio, duracionDias]
+ *             required: [nombre, descripcion, precio, periodo, beneficiosItems]
  *             properties:
  *               nombre:
  *                 type: string
@@ -589,6 +600,22 @@ router.delete(
  *                 type: number
  *               duracionDias:
  *                 type: integer
+ *               periodo:
+ *                 type: string
+ *                 enum: [MENSUAL, TRIMESTRAL, ANUAL]
+ *               limiteSesiones:
+ *                 type: integer
+ *                 nullable: true
+ *               imagenUrl:
+ *                 type: string
+ *                 nullable: true
+ *               publicId:
+ *                 type: string
+ *                 nullable: true
+ *               beneficiosItems:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *               activo:
  *                 type: boolean
  *               orden:

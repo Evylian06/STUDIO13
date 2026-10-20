@@ -89,7 +89,7 @@ export default function Paquetes() {
 
         {/* TABS */}
         <div className="border-b border-[rgba(26,24,24,0.08)] px-8 md:px-12 flex">
-          {["session", "rental"].map((type) => (
+          {["session", "rental", "rates"].map((type) => (
             <button
               key={type}
               onClick={() => setTab(type)}
@@ -103,7 +103,9 @@ export default function Paquetes() {
             >
               {type === "session"
                 ? "Sesiones fotográficas"
-                : "Alquiler de estudio"}
+                : type === "rental"
+                  ? "Alquiler de estudio"
+                  : "Tarifas"}
             </button>
           ))}
         </div>
@@ -116,12 +118,12 @@ export default function Paquetes() {
             {cargandoPaquetes && <p className="t-body py-8">Cargando paquetes...</p>}
             {errorPaquetes && <p className="py-8 text-sm text-[#a51c1c]" role="alert">{errorPaquetes}</p>}
             {!cargandoPaquetes && !errorPaquetes && paquetes.length === 0 && <p className="t-body py-8">Pronto publicaremos nuestros paquetes.</p>}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 border-t border-[rgba(26,24,24,0.1)]">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 items-stretch border-t border-[rgba(26,24,24,0.1)]">
               {paquetes.map((pkg, index) => (
                 <div
                   key={pkg.id}
                   className={`
-                  p-8 relative
+                  p-8 relative flex flex-col
                   border-b border-[rgba(26,24,24,0.1)]
                   ${
                     index < paquetes.length - 1
@@ -164,7 +166,7 @@ export default function Paquetes() {
                     {pkg.descripcion}
                   </p>
 
-                  <Link to="/contacto" className="btn-ghost text-[0.62rem]">
+                  <Link to="/contacto" className="btn-ghost mt-auto text-[0.62rem]">
                     Reservar
                   </Link>
                 </div>
@@ -221,13 +223,13 @@ export default function Paquetes() {
             </div>
 
             {/* RENTAL GRID */}
-            <div className="grid grid-cols-1 md:grid-cols-3 border-t border-[rgba(26,24,24,0.1)]">
+            <div className="grid grid-cols-1 md:grid-cols-3 items-stretch border-t border-[rgba(26,24,24,0.1)]">
               {cargandoCatalogo && <p className="t-body py-8">Cargando servicios de alquiler...</p>}
               {errorCatalogo && <p className="py-8 text-sm text-[#a51c1c]" role="alert">{errorCatalogo}</p>}
               {!cargandoCatalogo && !errorCatalogo && alquileres.length === 0 && <p className="t-body py-8">Pronto publicaremos servicios de alquiler.</p>}
               {alquileres.map((pkg, index) => (
                 <div
-                  key={pkg.id} className={` p-8 border-b border-[rgba(26,24,24,0.1)] relative
+                  key={pkg.id} className={` p-8 border-b border-[rgba(26,24,24,0.1)] relative flex h-full flex-col
                   ${
                     index < alquileres.length - 1
                       ? "md:border-r border-[rgba(26,24,24,0.1)]"
@@ -262,7 +264,7 @@ export default function Paquetes() {
                     ))}
                   </div>
 
-                  <Link to="/contacto" className="btn-ghost text-[0.62rem]">
+                  <Link to="/contacto" className="btn-ghost mt-auto text-[0.62rem]">
                     Reservar
                   </Link>
                 </div>
@@ -301,7 +303,7 @@ export default function Paquetes() {
         )}
 
         {/* TARIFAS */}
-        <section className="px-8 md:px-12 py-16 border-t border-[rgba(26,24,24,0.08)]">
+        {tab === "rates" && <section className="px-8 md:px-12 py-16 border-t border-[rgba(26,24,24,0.08)]">
           <div className="max-w-340 mx-auto">
             <p className="t-label mb-8">Tarifas</p>
 
@@ -331,7 +333,9 @@ export default function Paquetes() {
               para una cotización exacta.
             </p>
           </div>
-        </section>
+        </section>}
+
+
 
         {/* FAQ */}
         <section className="px-8 md:px-12 pt-16 pb-24 border-t border-[rgba(26,24,24,0.08)]">

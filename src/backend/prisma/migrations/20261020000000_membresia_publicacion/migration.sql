@@ -1,0 +1,4 @@
+ALTER TABLE "PlanMembresia"
+ADD COLUMN "ubicacionPublica" TEXT NOT NULL DEFAULT 'MEMBRESIAS',
+ADD COLUMN "agregarInicio" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "beneficios" TEXT;

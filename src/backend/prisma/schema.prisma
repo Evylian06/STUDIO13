@@ -112,16 +112,41 @@ model Cliente {
 }
 
 model PlanMembresia {
-  id           Int         @id @default(autoincrement())
-  nombre       String
-  descripcion  String?
-  precio       Decimal     @db.Decimal(10, 2)
-  duracionDias Int
-  activo       Boolean     @default(true)
-  orden        Int         @default(0)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  membresias   Membresia[]
+  id                Int                         @id @default(autoincrement())
+  nombre            String
+  descripcion       String?
+  precio            Decimal                     @db.Decimal(10, 2)
+  duracionDias      Int
+  periodo           PeriodoPlanMembresia         @default(MENSUAL)
+  limiteSesiones    Int?
+  imagenUrl         String?
+  publicId          String?
+  activo            Boolean                     @default(true)
+  archivado         Boolean                     @default(false)
+  orden             Int                         @default(0)
+  ubicacionPublica  String                      @default("MEMBRESIAS")
+  agregarInicio     Boolean                     @default(false)
+  beneficios        String?
+  beneficiosItems   PlanMembresiaBeneficio[]
+  createdAt         DateTime                    @default(now())
+  updatedAt         DateTime                    @updatedAt
+  membresias        Membresia[]
+}
+
+model PlanMembresiaBeneficio {
+  id        Int           @id @default(autoincrement())
+  nombre    String
+  orden     Int           @default(0)
+  planId    Int
+  plan      PlanMembresia @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([planId])
+}
+
+enum PeriodoPlanMembresia {
+  MENSUAL
+  TRIMESTRAL
+  ANUAL
 }
 
 model Membresia {
