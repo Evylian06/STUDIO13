@@ -36,10 +36,13 @@ export default function Paquetes() {
   const [paquetes, setPaquetes] = useState([]);
   const [alquileres, setAlquileres] = useState([]);
   const [tarifas, setTarifas] = useState([]);
+  const [membresias, setMembresias] = useState([]);
   const [cargandoPaquetes, setCargandoPaquetes] = useState(true);
   const [errorPaquetes, setErrorPaquetes] = useState("");
   const [cargandoCatalogo, setCargandoCatalogo] = useState(true);
   const [errorCatalogo, setErrorCatalogo] = useState("");
+  const [cargandoMembresias, setCargandoMembresias] = useState(true);
+  const [errorMembresias, setErrorMembresias] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -73,6 +76,20 @@ export default function Paquetes() {
     return () => controller.abort();
   }, []);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(`${API_BASE_URL}/api/planes-membresia`, { signal: controller.signal })
+      .then(async (response) => {
+        const body = await response.json();
+        if (!response.ok) throw new Error(body.error || "No se pudieron cargar las membresías.");
+        return body;
+      })
+      .then((body) => { if (!controller.signal.aborted) setMembresias(body); })
+      .catch((error) => { if (!controller.signal.aborted) setErrorMembresias(error.message); })
+      .finally(() => { if (!controller.signal.aborted) setCargandoMembresias(false); });
+    return () => controller.abort();
+  }, []);
+
   return (
     <Layout>
       <div className="bg-white">
@@ -89,7 +106,7 @@ export default function Paquetes() {
 
         {/* TABS */}
         <div className="border-b border-[rgba(26,24,24,0.08)] px-8 md:px-12 flex">
-          {["session", "rental", "rates"].map((type) => (
+          {["session", "rental", "rates", "memberships"].map((type) => (
             <button
               key={type}
               onClick={() => setTab(type)}
@@ -102,10 +119,12 @@ export default function Paquetes() {
             `}
             >
               {type === "session"
-                ? "Sesiones fotográficas"
+                ? "Sesiones"
                 : type === "rental"
-                  ? "Alquiler de estudio"
-                  : "Tarifas"}
+                  ? "Alquiler"
+                  : type === "rates"
+                    ? "Tarifas"
+                    : "Membresías"}
             </button>
           ))}
         </div>
@@ -335,7 +354,29 @@ export default function Paquetes() {
           </div>
         </section>}
 
-
+        {tab === "memberships" && <section className="px-8 md:px-12 py-16 border-t border-[rgba(26,24,24,0.08)]">
+          <div className="max-w-340 mx-auto">
+            <p className="t-label mb-8">Membresías</p>
+            <p className="t-body max-w-120 mb-10">Planes para acompañar tus proyectos con beneficios exclusivos.</p>
+            {cargandoMembresias && <p className="t-body py-8">Cargando membresías...</p>}
+            {errorMembresias && <p className="py-8 text-sm text-[#a51c1c]" role="alert">{errorMembresias}</p>}
+            {!cargandoMembresias && !errorMembresias && membresias.length === 0 && <p className="t-body py-8">Pronto publicaremos nuestras membresías.</p>}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 border-t border-[rgba(26,24,24,0.1)]">
+              {membresias.map((membresia) => (
+                <article key={membresia.id} className="border-b border-[rgba(26,24,24,0.1)] p-6">
+                  {membresia.imagenUrl && <img src={membresia.imagenUrl} alt={membresia.nombre} className="-mx-6 -mt-6 mb-5 h-40 w-[calc(100%+3rem)] object-cover" />}
+                  <h2 className="mb-3 font-[Fraunces,Georgia,serif] text-base font-light tracking-widest uppercase text-[#8a8880]">{membresia.nombre}</h2>
+                  <p className="mb-2 font-[Fraunces,Georgia,serif] text-2xl font-light text-[#1a1818]">{mostrarPrecio(membresia.precio)}</p>
+                  <p className="t-body mb-4 text-[0.75rem]">{({ MENSUAL: "Mensual", TRIMESTRAL: "Trimestral", ANUAL: "Anual" })[membresia.periodo] || `${membresia.duracionDias} días`}</p>
+                  {membresia.descripcion && <p className="t-body mb-5 whitespace-pre-wrap">{membresia.descripcion}</p>}
+                  {(membresia.beneficiosItems || []).length > 0 && <ul className="grid gap-2 border-t border-[rgba(26,24,24,0.08)] pt-4 text-sm text-[#5a5856]">{membresia.beneficiosItems.map((item) => <li key={item.id} className="flex gap-2"><span className="text-[#a51c1c]">•</span><span>{item.nombre}</span></li>)}</ul>}
+                  {membresia.limiteSesiones != null && <p className="t-body mt-4 text-[0.75rem]">Hasta {membresia.limiteSesiones} sesiones</p>}
+                  <Link to="/contacto" className="btn-ghost mt-6 text-[0.62rem]">Consultar membresía</Link>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>}
 
         {/* FAQ */}
         <section className="px-8 md:px-12 pt-16 pb-24 border-t border-[rgba(26,24,24,0.08)]">
