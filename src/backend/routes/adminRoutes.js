@@ -7,6 +7,9 @@ import servicioController from "../controllers/servicioController.js";
 
 const router = Router();
 
+router.get("/galerias", galeriaController.list);
+router.get("/servicios", servicioController.list);
+
 /**
  * @swagger
  * /api/admin/imagenes:

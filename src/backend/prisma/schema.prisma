@@ -36,9 +36,11 @@ model Galeria {
   descripcion String?
   orden       Int             @default(0)
   activo      Boolean         @default(true)
+  servicioId  Int?            @unique
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   imagenes    GaleriaImagen[]
+  servicio    Servicio?       @relation(fields: [servicioId], references: [id], onDelete: SetNull)
 }
 
 model GaleriaImagen {
@@ -66,6 +68,7 @@ model Servicio {
   publicId    String?
   orden       Int      @default(0)
   activo      Boolean  @default(true)
+  galeria     Galeria?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

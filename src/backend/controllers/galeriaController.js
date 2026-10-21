@@ -10,6 +10,10 @@ const galleryFields = ["nombre", "slug", "descripcion", "orden", "activo"];
 const imageFields = ["titulo", "descripcion", "url", "publicId", "orden", "activo"];
 const requiredGalleryFields = ["nombre", "slug"];
 const requiredImageFields = ["url"];
+const includeServiceAndImages = {
+  servicio: { select: { id: true, nombre: true, activo: true } },
+  imagenes: { orderBy: [{ orden: "asc" }, { id: "asc" }] },
+};
 
 const validPayload = (payload, requiredFields = []) =>
   Object.keys(payload).length > 0 &&
@@ -18,7 +22,7 @@ const validPayload = (payload, requiredFields = []) =>
 const list = async (_req, res) => {
   try {
     const galerias = await prisma.galeria.findMany({
-      include: { imagenes: { orderBy: [{ orden: "asc" }, { id: "asc" }] } },
+      include: includeServiceAndImages,
       orderBy: [{ orden: "asc" }, { id: "asc" }],
     });
     return res.json(galerias);
@@ -34,7 +38,7 @@ const getById = async (req, res) => {
   try {
     const galeria = await prisma.galeria.findUnique({
       where: { id },
-      include: { imagenes: { orderBy: [{ orden: "asc" }, { id: "asc" }] } },
+      include: includeServiceAndImages,
     });
     if (!galeria) return res.status(404).json({ error: "Galería no encontrada." });
     return res.json(galeria);
@@ -65,9 +69,13 @@ const update = async (req, res) => {
   if (!validPayload(data)) return res.status(400).json({ error: "No hay campos válidos para actualizar." });
 
   try {
-    const result = await prisma.galeria.updateMany({ where: { id }, data });
-    if (result.count === 0) return res.status(404).json({ error: "Galería no encontrada." });
-    return res.json(await prisma.galeria.findUnique({ where: { id } }));
+    const galeria = await prisma.galeria.findUnique({ where: { id }, select: { id: true, servicioId: true } });
+    if (!galeria) return res.status(404).json({ error: "Galería no encontrada." });
+    if (galeria.servicioId !== null && (Object.hasOwn(data, "nombre") || Object.hasOwn(data, "slug"))) {
+      return res.status(400).json({ error: "El nombre y el identificador de esta sección se administran desde Servicios." });
+    }
+    await prisma.galeria.update({ where: { id }, data });
+    return res.json(await prisma.galeria.findUnique({ where: { id }, include: includeServiceAndImages }));
   } catch (error) {
     return reportControllerError(res, "actualizar la galería", error);
   }
