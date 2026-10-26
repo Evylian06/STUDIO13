@@ -6,7 +6,7 @@ import Clientes from './pages/Cliente.jsx';
 import Reservaciones from './pages/Reservaciones.jsx';
 import Paquetes from './pages/Paquetes.jsx';
 import Membresias from './pages/Menbresias.jsx';
-import Galeria from './pages/Configuracion.jsx';
+import Galeria from './pages/Galeria.jsx';
 import ConfiguracionPanel from './pages/ConfiguracionPanel.jsx';
 
 function RutaAdministrativa({ children }) {
