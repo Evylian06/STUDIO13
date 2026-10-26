@@ -101,8 +101,8 @@ export default function Galeria() {
             <svg aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>
             <input type="search" value={busquedaImagen} onChange={(evento) => setBusquedaImagen(evento.target.value)} placeholder="Buscar imagen publicada" className="w-full border border-neutral-300 bg-white py-2 pl-9 pr-3 text-xs text-neutral-800 outline-none placeholder:text-neutral-400 focus:border-[#a51c1c]" />
           </label>          <p className="mb-4 text-xs text-neutral-500">{imagenesServicio.length} {imagenesServicio.length === 1 ? "imagen" : "imagenes"} · Asi aparecera en la galeria publica.</p>
-          {imagenesFiltradas.length ? <div className="grid max-h-[520px] grid-cols-1 gap-4 overflow-y-auto sm:grid-cols-2 xl:grid-cols-1">{imagenesFiltradas.map((imagen) => <article key={imagen.id} className="overflow-hidden border border-neutral-200 bg-white">
-            <img src={imagen.preview} alt={imagen.nombre} className="aspect-[4/3] w-full bg-neutral-100 object-cover" />
+          {imagenesFiltradas.length ? <div className="grid max-h-130 grid-cols-1 gap-4 overflow-y-auto sm:grid-cols-2 xl:grid-cols-1">{imagenesFiltradas.map((imagen) => <article key={imagen.id} className="overflow-hidden border border-neutral-200 bg-white">
+            <img src={imagen.preview} alt={imagen.nombre} className="aspect-4/3 w-full bg-neutral-100 object-cover" />
             <div className="p-3"><p className="mb-3 truncate text-xs font-medium! text-neutral-700" title={imagen.titulo || imagen.nombre}>{imagen.titulo || imagen.nombre}</p><div className="block">
               <button type="button" className="w-full border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold! text-neutral-700 hover:border-neutral-500">Editar</button>
             </div></div>

@@ -23,7 +23,7 @@ const validPayload = (payload, requireAll = false) =>
 
 const list = async (_req, res) => {
   try {
-    const imagenes = await prisma.imagen.findMany({ orderBy: [{ orden: "asc" }, { id: "asc" }] });
+    const imagenes = await prisma.imagen.findMany({ where: { tipo: "GENERAL" }, orderBy: [{ orden: "asc" }, { id: "asc" }] });
     return res.json(imagenes);
   } catch (error) {
     return reportControllerError(res, "obtener las imágenes", error);
@@ -35,7 +35,7 @@ const getById = async (req, res) => {
   if (!id) return res.status(400).json({ error: "El id debe ser un entero positivo." });
 
   try {
-    const imagen = await prisma.imagen.findUnique({ where: { id } });
+    const imagen = await prisma.imagen.findFirst({ where: { id, tipo: "GENERAL" } });
     if (!imagen) return res.status(404).json({ error: "Imagen no encontrada." });
     return res.json(imagen);
   } catch (error) {

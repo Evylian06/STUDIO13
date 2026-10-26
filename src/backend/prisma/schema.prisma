@@ -23,10 +23,20 @@ model Imagen {
   publicId    String?
   seccion     String
   descripcion String?
+  textoBoton  String?
+  enlace      String?
+  tipo        TipoImagen @default(GENERAL)
   orden       Int      @default(0)
   activo      Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([tipo, activo])
+}
+
+enum TipoImagen {
+  GENERAL
+  PUBLICIDAD
 }
 
 model Galeria {

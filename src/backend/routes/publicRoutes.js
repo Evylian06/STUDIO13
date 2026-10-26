@@ -1,6 +1,7 @@
 import { Router } from "express";
 import galeriaController from "../controllers/galeriaController.js";
 import imagenController from "../controllers/imagenController.js";
+import publicidadController from "../controllers/publicidadController.js";
 import paqueteController from "../controllers/paqueteController.js";
 import planMembresiaController from "../controllers/planMembresiaController.js";
 import servicioController from "../controllers/servicioController.js";
@@ -25,6 +26,7 @@ const router = Router();
  *                 $ref: '#/components/schemas/Imagen'
  */
 router.get("/imagenes", imagenController.list);
+router.get("/publicidad", publicidadController.listPublic);
 /**
  * @swagger
  * /api/imagenes/{id}:

@@ -1,14 +1,20 @@
 import { Router } from "express";
 import galeriaController from "../controllers/galeriaController.js";
 import imagenController from "../controllers/imagenController.js";
+import publicidadController from "../controllers/publicidadController.js";
 import paqueteController from "../controllers/paqueteController.js";
 import planMembresiaController from "../controllers/planMembresiaController.js";
 import servicioController from "../controllers/servicioController.js";
+import upload from "../config/multer.js";
 
 const router = Router();
 
 router.get("/galerias", galeriaController.list);
 router.get("/servicios", servicioController.list);
+router.get("/publicidad", publicidadController.listAdmin);
+router.post("/publicidad", upload.single("imagen"), publicidadController.create);
+router.patch("/publicidad/:id/publicacion", publicidadController.setPublished);
+router.delete("/publicidad/:id", publicidadController.remove);
 
 /**
  * @swagger

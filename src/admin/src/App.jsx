@@ -8,6 +8,7 @@ import Paquetes from './pages/Paquetes.jsx';
 import Membresias from './pages/Menbresias.jsx';
 import Galeria from './pages/Galeria.jsx';
 import ConfiguracionPanel from './pages/ConfiguracionPanel.jsx';
+import GestionPublicidad from './pages/GestionPublicidad.jsx';
 
 function RutaAdministrativa({ children }) {
   const token = sessionStorage.getItem('studio13AdminToken');
@@ -27,6 +28,7 @@ function App() {
         <Route path="/admin/Membresias" element={<RutaAdministrativa><AdminLayout><Membresias /></AdminLayout></RutaAdministrativa>} />
         <Route path="/admin/Galeria" element={<RutaAdministrativa><AdminLayout><Galeria /></AdminLayout></RutaAdministrativa>} />
         <Route path="/admin/Configuracion" element={<RutaAdministrativa><AdminLayout><ConfiguracionPanel /></AdminLayout></RutaAdministrativa>} />
+        <Route path="/admin/GestionPublicidad" element={<RutaAdministrativa><AdminLayout><GestionPublicidad /></AdminLayout></RutaAdministrativa>} />
         <Route path="/" element={<Navigate to="/iniciar-sesion" replace />} />
         <Route path="*" element={<Navigate to="/Inicio" replace />} />
       </Routes>
