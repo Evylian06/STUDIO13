@@ -6,8 +6,8 @@ import Clientes from './pages/Cliente.jsx';
 import Reservaciones from './pages/Reservaciones.jsx';
 import Paquetes from './pages/Paquetes.jsx';
 import Membresias from './pages/Menbresias.jsx';
-import Servicios from './pages/Servicios.jsx';
-import Galeria from './pages/Galeria.jsx';
+import Galeria from './pages/Configuracion.jsx';
+import ConfiguracionPanel from './pages/ConfiguracionPanel.jsx';
 
 function RutaAdministrativa({ children }) {
   const token = sessionStorage.getItem('studio13AdminToken');
@@ -25,8 +25,8 @@ function App() {
         <Route path="/admin/Reservaciones" element={<RutaAdministrativa><AdminLayout><Reservaciones /></AdminLayout></RutaAdministrativa>} />
         <Route path="/admin/Paquetes" element={<RutaAdministrativa><AdminLayout><Paquetes /></AdminLayout></RutaAdministrativa>} />
         <Route path="/admin/Membresias" element={<RutaAdministrativa><AdminLayout><Membresias /></AdminLayout></RutaAdministrativa>} />
-        <Route path="/admin/Servicios" element={<RutaAdministrativa><AdminLayout><Servicios /></AdminLayout></RutaAdministrativa>} />
         <Route path="/admin/Galeria" element={<RutaAdministrativa><AdminLayout><Galeria /></AdminLayout></RutaAdministrativa>} />
+        <Route path="/admin/Configuracion" element={<RutaAdministrativa><AdminLayout><ConfiguracionPanel /></AdminLayout></RutaAdministrativa>} />
         <Route path="/" element={<Navigate to="/iniciar-sesion" replace />} />
         <Route path="*" element={<Navigate to="/Inicio" replace />} />
       </Routes>

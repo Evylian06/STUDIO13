@@ -9,8 +9,8 @@ const secciones = [
   { label: "Reservaciones", icon: "calendar", to: "/admin/Reservaciones" },
   { label: "Paquetes", icon: "layers", to: "/admin/Paquetes" },
   { label: "Membresi­as", icon: "membership", to: "/admin/Membresias" },
-  { label: "Servicios", icon: "camera", to: "/admin/Servicios" },
   { label: "Galeri­a", icon: "image", to: "/admin/Galeria" },
+  { label: "Configuración", icon: "settings", to: "/admin/Configuracion" },
 ];
 
 const trazosIcono = {
@@ -21,6 +21,7 @@ const trazosIcono = {
   membership: <><circle cx="12" cy="8" r="6" /><path d="m8.2 13-1 8 4.8-2.7 4.8 2.7-1-8" /></>,
   camera: <><path d="M14 4h-4l-2 3H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-4l-2-3Z" /><circle cx="12" cy="13" r="3.5" /></>,
   image: <><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="m21 15-5-5L5 21" /></>,
+  settings: <><circle cx="12" cy="12" r="3" /><path d="M19.4 15a7 7 0 0 0 0-6l1.4-1.1-1.4-2.4-1.7.6a8 8 0 0 0-1.6-.9L15.8 3h-2.8l-.3 2.2a8 8 0 0 0-1.6.9l-1.7-.6L8 7.9 9.4 9a7 7 0 0 0 0 6L8 16.1l1.4 2.4 1.7-.6a8 8 0 0 0 1.6.9L13 21h2.8l.3-2.2a8 8 0 0 0 1.6-.9l1.7.6 1.4-2.4L19.4 15Z" /></>,
   logout: <><path d="M10 17l5-5-5-5M15 12H3" /><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6" /></>,
   menu: <><path d="M4 6h16M4 12h16M4 18h16" /></>,
 };
