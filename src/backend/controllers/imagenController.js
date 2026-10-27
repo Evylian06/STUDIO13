@@ -1,4 +1,5 @@
 import prisma from "../config/databases.js";
+import { deleteImage, uploadImage } from "../config/imageStorage.js";
 import {
   isObjectBody,
   parseId,
@@ -44,6 +45,32 @@ const getById = async (req, res) => {
 };
 
 const create = async (req, res) => {
+  if (req.file) {
+    const nombre = typeof req.body.nombre === "string" ? req.body.nombre.trim() : "";
+    const seccion = typeof req.body.seccion === "string" ? req.body.seccion.trim() : "";
+    if (!nombre || !seccion) return res.status(400).json({ error: "nombre y seccion son obligatorios para subir una imagen." });
+
+    let imagenSubida;
+    try {
+      imagenSubida = await uploadImage(req.file.buffer, req.file.originalname, "galeria", { requireCloudinary: true });
+      const imagen = await prisma.imagen.create({
+        data: {
+          nombre,
+          url: imagenSubida.secure_url,
+          publicId: imagenSubida.public_id,
+          seccion,
+          tipo: "GENERAL",
+          activo: true,
+        },
+      });
+      return res.status(201).json(imagen);
+    } catch (error) {
+      if (imagenSubida?.public_id) await deleteImage(imagenSubida.public_id).catch((deleteError) => console.error("[limpiar imagen de galería]", deleteError));
+      if (error.status === 503) return res.status(503).json({ error: error.message });
+      return reportControllerError(res, "subir la imagen de galería", error);
+    }
+  }
+
   if (!isObjectBody(req.body)) return res.status(400).json({ error: "El cuerpo debe ser un objeto JSON." });
   const data = pickDefined(req.body, fields);
   if (!validPayload(data, true)) {

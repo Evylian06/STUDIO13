@@ -49,7 +49,7 @@ const create = async (req, res) => {
   if (!req.file) return res.status(400).json({ error: "Selecciona una imagen para el anuncio." });
   let imagenSubida;
   try {
-    imagenSubida = await uploadImage(req.file.buffer, req.file.originalname);
+    imagenSubida = await uploadImage(req.file.buffer, req.file.originalname, "anuncios", { requireCloudinary: true });
     const anuncio = await prisma.imagen.create({
       data: {
         nombre: titulo.trim(),
@@ -66,6 +66,7 @@ const create = async (req, res) => {
     return res.status(201).json(anuncio);
   } catch (error) {
     if (imagenSubida?.public_id) await deleteImage(imagenSubida.public_id).catch((deleteError) => console.error("[limpiar imagen de anuncio]", deleteError));
+    if (error.status === 503) return res.status(503).json({ error: error.message });
     return reportControllerError(res, "crear el anuncio", error);
   }
 };

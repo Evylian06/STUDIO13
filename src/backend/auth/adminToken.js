@@ -1,12 +1,4 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import dotenv from "dotenv";
-import { fileURLToPath } from "node:url";
-
-dotenv.config({
-  path: fileURLToPath(new URL("../.env", import.meta.url)),
-  quiet: true,
-});
-
 const TOKEN_LIFETIME_SECONDS = 60 * 60 * 8;
 const MINIMUM_SECRET_LENGTH = 32;
 let signingSecretWarningShown = false;

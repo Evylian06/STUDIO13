@@ -1,6 +1,9 @@
 import dotenv from "dotenv";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-dotenv.config();
+const backendDirectory = dirname(dirname(fileURLToPath(import.meta.url)));
+dotenv.config({ path: join(backendDirectory, ".env"), quiet: true });
 
 const required = (name) => {
   const value = process.env[name]?.trim();
@@ -38,7 +41,7 @@ const env = {
   SMTP_PASS: process.env.SMTP_PASS || undefined,
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME?.trim() || undefined,
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY?.trim() || undefined,
-  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || undefined,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET?.trim() || undefined,
 };
 
 export default env;

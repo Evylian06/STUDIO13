@@ -22,7 +22,7 @@ router.delete("/publicidad/:id", publicidadController.remove);
  *   post:
  *     tags: [Imágenes]
  *     summary: Crear una imagen
- *     description: Crea un registro de imagen. No carga archivos; recibe sus metadatos y URL.
+ *     description: Crea un registro de imagen por JSON o sube una imagen de galería desde multipart/form-data.
  *     requestBody:
  *       required: true
  *       content:
@@ -45,6 +45,18 @@ router.delete("/publicidad/:id", publicidadController.remove);
  *                 type: integer
  *               activo:
  *                 type: boolean
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required: [nombre, seccion, imagen]
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *               seccion:
+ *                 type: string
+ *               imagen:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       201:
  *         description: Imagen creada.
@@ -55,7 +67,7 @@ router.delete("/publicidad/:id", publicidadController.remove);
  *       400:
  *         description: Datos inválidos.
  */
-router.post("/imagenes", imagenController.create);
+router.post("/imagenes", upload.single("imagen"), imagenController.create);
 /**
  * @swagger
  * /api/admin/imagenes/{id}:

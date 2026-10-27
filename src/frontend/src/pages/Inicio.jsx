@@ -2,6 +2,7 @@ import Layout from "../pages/Layout/Layout.jsx";
 import studio13Logo from "../assets/studio13_blanco.png";
 import { Link } from "react-router-dom";
 import Testimonios from "../Components/Testimonios.jsx";
+import AnuncioEmergente from "../Components/AnuncioEmergente.jsx";
 
 const Inicio = () => {
   const categories = [
@@ -80,6 +81,8 @@ const Inicio = () => {
             </p>
           </div>
         </section>
+
+        <AnuncioEmergente />
 
         <section className="min-h-212.5 py-24 px-8 md:px-12 max-w-340 mx-auto flex items-center">
           <div className="w-full grid grid-cols-1 xl:grid-cols-[1fr_1fr] gap-10 xl:gap-12 items-left">

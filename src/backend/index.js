@@ -1,11 +1,8 @@
 import cors from "cors";
-import dotenv from "dotenv";
 import express from "express";
 import { uploadsDirectory } from "./config/imageStorage.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger.js";
-
-dotenv.config();
 
 const app = express();
 const port = process.env.PORT ? Number(process.env.PORT) : 3001;
