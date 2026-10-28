@@ -33,6 +33,7 @@ const listPublic = async (_req, res) => {
       orderBy: [{ orden: "asc" }, { createdAt: "desc" }],
       select: { id: true, nombre: true, url: true, seccion: true, descripcion: true, textoBoton: true, enlace: true },
     });
+    res.set("Cache-Control", "no-store");
     return res.json(anuncios);
   } catch (error) {
     return reportControllerError(res, "obtener los anuncios publicados", error);
@@ -97,9 +98,34 @@ const remove = async (req, res) => {
   try {
     const anuncio = await prisma.imagen.findFirst({ where: { id, tipo: tipoPublicidad } });
     if (!anuncio) return res.status(404).json({ error: "Anuncio no encontrado." });
-    await prisma.imagen.delete({ where: { id } });
-    await deleteImage(anuncio.publicId).catch((error) => console.error("[eliminar archivo de anuncio]", error));
-    return res.status(204).end();
+    if (!anuncio.publicId) return res.status(409).json({ error: "El anuncio no tiene un identificador de almacenamiento verificable; se conservó para evitar una eliminación incompleta." });
+    const porPublicId = [{ publicId: anuncio.publicId }];
+    const porUrl = anuncio.url ? [{ url: anuncio.url }] : [];
+    const referenciasUrl = [{ publicId: anuncio.publicId }, ...(anuncio.url ? [{ imagenUrl: anuncio.url }] : [])];
+    const [imagenesCompartidas, fotografiasGaleria, servicios, paquetes, planes] = await Promise.all([
+      prisma.imagen.count({ where: { id: { not: id }, OR: [...porPublicId, ...porUrl] } }),
+      prisma.galeriaImagen.count({ where: { OR: [...porPublicId, ...porUrl] } }),
+      prisma.servicio.count({ where: { OR: referenciasUrl } }),
+      prisma.paquete.count({ where: { OR: referenciasUrl } }),
+      prisma.planMembresia.count({ where: { OR: referenciasUrl } }),
+    ]);
+    const archivoCompartido = imagenesCompartidas + fotografiasGaleria + servicios + paquetes + planes > 0;
+    await prisma.imagen.updateMany({ where: { id, tipo: tipoPublicidad }, data: { activo: false } });
+    if (!archivoCompartido) {
+      try { await deleteImage(anuncio.publicId); }
+      catch (error) {
+        console.error("[eliminar archivo de anuncio]", error);
+        const anuncioConservado = await prisma.imagen.findFirst({ where: { id, tipo: tipoPublicidad } }).catch(() => null);
+        return res.status(502).json({ error: "Cloudinary no confirmó la eliminación. El anuncio se conservó oculto para poder reintentar.", ...(anuncioConservado ? { image: anuncioConservado } : {}) });
+      }
+    }
+    try { await prisma.imagen.deleteMany({ where: { id, tipo: tipoPublicidad } }); }
+    catch (error) {
+      console.error("[eliminar registro de anuncio]", error);
+      const anuncioConservado = await prisma.imagen.findFirst({ where: { id, tipo: tipoPublicidad } }).catch(() => null);
+      return res.status(503).json({ error: "El archivo se procesó, pero no se pudo retirar el registro. Se conservó oculto para reintentar.", ...(anuncioConservado ? { image: anuncioConservado } : {}) });
+    }
+    return res.json({ assetPreserved: archivoCompartido });
   } catch (error) {
     return reportControllerError(res, "eliminar el anuncio", error);
   }

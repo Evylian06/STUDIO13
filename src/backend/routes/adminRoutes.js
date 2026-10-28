@@ -9,6 +9,7 @@ import upload from "../config/multer.js";
 
 const router = Router();
 
+router.get("/imagenes", imagenController.listAdmin);
 router.get("/galerias", galeriaController.list);
 router.get("/servicios", servicioController.list);
 router.get("/publicidad", publicidadController.listAdmin);
@@ -96,7 +97,7 @@ router.post("/imagenes", upload.single("imagen"), imagenController.create);
  *       404:
  *         description: Imagen no encontrada.
  */
-router.patch("/imagenes/:id", imagenController.update);
+router.patch("/imagenes/:id", upload.single("imagen"), imagenController.update);
 /**
  * @swagger
  * /api/admin/imagenes/{id}:

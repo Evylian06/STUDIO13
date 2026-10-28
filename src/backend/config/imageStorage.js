@@ -60,14 +60,27 @@ export const uploadImage = async (buffer, originalname, destination = "anuncios"
 };
 
 export const deleteImage = async (publicId) => {
-  if (!publicId) return;
+  if (!publicId) throw new Error("No se puede eliminar una imagen sin su identificador de almacenamiento.");
   if (publicId.startsWith("local:")) {
     const localPath = publicId.slice("local:".length);
     const [folder, filename] = localPath.includes("/") ? localPath.split("/") : ["publicidad", localPath];
     const directory = localDirectories[folder];
-    if (!directory || !filename || filename === "." || filename === ".." || filename !== filename.split(/[\\/]/).pop()) return;
+    if (!directory || !filename || filename === "." || filename === ".." || filename !== filename.split(/[\\/]/).pop()) {
+      throw new Error("El identificador del archivo local no es válido.");
+    }
     await rm(join(directory, filename), { force: true });
     return;
   }
-  if (cloudinaryConfigured) await cloudinary.uploader.destroy(publicId, { resource_type: "image" });
+  if (!cloudinaryConfigured) throw new Error("Cloudinary no está configurado; no se pudo verificar la eliminación.");
+  let result;
+  try {
+    result = await cloudinary.uploader.destroy(publicId, { resource_type: "image", invalidate: true });
+  } catch (error) {
+    // A retry after Cloudinary deleted the asset but the database failed returns 404.
+    if (error.http_code !== 404) throw error;
+    return;
+  }
+  if (result?.result !== "ok") {
+    throw new Error(`Cloudinary no confirmó la eliminación del recurso (${result?.result || "sin resultado"}).`);
+  }
 };

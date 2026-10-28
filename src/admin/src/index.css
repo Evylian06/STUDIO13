@@ -141,6 +141,15 @@ blockquote:not([class*="Fraunces"]),
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #c9c6c0; }
 
+.galeria-imagenes-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(120 113 108 / 28%) transparent;
+}
+.galeria-imagenes-scroll::-webkit-scrollbar { width: 6px; }
+.galeria-imagenes-scroll::-webkit-scrollbar-track { background: transparent; }
+.galeria-imagenes-scroll::-webkit-scrollbar-thumb { border-radius: 999px; background: rgb(120 113 108 / 28%); }
+.galeria-imagenes-scroll::-webkit-scrollbar-thumb:hover { background: rgb(120 113 108 / 52%); }
+
 /* --- Responsive helpers --- */
 @media (max-width: 768px) {
   .hide-sm { display: none !important; }
