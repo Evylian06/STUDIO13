@@ -115,7 +115,7 @@ export default function Portafolio() {
             : error ? <div className="py-20 text-center"><p className="t-body mb-5">{error}</p><button type="button" onClick={() => setReload((value) => value + 1)} className="border border-[#a51c1c] px-5 py-3 font-['Inter'] text-xs tracking-widest text-[#a51c1c] hover:bg-[#a51c1c] hover:text-white">Reintentar</button></div>
               : fotos.length ? <div className="columns-[280px] gap-6">{fotos.map((photo) => <button key={photo.id} type="button" onClick={() => setLightbox(photo)} aria-label={`Ampliar ${photo.titulo || photo.categoria}`} className="group relative mb-6 block w-full break-inside-avoid cursor-zoom-in overflow-hidden border-0 bg-[#dedad4] p-0 text-left">
                 <img src={photo.url} alt={photo.titulo || photo.categoria} loading="lazy" className="block w-full object-cover opacity-[0.92] transition-all duration-700 ease-out group-hover:scale-[1.03] group-hover:opacity-100" />
-                <span className="absolute inset-x-0 bottom-0 bg-[linear-gradient(to_top,rgba(12,11,11,0.62)_0%,transparent_100%)] px-4 pb-4 pt-12 text-[0.6rem] tracking-[0.2em] text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
+                <span className="absolute inset-x-0 bottom-0 bg-[linear-gradient(to_top,rgba(12,11,11,0.72)_0%,rgba(12,11,11,0.28)_70%,transparent_100%)] px-4 pb-4 pt-12 text-[0.6rem] tracking-[0.2em] text-white opacity-100 transition-opacity duration-300">
                   <span className="block font-['Inter'] uppercase">{photo.categoria}</span>
                   {photo.titulo && <span className="mt-1 block text-xs tracking-normal">{photo.titulo}</span>}
                 </span>

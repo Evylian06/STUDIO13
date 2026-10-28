@@ -31,6 +31,7 @@ export default function Galeria() {
   const [imagenTituloId, setImagenTituloId] = useState(null);
   const [editandoId, setEditandoId] = useState(null);
   const [busquedaImagen, setBusquedaImagen] = useState("");
+  const [pestanaActiva, setPestanaActiva] = useState("subir");
   const inputRef = useRef(null);
   const imagenesRef = useRef(imagenes);
 
@@ -78,7 +79,9 @@ export default function Galeria() {
 
 
   const imagenesCategoria = imagenes.filter((imagen) => imagen.categoria === categoriaActiva);
-  const imagenesFiltradas = imagenesCategoria.filter((imagen) => `${imagen.titulo} ${imagen.nombre}`.toLocaleLowerCase().includes(busquedaImagen.trim().toLocaleLowerCase()));
+  const imagenesPendientes = imagenesCategoria.filter((imagen) => !imagen.guardada);
+  const imagenesGuardadasCategoria = imagenesCategoria.filter((imagen) => imagen.guardada);
+  const imagenesFiltradas = imagenesGuardadasCategoria.filter((imagen) => `${imagen.titulo} ${imagen.nombre}`.toLocaleLowerCase().includes(busquedaImagen.trim().toLocaleLowerCase()));
 
   const publicarImagenes = async () => {
     const pendientes = imagenes.filter((imagen) => imagen.categoria === categoriaActiva && !imagen.guardada);
@@ -105,6 +108,10 @@ export default function Galeria() {
       }
       setMensajeExito(`${subidas} imagen(es) guardada(s) en ${categoriaActiva}. Ya aparecerán en el portafolio.`);
       setAvisoArchivo("");
+      setTituloImagen("");
+      setImagenTituloId(null);
+      setEditandoId(null);
+      if (inputRef.current) inputRef.current.value = "";
     } catch (reason) {
       setErrorOperacion(mensajeError(reason));
       if (subidas) setMensajeExito(`${subidas} imagen(es) sí se guardaron; revisa el error para continuar con las restantes.`);
@@ -131,6 +138,18 @@ export default function Galeria() {
     }
   };
 
+  const eliminarImagen = async (imagen) => {
+    if (!imagen.guardada || !window.confirm(`¿Eliminar "${imagen.titulo || imagen.nombre}"?`)) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/imagenes/${imagen.id}`, { method: "DELETE", headers: adminHeaders() });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(body.error || "No se pudo eliminar la imagen.");
+      setImagenes((actuales) => actuales.filter((item) => item.id !== imagen.id));
+      setMensajeExito("Imagen eliminada.");
+      setErrorOperacion("");
+    } catch (reason) { setErrorOperacion(mensajeError(reason)); }
+  };
+
   return (
     <main className="mx-auto min-h-screen w-full max-w-350 px-5 py-8 sm:px-7 md:px-10 md:py-10 xl:px-12">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
@@ -145,7 +164,11 @@ export default function Galeria() {
       {errorOperacion && <p className="mb-5 border border-red-200 bg-red-50 p-4 text-sm text-[#a51c1c]" role="alert">{errorOperacion}</p>}
       {mensajeExito && <p className="mb-5 border border-green-200 bg-green-50 p-4 text-sm text-green-800" role="status">{mensajeExito}</p>}
 
-      <section className="mb-7 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
+      <div className="mb-6 flex border-b border-neutral-200" role="tablist" aria-label="Secciones de la galería">
+        {[{ id: "subir", label: "Subir imagen" }, { id: "gestionar", label: "Gestionar imágenes" }].map((tab) => <button key={tab.id} id={`galeria-tab-${tab.id}`} type="button" role="tab" aria-selected={pestanaActiva === tab.id} aria-controls={`galeria-panel-${tab.id}`} onClick={() => setPestanaActiva(tab.id)} className={`border-0 border-b-2 px-5 py-3 text-xs font-semibold! tracking-wide transition-colors ${pestanaActiva === tab.id ? "border-[#a51c1c] text-[#a51c1c]" : "border-transparent bg-transparent text-neutral-500 hover:text-neutral-900"}`}>{tab.label}</button>)}
+      </div>
+
+      {pestanaActiva === "subir" && <section id="galeria-panel-subir" role="tabpanel" aria-labelledby="galeria-tab-subir" className="mb-7 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
         <div className="border border-neutral-200 bg-white p-5 sm:p-6">
           <div className="mb-5"><h2 className="m-0 font-[Georgia] text-xl font-normal! text-neutral-900">Agregar a {categoriaActiva}</h2><p className="mb-0 mt-1 text-xs text-neutral-500">Selecciona imagenes desde tu dispositivo para ver como quedaran.</p></div>
           <button type="button" onClick={() => inputRef.current?.click()} onDragOver={(evento) => { evento.preventDefault(); setArrastrando(true); }} onDragLeave={() => setArrastrando(false)} onDrop={(evento) => { evento.preventDefault(); setArrastrando(false); agregarArchivos(evento.dataTransfer.files); }} className={`flex min-h-52 w-full flex-col items-center justify-center border border-dashed px-5 py-8 text-center transition-colors ${arrastrando ? "border-[#a51c1c] bg-red-50" : "border-neutral-300 bg-neutral-50 hover:border-[#a51c1c] hover:bg-red-50/40"}`}>
@@ -177,26 +200,32 @@ export default function Galeria() {
         </div>
 
         <div className="grid content-start gap-3">
+          <aside className="border border-neutral-200 bg-white p-5 sm:p-6"><h2 className="m-0 font-[Georgia] text-xl font-normal! text-neutral-900">Vista previa de la carga</h2><p className="mb-3 mt-2 text-xs text-neutral-500">{imagenesPendientes.length} imagen(es) seleccionada(s) para {categoriaActiva}.</p>{imagenesPendientes.length ? <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">{imagenesPendientes.map((imagen) => <div key={imagen.id} className="overflow-hidden border border-neutral-200"><img src={imagen.preview} alt={imagen.nombre} className="aspect-square w-full object-cover" /><p className="m-0 truncate p-2 text-xs text-neutral-700" title={imagen.nombre}>{imagen.nombre}</p></div>)}</div> : <p className="m-0 border border-dashed border-neutral-200 bg-neutral-50 p-6 text-center text-xs text-neutral-400">Selecciona una imagen para verla aquí.</p>}</aside>
+          <button type="button" disabled={subiendo || !imagenes.some((imagen) => imagen.categoria === categoriaActiva && !imagen.guardada)} onClick={publicarImagenes} className="w-full border border-[#a51c1c] bg-[#a51c1c] px-4 py-3 text-sm font-semibold! text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-50">{subiendo ? "Subiendo..." : "Guardar y publicar"}</button>
+          <p className="m-0 text-center text-[10px] text-neutral-400">Las imágenes guardadas aparecerán en Portafolio bajo su categoría.</p>
+        </div>
+      </section>}
+
+      {pestanaActiva === "gestionar" && <section id="galeria-panel-gestionar" role="tabpanel" aria-labelledby="galeria-tab-gestionar" className="mb-7 max-w-5xl">
         <aside className="border border-neutral-200 bg-white p-5 sm:p-6">
           <div className="mb-4 flex items-start justify-between gap-3"><div><p className="mb-1 text-[10px] font-semibold! tracking-[.18em] text-neutral-500 uppercase">Vista previa</p><h2 className="m-0 font-[Georgia] text-xl font-normal! text-neutral-900">{categoriaActiva}</h2></div><span className="shrink-0 border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold! text-emerald-800 uppercase">{imagenesCategoria.some((imagen) => imagen.guardada && imagen.activo !== false) ? "Publicado" : "Sin publicar"}</span></div>
           <label className="relative mb-4 block">
             <span className="sr-only">Buscar imagen publicada</span>
             <svg aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>
             <input type="search" value={busquedaImagen} onChange={(evento) => setBusquedaImagen(evento.target.value)} placeholder="Buscar imagen publicada" className="w-full border border-neutral-300 bg-white py-2 pl-9 pr-3 text-xs text-neutral-800 outline-none placeholder:text-neutral-400 focus:border-[#a51c1c]" />
-          </label>          <p className="mb-4 text-xs text-neutral-500">{imagenesCategoria.length} {imagenesCategoria.length === 1 ? "imagen" : "imagenes"} · Así aparecerá en la galería pública.</p>
+          </label>
+          <p className="mb-4 text-xs text-neutral-500">{imagenesGuardadasCategoria.length} {imagenesGuardadasCategoria.length === 1 ? "imagen" : "imágenes"} publicadas en esta categoría.</p>
           {cargando ? <p className="py-8 text-center text-sm text-neutral-500">Cargando imágenes...</p> : imagenesFiltradas.length ? <div className="grid max-h-130 grid-cols-1 gap-4 overflow-y-auto sm:grid-cols-2 xl:grid-cols-1">{imagenesFiltradas.map((imagen) => <article key={imagen.id} className="overflow-hidden border border-neutral-200 bg-white">
             <img src={imagen.preview} alt={imagen.nombre} className="aspect-4/3 w-full bg-neutral-100 object-cover" />
-            <div className="p-3"><p className="mb-3 truncate text-xs font-medium! text-neutral-700" title={imagen.titulo || imagen.nombre}>{imagen.titulo || imagen.nombre}</p><div className="block">
+            <div className="p-3">{editandoId === imagen.id ? <input type="text" maxLength={120} aria-label="Título de la imagen" value={imagen.titulo || ""} onChange={(evento) => { const titulo = evento.target.value; setImagenes((actuales) => actuales.map((item) => item.id === imagen.id ? { ...item, titulo } : item)); }} className="mb-3 w-full border border-neutral-300 px-3 py-2 text-xs text-neutral-800 outline-none focus:border-[#a51c1c]" /> : <p className="mb-3 truncate text-xs font-medium! text-neutral-700" title={imagen.titulo || imagen.nombre}>{imagen.titulo || imagen.nombre}</p>}<div className="block">
               <button type="button" onClick={() => { if (editandoId === imagen.id) guardarTitulo(imagen); else { setEditandoId(imagen.id); setImagenTituloId(imagen.id); setTituloImagen(imagen.titulo || imagen.nombre); } }} className="w-full border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold! text-neutral-700 hover:border-neutral-500">{editandoId === imagen.id ? "Guardar título" : "Editar título"}</button>
+              <button type="button" onClick={() => eliminarImagen(imagen)} className="mt-2 w-full border border-red-200 bg-white px-3 py-2 text-xs font-semibold! text-[#a51c1c] hover:bg-red-50">Eliminar imagen</button>
             </div></div>
           </article>)}</div>
             : <div className="flex min-h-64 flex-col items-center justify-center border border-dashed border-neutral-200 bg-neutral-50 px-5 text-center"><span className="mb-3 text-3xl text-neutral-300">▧</span><p className="mb-1 text-sm font-medium! text-neutral-600">{busquedaImagen ? "No se encontraron imagenes" : "La vista previa aparecera aqui"}</p><p className="m-0 text-xs leading-5 text-neutral-400">{busquedaImagen ? "Prueba otro titulo o nombre de archivo." : `Agrega imagenes a ${categoriaActiva} para verlas en esta columna.`}</p></div>}
           <p className="mb-0 mt-4 border-t border-neutral-200 pt-3 text-[10px] leading-4 text-neutral-400">Las imágenes guardadas y activas aparecen en el Portafolio público.</p>
         </aside>
-        <button type="button" disabled={subiendo || !imagenes.some((imagen) => imagen.categoria === categoriaActiva && !imagen.guardada)} onClick={publicarImagenes} className="w-full border border-[#a51c1c] bg-[#a51c1c] px-4 py-3 text-sm font-semibold! text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-50">{subiendo ? "Subiendo..." : "Guardar y publicar"}</button>
-        <p className="m-0 text-center text-[10px] text-neutral-400">Las imágenes guardadas aparecerán en Portafolio bajo su categoría.</p>
-        </div>
-      </section>
+      </section>}
     </main>
   );
 }
