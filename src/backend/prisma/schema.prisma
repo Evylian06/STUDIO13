@@ -21,6 +21,7 @@ model Imagen {
   nombre      String
   url         String
   publicId    String?
+  servicioId  Int?
   seccion     String
   descripcion String?
   textoBoton  String?
@@ -30,8 +31,10 @@ model Imagen {
   activo      Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  servicio    Servicio? @relation(fields: [servicioId], references: [id], onDelete: SetNull)
 
   @@index([tipo, activo])
+  @@index([tipo, servicioId])
 }
 
 enum TipoImagen {
@@ -79,6 +82,7 @@ model Servicio {
   orden       Int      @default(0)
   activo      Boolean  @default(true)
   galeria     Galeria?
+  imagenes    Imagen[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

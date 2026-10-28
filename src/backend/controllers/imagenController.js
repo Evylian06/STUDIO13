@@ -7,17 +7,32 @@ import {
   reportControllerError,
 } from "./_shared.js";
 
-const fields = [
-  "nombre",
-  "url",
-  "publicId",
-  "seccion",
-  "descripcion",
-  "orden",
-  "activo",
-];
-const editableFields = ["nombre", "seccion", "descripcion", "orden", "activo"];
-const requiredFields = ["nombre", "url", "seccion"];
+const fields = ["nombre", "url", "publicId", "servicioId", "seccion", "descripcion", "orden", "activo"];
+const editableFields = ["nombre", "servicioId", "descripcion", "orden", "activo"];
+const requiredFields = ["nombre", "url", "servicioId"];
+const MAX_IMAGENES_POR_SERVICIO = 10;
+
+const errorServicio = (message, status) => Object.assign(new Error(message), { status });
+
+const bloquearServicio = async (tx, servicioId) => {
+  const rows = await tx.$queryRaw`SELECT "id" FROM "Servicio" WHERE "id" = ${servicioId} FOR UPDATE`;
+  if (!rows.length) throw errorServicio("El servicio seleccionado no existe.", 404);
+  return tx.servicio.findUnique({ where: { id: servicioId }, select: { id: true, nombre: true } });
+};
+
+const bloquearServiciosOrdenados = async (tx, servicioIds) => {
+  const ids = [...new Set(servicioIds.filter((id) => Number.isInteger(id)))].sort((a, b) => a - b);
+  const servicios = new Map();
+  for (const id of ids) servicios.set(id, await bloquearServicio(tx, id));
+  return servicios;
+};
+
+const verificarEspacioServicio = async (tx, servicioId, excludeImageId = null) => {
+  const total = await tx.imagen.count({ where: { tipo: "GENERAL", servicioId, ...(excludeImageId ? { id: { not: excludeImageId } } : {}) } });
+  if (total >= MAX_IMAGENES_POR_SERVICIO) {
+    throw errorServicio("Este servicio ya alcanzó el límite de 10 imágenes.", 409);
+  }
+};
 
 const buscarReferencias = async (imagen) => {
   const porPublicId = imagen.publicId ? [{ publicId: imagen.publicId }] : [];
@@ -46,9 +61,9 @@ const normalizarActualizacion = (payload) => {
     if (typeof data.nombre !== "string" || !data.nombre.trim() || data.nombre.trim().length > 120) throw new Error("El nombre es obligatorio y debe tener hasta 120 caracteres.");
     data.nombre = data.nombre.trim();
   }
-  if (Object.hasOwn(data, "seccion")) {
-    if (typeof data.seccion !== "string" || !data.seccion.trim()) throw new Error("La categoría es obligatoria.");
-    data.seccion = data.seccion.trim();
+  if (Object.hasOwn(data, "servicioId")) {
+    if (typeof data.servicioId === "string" && data.servicioId.trim()) data.servicioId = Number(data.servicioId);
+    if (!Number.isInteger(data.servicioId) || data.servicioId < 1) throw new Error("Selecciona un servicio válido.");
   }
   if (Object.hasOwn(data, "descripcion")) {
     if (data.descripcion !== null && typeof data.descripcion !== "string") throw new Error("La descripción no es válida.");
