@@ -1,10 +1,42 @@
+import { useEffect, useMemo, useState } from "react";
 import Layout from "../pages/Layout/Layout.jsx";
 import studio13Logo from "../assets/studio13_blanco.png";
 import { Link } from "react-router-dom";
 import Testimonios from "../Components/Testimonios.jsx";
 import AnuncioEmergente from "../Components/AnuncioEmergente.jsx";
 
+const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3001").replace(/\/+$/, "");
+const normalizarNombre = (value) => value.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase();
+
+function ImagenRotativa({ imagenes, etiqueta }) {
+  const [indice, setIndice] = useState(0);
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    setIndice(0);
+    setVisible(true);
+    if (imagenes.length < 2) return undefined;
+    let intervalo;
+    let cambio;
+    const cambiar = () => {
+      setVisible(false);
+      cambio = window.setTimeout(() => {
+        setIndice((actual) => (actual + 1) % imagenes.length);
+        setVisible(true);
+      }, 300);
+    };
+    const inicio = window.setTimeout(() => {
+      cambiar();
+      intervalo = window.setInterval(cambiar, 4000);
+    }, 500 + Math.random() * 3000);
+    return () => { window.clearTimeout(inicio); window.clearInterval(intervalo); window.clearTimeout(cambio); };
+  }, [imagenes]);
+
+  const imagen = imagenes[indice];
+  return imagen ? <img src={imagen} alt={etiqueta} className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${visible ? "opacity-75 group-hover:opacity-90" : "opacity-0"}`} /> : <div className="absolute inset-0 bg-linear-to-br from-[#302b29] to-[#111010]" aria-hidden="true" />;
+}
+
 const Inicio = () => {
+  const [galerias, setGalerias] = useState([]);
   const categories = [
     {
       label: "Parejas",
@@ -31,6 +63,39 @@ const Inicio = () => {
       img: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=900&h=1100&fit=crop&auto=format&q=85",
     },
   ];
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(`${API_BASE_URL}/api/galerias`, { signal: controller.signal })
+      .then((response) => response.ok ? response.json() : [])
+      .then((data) => { if (!controller.signal.aborted && Array.isArray(data)) setGalerias(data); })
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    let controller;
+    const actualizar = () => {
+      if (document.visibilityState !== "visible") return;
+      controller?.abort();
+      controller = new AbortController();
+      fetch(`${API_BASE_URL}/api/galerias`, { signal: controller.signal })
+        .then((response) => response.ok ? response.json() : [])
+        .then((data) => { if (!controller.signal.aborted && Array.isArray(data)) setGalerias(data); })
+        .catch(() => {});
+    };
+    window.addEventListener("focus", actualizar);
+    document.addEventListener("visibilitychange", actualizar);
+    return () => { controller?.abort(); window.removeEventListener("focus", actualizar); document.removeEventListener("visibilitychange", actualizar); };
+  }, []);
+
+  const imagenesPorCategoria = useMemo(() => {
+    const normalizarUrl = (url) => typeof url === "string" && url.startsWith("/uploads/") ? `${API_BASE_URL}${url}` : url;
+    return Object.fromEntries(categories.map(({ label }) => {
+      const galeria = galerias.find((item) => item.activo !== false && item.servicio?.activo !== false && normalizarNombre(item.servicio?.nombre || "") === normalizarNombre(label));
+      return [label, (galeria?.imagenes || []).filter((item) => item.activo !== false && typeof item.url === "string" && item.url.trim()).map((item) => normalizarUrl(item.url))];
+    }));
+  }, [galerias]);
 
 
   return (
@@ -176,11 +241,7 @@ const Inicio = () => {
                 to="/portafolio"
                 className={`relative overflow-hidden block no-underline bg-[#1a1818] group ${i === 0 ? "row-span-2" : ""}`}
               >
-                <img
-                  src={cat.img}
-                  alt={cat.label}
-                  className="w-full h-full object-cover block transition-all duration-700 ease-out opacity-75 group-hover:scale-105 group-hover:opacity-90"
-                />
+                <ImagenRotativa imagenes={imagenesPorCategoria[cat.label]} etiqueta={cat.label} />
                 <div className="absolute bottom-0 left-0 right-0 p-6 bg-linear-to-t from-[rgba(12,11,11,0.7)] to-transparent">
                   <p
                     className={`font-[Fraunces,Georgia,serif] italic font-extralight text-white tracking-[0.04em] ${i === 0 ? "text-[2.2rem]" : "text-[1.4rem]"}`}

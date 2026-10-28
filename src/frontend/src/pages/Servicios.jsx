@@ -1,46 +1,79 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Layout from "../pages/Layout/Layout";
+
+const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3001").replace(/\/+$/, "");
+const normalizarNombre = (value) => value.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase();
+
+function ImagenRotativa({ imagenes, etiqueta, objectPosition }) {
+  const [indice, setIndice] = useState(0);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    setIndice(0);
+    setVisible(true);
+    if (imagenes.length < 2) return undefined;
+
+    let intervalo;
+    let cambio;
+    const cambiar = () => {
+      setVisible(false);
+      cambio = window.setTimeout(() => {
+        setIndice((actual) => (actual + 1) % imagenes.length);
+        setVisible(true);
+      }, 300);
+    };
+    const inicio = window.setTimeout(() => {
+      cambiar();
+      intervalo = window.setInterval(cambiar, 4000);
+    }, 500 + Math.random() * 3000);
+
+    return () => {
+      window.clearTimeout(inicio);
+      window.clearInterval(intervalo);
+      window.clearTimeout(cambio);
+    };
+  }, [imagenes]);
+
+  const imagen = imagenes[indice];
+  return imagen
+    ? <img src={imagen} alt={etiqueta} className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${visible ? "opacity-[0.68] hover:opacity-[0.82]" : "opacity-0"}`} style={{ objectPosition }} />
+    : <div className="absolute inset-0 bg-linear-to-br from-[#302b29] to-[#111010]" aria-hidden="true" />;
+}
 
 const specialties = [
   {
     label: "Bodas",
-    img: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1600&h=1000&fit=crop&auto=format&q=90",
     align: "center 40%",
     desc: "Cobertura completa del día. Desde la preparación hasta el último baile.",
   },
   {
     label: "Parejas",
-    img: "https://images.unsplash.com/photo-1529636798458-92182e662485?w=1600&h=1000&fit=crop&auto=format&q=90",
     align: "center 30%",
     desc: "Sesiones íntimas en estudio o exteriores. Aniversarios, compromisos, amor.",
   },
   {
     label: "Familia",
-    img: "https://images.unsplash.com/photo-1609220136736-443140cffec6?w=1600&h=1000&fit=crop&auto=format&q=90",
     align: "center center",
     desc: "Momentos espontáneos, vínculos reales. Un ambiente cómodo para todos.",
   },
   {
     label: "Retrato",
-    img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1600&h=1000&fit=crop&auto=format&q=90",
     align: "center 20%",
     desc: "Luz pensada, pose natural, identidad auténtica.",
   },
   {
     label: "Corporativa",
-    img: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1600&h=1000&fit=crop&auto=format&q=90",
     align: "center 30%",
     desc: "Headshots, equipos, eventos. Imagen que proyecta profesionalismo.",
   },
   {
     label: "Eventos",
-    img: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1600&h=1000&fit=crop&auto=format&q=90",
     align: "center center",
     desc: "Cobertura dinámica. La energía de cada celebración, capturada.",
   },
   {
     label: "Exteriores",
-    img: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1600&h=1000&fit=crop&auto=format&q=90",
     align: "center 50%",
     desc: "Luz natural, locaciones auténticas. El mundo como telón de fondo.",
   },
@@ -58,6 +91,40 @@ const steps = [
 ];
 
 export default function Servicios() {
+  const [galerias, setGalerias] = useState([]);
+
+  useEffect(() => {
+    let controller;
+    const cargarGalerias = () => {
+      if (document.visibilityState !== "visible") return;
+      controller?.abort();
+      controller = new AbortController();
+      fetch(`${API_BASE_URL}/api/galerias`, { signal: controller.signal })
+        .then((response) => response.ok ? response.json() : [])
+        .then((data) => { if (!controller.signal.aborted && Array.isArray(data)) setGalerias(data); })
+        .catch(() => {});
+    };
+    cargarGalerias();
+    window.addEventListener("focus", cargarGalerias);
+    document.addEventListener("visibilitychange", cargarGalerias);
+    return () => {
+      controller?.abort();
+      window.removeEventListener("focus", cargarGalerias);
+      document.removeEventListener("visibilitychange", cargarGalerias);
+    };
+  }, []);
+
+  const imagenesPorServicio = useMemo(() => {
+    const normalizarUrl = (url) => typeof url === "string" && url.startsWith("/uploads/") ? `${API_BASE_URL}${url}` : url;
+    return Object.fromEntries(specialties.map(({ label }) => {
+      const galeria = galerias.find((item) => item.activo !== false && item.servicio?.activo !== false && normalizarNombre(item.servicio?.nombre || "") === normalizarNombre(label));
+      const imagenes = (galeria?.imagenes || [])
+        .filter((item) => item.activo !== false && typeof item.url === "string" && item.url.trim())
+        .map((item) => normalizarUrl(item.url));
+      return [label, imagenes];
+    }));
+  }, [galerias]);
+
   return (
     <Layout>
       <div className="bg-white">
@@ -78,12 +145,7 @@ export default function Servicios() {
             key={s.label}
             className="relative h-[clamp(380px,55vw,680px)] overflow-hidden bg-[#1a1818]"
           >
-            <img
-              src={s.img}
-              alt={s.label}
-              className="absolute inset-0 w-full h-full object-cover opacity-[0.68] transition-opacity duration-500 hover:opacity-[0.82]"
-              style={{ objectPosition: s.align }}
-            />
+            <ImagenRotativa imagenes={imagenesPorServicio[s.label]} etiqueta={s.label} objectPosition={s.align} />
 
             {/* Gradient */}
             <div
