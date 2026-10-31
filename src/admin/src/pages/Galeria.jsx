@@ -14,6 +14,7 @@ const categorias = [
   "Talleres",
 ];
 const tiposPermitidos = ["image/jpeg", "image/png", "image/webp"];
+const MAX_IMAGENES_POR_CATEGORIA = 10;
 const urlImagen = (url) => typeof url === "string" && url.startsWith("/uploads/") ? `${API_BASE_URL}${url}` : url;
 
 export default function Galeria() {
@@ -74,9 +75,16 @@ export default function Galeria() {
   const agregarArchivos = (archivos) => {
     const seleccion = Array.from(archivos || []);
     const permitidos = seleccion.filter((archivo) => tiposPermitidos.includes(archivo.type) && archivo.size > 0 && archivo.size <= 5 * 1024 * 1024);
-    const nuevos = permitidos
+    const existentes = imagenes.filter((imagen) => imagen.categoria === categoriaActiva).length;
+    const espaciosDisponibles = Math.max(0, MAX_IMAGENES_POR_CATEGORIA - existentes);
+    const archivosAceptados = permitidos.slice(0, espaciosDisponibles);
+    const excedentes = permitidos.length - archivosAceptados.length;
+    const nuevos = archivosAceptados
       .map((archivo) => ({ id: `${archivo.name}-${archivo.lastModified}-${crypto.randomUUID()}`, nombre: archivo.name.replace(/\.[^.]+$/, "").slice(0, 120), titulo: "", archivo, categoria: categoriaActiva, preview: URL.createObjectURL(archivo), guardada: false, activo: true }));
-    setAvisoArchivo(permitidos.length < seleccion.length ? "Solo se aceptan JPG, PNG o WEBP de hasta 5 MB." : "");
+    const avisos = [];
+    if (permitidos.length < seleccion.length) avisos.push("Solo se aceptan JPG, PNG o WEBP de hasta 5 MB.");
+    if (excedentes > 0) avisos.push(`Cada servicio admite hasta ${MAX_IMAGENES_POR_CATEGORIA} imágenes. Se omitieron ${excedentes} archivo(s) porque quedan ${espaciosDisponibles} espacio(s).`);
+    setAvisoArchivo(avisos.join(" "));
     setErrorOperacion("");
     setMensajeExito("");
     if (nuevos.length) {
@@ -90,12 +98,14 @@ export default function Galeria() {
     setCategoriaActiva(categoria);
     setImagenTituloId(imagen?.id ?? null);
     setTituloImagen(imagen?.titulo || "");
+    setAvisoArchivo("");
     setCategoriasAbiertas(false);
   };
 
 
   const imagenesCategoria = imagenes.filter((imagen) => imagen.categoria === categoriaActiva);
   const imagenesPendientes = imagenesCategoria.filter((imagen) => !imagen.guardada);
+  const espaciosDisponibles = Math.max(0, MAX_IMAGENES_POR_CATEGORIA - imagenesCategoria.length);
   const imagenesGuardadas = imagenes.filter((imagen) => imagen.guardada);
   const categoriasDisponibles = [...new Set(imagenesGuardadas.map((imagen) => imagen.categoria))].sort((a, b) => a.localeCompare(b, "es"));
   const imagenesFiltradas = imagenesGuardadas
@@ -173,6 +183,13 @@ export default function Galeria() {
     if (!imagenEditando || !borradorEdicion || guardandoEdicion) return;
     if (!borradorEdicion.nombre.trim() || !borradorEdicion.seccion.trim()) {
       setErrorOperacion("El nombre y la categoría son obligatorios.");
+      return;
+    }
+    const categoriaAnterior = imagenEditando.categoria || imagenEditando.seccion;
+    const categoriaNueva = borradorEdicion.seccion.trim();
+    const imagenesEnCategoriaDestino = imagenes.filter((imagen) => imagen.guardada && imagen.categoria === categoriaNueva && imagen.id !== imagenEditando.id).length;
+    if (categoriaNueva !== categoriaAnterior && imagenesEnCategoriaDestino >= MAX_IMAGENES_POR_CATEGORIA) {
+      setErrorOperacion(`El servicio ${categoriaNueva} ya tiene el máximo de ${MAX_IMAGENES_POR_CATEGORIA} imágenes.`);
       return;
     }
     setGuardandoEdicion(true);
@@ -258,18 +275,23 @@ export default function Galeria() {
       {pestanaActiva === "subir" && <section id="galeria-panel-subir" role="tabpanel" aria-labelledby="galeria-tab-subir" className="mb-7 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
         <div className="border border-neutral-200 bg-white p-5 sm:p-6">
           <div className="mb-5"><h2 className="m-0 font-[Georgia] text-xl font-normal! text-neutral-900">Agregar a {categoriaActiva}</h2><p className="mb-0 mt-1 text-xs text-neutral-500">Selecciona imagenes desde tu dispositivo para ver como quedaran.</p></div>
-          <button type="button" onClick={() => inputRef.current?.click()} onDragOver={(evento) => { evento.preventDefault(); setArrastrando(true); }} onDragLeave={() => setArrastrando(false)} onDrop={(evento) => { evento.preventDefault(); setArrastrando(false); agregarArchivos(evento.dataTransfer.files); }} className={`flex min-h-52 w-full flex-col items-center justify-center border border-dashed px-5 py-8 text-center transition-colors ${arrastrando ? "border-[#a51c1c] bg-red-50" : "border-neutral-300 bg-neutral-50 hover:border-[#a51c1c] hover:bg-red-50/40"}`}>
+          <button type="button" disabled={espaciosDisponibles === 0 || subiendo} onClick={() => inputRef.current?.click()} onDragOver={(evento) => { evento.preventDefault(); if (espaciosDisponibles > 0 && !subiendo) setArrastrando(true); }} onDragLeave={() => setArrastrando(false)} onDrop={(evento) => { evento.preventDefault(); setArrastrando(false); agregarArchivos(evento.dataTransfer.files); }} className={`flex min-h-52 w-full flex-col items-center justify-center border border-dashed px-5 py-8 text-center transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${arrastrando ? "border-[#a51c1c] bg-red-50" : "border-neutral-300 bg-neutral-50 hover:border-[#a51c1c] hover:bg-red-50/40"}`}>
             <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#a51c1c] shadow-sm"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 16V4m0 0L7 9m5-5 5 5" /><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" /></svg></span>
             <span className="text-sm font-semibold! text-neutral-800">Arrastra tus imagenes aqui</span>
             <span className="mt-1 text-xs text-neutral-500">o <span className="text-[#a51c1c] underline">selecciona archivos</span> de tu dispositivo</span>
             <span className="mt-4 text-[10px] tracking-wide text-neutral-400 uppercase">JPG, PNG o WEBP · hasta 5 MB por imagen</span>
           </button>
-          <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" onChange={(evento) => agregarArchivos(evento.target.files)} />
+          <p className="mb-0 mt-3 text-xs font-medium text-neutral-600" aria-live="polite">
+            {espaciosDisponibles > 0
+              ? `${imagenesCategoria.length} de ${MAX_IMAGENES_POR_CATEGORIA} imágenes en ${categoriaActiva}; quedan ${espaciosDisponibles} espacios.`
+              : `Límite de ${MAX_IMAGENES_POR_CATEGORIA} imágenes alcanzado para ${categoriaActiva}.`}
+          </p>
+          <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={espaciosDisponibles === 0 || subiendo} className="hidden" onChange={(evento) => agregarArchivos(evento.target.files)} />
           {avisoArchivo && <p className="mb-0 mt-3 text-xs text-[#a51c1c]" role="alert">{avisoArchivo}</p>}
           <p className="mb-0 mt-3 text-[11px] leading-5 text-neutral-400">Las imágenes se guardan en Cloudinary y en la biblioteca del sitio.</p>
           <label className="mt-5 grid gap-2 text-xs font-semibold! text-neutral-700">
-            Titulo de la imagen
-            <input className="w-full border border-neutral-300 bg-white px-3 py-2.5 text-sm font-normal! text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-[#a51c1c]" type="text" maxLength={120} placeholder="Escribe el titulo que aparecera junto a la imagen" value={tituloImagen} onChange={(evento) => { const valor = evento.target.value; setTituloImagen(valor); setImagenes((actuales) => actuales.map((imagen) => imagen.id === imagenTituloId ? { ...imagen, titulo: valor } : imagen)); }} />
+            Título de la imagen
+            <input className="w-full border border-neutral-300 bg-white px-3 py-2.5 text-sm font-normal! text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-[#a51c1c]" type="text" maxLength={120} placeholder="Escribe el título que aparecerá junto a la imagen" value={tituloImagen} onChange={(evento) => { const valor = evento.target.value; setTituloImagen(valor); setImagenes((actuales) => actuales.map((imagen) => imagen.id === imagenTituloId ? { ...imagen, titulo: valor } : imagen)); }} />
           </label>
           <div className="mt-6 border-t border-neutral-200 pt-5">
             <h3 className="mb-2 text-sm font-semibold! text-neutral-800">Categoría de la imagen</h3>
@@ -279,7 +301,15 @@ export default function Galeria() {
             <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${categoriasAbiertas ? "mt-2 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
               <div className="overflow-hidden">
                 <div className="border border-neutral-200 bg-neutral-50 p-1">
-                  {categorias.map((categoria) => <button key={categoria} type="button" onClick={() => seleccionarCategoria(categoria)} className={`flex w-full items-center justify-between px-3 py-2.5 text-left text-xs transition-colors ${categoriaActiva === categoria ? "bg-white font-semibold! text-[#a51c1c]" : "text-neutral-600 hover:bg-white hover:text-neutral-900"}`}><span>{categoria}</span><span className="text-[10px] text-neutral-400">{imagenes.filter((imagen) => imagen.categoria === categoria && imagen.activo !== false).length}</span></button>)}
+                  {categorias.map((categoria) => {
+                    const totalCategoria = imagenes.filter((imagen) => imagen.categoria === categoria).length;
+                    return (
+                      <button key={categoria} type="button" onClick={() => seleccionarCategoria(categoria)} className={`flex w-full items-center justify-between px-3 py-2.5 text-left text-xs transition-colors ${categoriaActiva === categoria ? "bg-white font-semibold! text-[#a51c1c]" : "text-neutral-600 hover:bg-white hover:text-neutral-900"}`}>
+                        <span>{categoria}</span>
+                        <span className="text-[10px] text-neutral-400">{totalCategoria}/{MAX_IMAGENES_POR_CATEGORIA}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>

@@ -142,7 +142,7 @@ export default function GestionPublicidad() {
         <section className="border border-neutral-200 bg-white p-5 sm:p-6">
           <div className="mb-5"><h2 className="m-0 font-[Georgia] text-xl font-normal! text-neutral-900">Crear anuncio</h2><p className="mb-0 mt-1 text-xs text-neutral-500">Completa los campos y mira como cambia el ejemplo a tu costado.</p></div>
           <form className="grid gap-4" onSubmit={crearAnuncio}>
-            <label className={etiqueta}>Titulo del anuncio<input className={campo} required maxLength={100} placeholder="Ej. Captura momentos especiales" value={formulario.titulo} onChange={(evento) => setFormulario((actual) => ({ ...actual, titulo: evento.target.value }))} /></label>
+            <label className={etiqueta}>Título del anuncio<input className={campo} required maxLength={100} placeholder="Ej. Captura momentos especiales" value={formulario.titulo} onChange={(evento) => setFormulario((actual) => ({ ...actual, titulo: evento.target.value }))} /></label>
             <label className={etiqueta}>Servicio<select className={campo} value={formulario.servicio} onChange={(evento) => setFormulario((actual) => ({ ...actual, servicio: evento.target.value }))}>{servicios.map((servicio) => <option key={servicio}>{servicio}</option>)}</select></label>
             <label className={etiqueta}>Texto del anuncio<textarea className={campo} rows={4} maxLength={500} placeholder="Describe la promocion o el servicio..." value={formulario.descripcion} onChange={(evento) => setFormulario((actual) => ({ ...actual, descripcion: evento.target.value }))} /></label>
             <div className="grid gap-4 sm:grid-cols-2">

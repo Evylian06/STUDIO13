@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL, adminHeaders, mensajeError, redirigirSiNoAutorizado, useAdminCollection } from "./useAdminCollection.js";
 import { AdminLista } from "./AdminLista.jsx";
@@ -34,6 +34,14 @@ export default function Membresias() {
   const [guardando, setGuardando] = useState(false);
   const [errorOperacion, setErrorOperacion] = useState("");
   const [mensajeExito, setMensajeExito] = useState("");
+  const [imagenLocal, setImagenLocal] = useState(null);
+  const [errorImagenLocal, setErrorImagenLocal] = useState("");
+  const inputImagenLocalRef = useRef(null);
+  const previewLocalUrl = imagenLocal?.previewUrl || "";
+
+  useEffect(() => () => {
+    if (imagenLocal?.previewUrl) URL.revokeObjectURL(imagenLocal.previewUrl);
+  }, [imagenLocal]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -61,7 +69,29 @@ export default function Membresias() {
   }, [planes, busqueda, filtroEstado]);
 
   const actualizarBorrador = (campoBorrador, valor) => setBorrador((actual) => ({ ...actual, [campoBorrador]: valor }));
+  const cerrarModal = () => {
+    setModalAbierto(false);
+    setImagenLocal(null);
+    setErrorImagenLocal("");
+  };
+  const seleccionarImagenLocal = (evento) => {
+    const archivo = evento.target.files?.[0];
+    evento.target.value = "";
+    if (!archivo) return;
+    const tiposValidos = ["image/jpeg", "image/png", "image/webp"];
+    const extensionValida = /\.(jpe?g|png|webp)$/i.test(archivo.name);
+    const tipoValido = tiposValidos.includes(archivo.type) || (!archivo.type && extensionValida);
+    if (!tipoValido || archivo.size <= 0 || archivo.size > 5 * 1024 * 1024) {
+      setErrorImagenLocal("Elige una imagen JPG, PNG o WEBP que no supere los 5 MB.");
+      return;
+    }
+    setErrorImagenLocal("");
+    // TODO: conectar con la subida de imágenes y el backend
+    setImagenLocal({ archivo, previewUrl: URL.createObjectURL(archivo) });
+  };
   const abrirNueva = () => {
+    setImagenLocal(null);
+    setErrorImagenLocal("");
     setPlanEditando(null);
     setBorrador({ ...formularioVacio, beneficiosItems: [""] });
     setErrorOperacion("");
@@ -70,6 +100,8 @@ export default function Membresias() {
   };
 
   const abrirEdicion = (plan) => {
+    setImagenLocal(null);
+    setErrorImagenLocal("");
     const imagen = imagenes.find((item) => item.url === plan.imagenUrl && item.publicId === plan.publicId);
     setPlanEditando(plan);
     setBorrador({
@@ -135,7 +167,7 @@ export default function Membresias() {
       const guardado = await errorRespuesta(response);
       if (planEditando) setPlanes((actuales) => actuales.map((plan) => plan.id === guardado.id ? guardado : plan));
       else setPlanes((actuales) => [...actuales, guardado]);
-      setModalAbierto(false);
+      cerrarModal();
       setMensajeExito(planEditando ? "Membresía actualizada." : "Membresía creada.");
     } catch (reason) {
       setErrorOperacion(mensajeError(reason));
@@ -211,7 +243,7 @@ export default function Membresias() {
       { key: "fechaInicio", label: "Inicio", date: true }, { key: "fechaFin", label: "Vencimiento", date: true }, { key: "estado", label: "Estado" },
     ]} />
 
-    {modalAbierto && <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/55 p-4" onMouseDown={(evento) => { if (evento.target === evento.currentTarget && !guardando) setModalAbierto(false); }}>
+    {modalAbierto && <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/55 p-4" onMouseDown={(evento) => { if (evento.target === evento.currentTarget && !guardando) cerrarModal(); }}>
       <section role="dialog" aria-modal="true" aria-labelledby="membresia-modal-titulo" className="my-auto max-h-[85vh] w-full max-w-lg overflow-y-auto border border-neutral-200 bg-white p-4 shadow-2xl sm:p-5">
         <p className="mb-2 text-[10px] font-semibold! tracking-[.2em] text-[#a51c1c] uppercase">Planes de suscripción</p>
         <h2 id="membresia-modal-titulo" className="mb-6 font-[Georgia] text-2xl font-normal! text-neutral-900">{planEditando ? "Editar membresía" : "Nueva membresía"}</h2>
@@ -226,6 +258,17 @@ export default function Membresias() {
             <label className={etiqueta}>Duración<select className={campo} required disabled={camposProtegidos} value={borrador.periodo} onChange={(evento) => actualizarBorrador("periodo", evento.target.value)}>{periodos.map((periodo) => <option value={periodo.value} key={periodo.value}>{periodo.label}</option>)}</select></label>
             <label className={etiqueta}>Límite de uso (sesiones)<span className="font-normal! text-neutral-500">Déjalo vacío si no corresponde.</span><input className={campo} type="number" min="1" step="1" disabled={camposProtegidos} value={borrador.limiteSesiones} onChange={(evento) => actualizarBorrador("limiteSesiones", evento.target.value)} placeholder="Sin límite" /></label>
           </div>
+          <section className="grid gap-2" aria-label="Imagen local de la membresía">
+            <h3 className="m-0 text-xs font-semibold! text-neutral-700">Imagen de la membresía</h3>
+            <input ref={inputImagenLocalRef} className="hidden" type="file" accept="image/jpeg,image/png,image/webp" onChange={seleccionarImagenLocal} />
+            <div className="membership-local-image-controls">
+              <button className="membership-local-image-upload" type="button" onClick={() => inputImagenLocalRef.current?.click()}>Subir imagen</button>
+              {imagenLocal && <button className="membership-local-image-remove" type="button" onClick={() => { setImagenLocal(null); setErrorImagenLocal(""); }}>Quitar imagen</button>}
+            </div>
+            <p className="m-0 text-xs text-neutral-500">JPG, PNG o WEBP. Máximo 5 MB.</p>
+            {errorImagenLocal && <p className="m-0 text-xs text-[#a51c1c]" role="alert">{errorImagenLocal}</p>}
+            {(previewLocalUrl || planEditando?.imagenUrl) && <img className="membership-local-image-preview" src={previewLocalUrl || planEditando.imagenUrl} alt="Vista previa de la imagen de la membresía" />}
+          </section>
           <fieldset className="grid gap-2 border-0 p-0" disabled={camposProtegidos}>
             <legend className="mb-1 text-xs font-semibold! text-neutral-700">Beneficios incluidos</legend>
             {borrador.beneficiosItems.map((beneficio, index) => <div className="flex gap-2" key={index}>
@@ -244,7 +287,7 @@ export default function Membresias() {
             <div className="grid content-end gap-3"><label className="flex items-center gap-3 text-xs font-semibold! text-neutral-700"><input type="checkbox" checked={borrador.agregarInicio} onChange={(evento) => setBorrador((actual) => ({ ...actual, agregarInicio: evento.target.checked, ubicacionPublica: !evento.target.checked && actual.ubicacionPublica === "INICIO" ? "MEMBRESIAS" : actual.ubicacionPublica }))} className="accent-[#a51c1c]" />Agregar a Inicio</label><label className="flex items-center gap-3 text-xs font-semibold! text-neutral-700"><input type="checkbox" checked={borrador.activo} onChange={(evento) => actualizarBorrador("activo", evento.target.checked)} className="accent-[#a51c1c]" />Publicada</label></div>
           </div>
           {errorOperacion && <p className="m-0 text-sm text-[#a51c1c]" role="alert">{errorOperacion}</p>}
-          <div className="mt-2 flex flex-wrap justify-end gap-3"><button className="border border-neutral-300 bg-white px-4 py-2.5 text-xs font-semibold! text-neutral-700" type="button" disabled={guardando} onClick={() => setModalAbierto(false)}>Cancelar</button><button className="border border-[#a51c1c] bg-[#a51c1c] px-4 py-2.5 text-xs font-semibold! text-white disabled:opacity-60" type="submit" disabled={guardando}>{guardando ? "Guardando…" : planEditando ? "Guardar cambios" : "Crear membresía"}</button></div>
+          <div className="mt-2 flex flex-wrap justify-end gap-3"><button className="border border-neutral-300 bg-white px-4 py-2.5 text-xs font-semibold! text-neutral-700" type="button" disabled={guardando} onClick={cerrarModal}>Cancelar</button><button className="border border-[#a51c1c] bg-[#a51c1c] px-4 py-2.5 text-xs font-semibold! text-white disabled:opacity-60" type="submit" disabled={guardando}>{guardando ? "Guardando…" : planEditando ? "Guardar cambios" : "Crear membresía"}</button></div>
         </form>
       </section>
     </div>}

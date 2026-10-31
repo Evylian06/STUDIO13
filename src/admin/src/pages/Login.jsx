@@ -8,6 +8,7 @@ const loginPhoto = 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -89,16 +90,37 @@ export default function Login() {
                 <label htmlFor="password" className="mb-2 block text-xs font-semibold text-zinc-800">
                   Contraseña
                 </label>
-                <input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  autoComplete="current-password"
-                  required
-                  className="h-12.5 w-full rounded-lg border border-zinc-300 bg-zinc-50 px-4 text-sm text-[#0a0a0a] outline-none transition placeholder:text-zinc-400 hover:border-zinc-400 focus:border-[#c8102e] focus:bg-white focus:ring-4 focus:ring-[#c8102e]/10"
-                />
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    autoComplete="current-password"
+                    required
+                    className="h-12.5 w-full rounded-lg border border-zinc-300 bg-zinc-50 px-4 pr-12 text-sm text-[#0a0a0a] outline-none transition placeholder:text-zinc-400 hover:border-zinc-400 focus:border-[#c8102e] focus:bg-white focus:ring-4 focus:ring-[#c8102e]/10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((visible) => !visible)}
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    aria-pressed={showPassword}
+                    className="absolute inset-y-0 right-0 grid w-12 place-items-center rounded-r-lg text-zinc-500 transition hover:text-[#c8102e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[#c8102e]"
+                  >
+                    {showPassword ? (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.9 5.2A10.8 10.8 0 0112 5c5 0 8.5 4.2 9.5 6.1a1.8 1.8 0 010 1.8 12.6 12.6 0 01-3.1 3.7M6.2 6.2a13.2 13.2 0 00-3.7 4.9 1.8 1.8 0 000 1.8A10.7 10.7 0 0012 19c1 0 1.9-.1 2.7-.4" />
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.5 12s3.3-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.3 6.5-9.5 6.5S2.5 12 2.5 12z" />
+                        <circle cx="12" cy="12" r="2.7" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="flex items-center justify-between gap-3">

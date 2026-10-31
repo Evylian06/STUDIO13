@@ -8,8 +8,8 @@ const secciones = [
   { label: "Clientes", icon: "users", to: "/admin/Clientes" },
   { label: "Reservaciones", icon: "calendar", to: "/admin/Reservaciones" },
   { label: "Paquetes", icon: "layers", to: "/admin/Paquetes" },
-  { label: "Membresi­as", icon: "membership", to: "/admin/Membresias" },
-  { label: "Galeri­a", icon: "image", to: "/admin/Galeria" },
+  { label: "Membresías", icon: "membership", to: "/admin/Membresias" },
+  { label: "Galería", icon: "image", to: "/admin/Galeria" },
   { label: "Configuración", icon: "settings", to: "/admin/Configuracion" },
   { label: "Gesti\u00f3n publicidad", icon: "megaphone", to: "/admin/GestionPublicidad" },
 ];
@@ -63,17 +63,17 @@ function AdminLayout({ children }) {
 
   return (
     <MenuContext.Provider value={{ menuAbierto, setMenuAbierto }}>
-      <div className="flex min-h-screen bg-[#f3f3f2] text-[#171717]">
+      <div className="studio13-admin-shell flex min-h-screen bg-[#f3f3f2] text-[#171717]">
         {menuAbierto && (
           <button
-            className="fixed inset-0 z-20 bg-black/50 md:hidden"
+            className="studio13-admin-backdrop fixed inset-0 z-20 bg-black/50 md:hidden"
             type="button"
             aria-label="Cerrar menÃº"
             onClick={cerrarMenu}
           />
         )}
 
-        <aside className={`fixed inset-y-0 left-0 z-30 flex h-dvh w-64 shrink-0 flex-col bg-[#090909] px-5 pb-6 pt-8 text-white transition-transform duration-300 md:sticky md:top-0 md:h-screen md:w-64 md:translate-x-0 ${menuAbierto ? "translate-x-0" : "-translate-x-full"}`}>
+        <aside className={`studio13-admin-sidebar fixed inset-y-0 left-0 z-30 flex h-dvh w-64 shrink-0 flex-col bg-[#090909] px-5 pb-6 pt-8 text-white transition-transform duration-300 md:sticky md:top-0 md:h-screen md:w-64 md:translate-x-0 ${menuAbierto ? "translate-x-0" : "-translate-x-full"}`}>
           <NavLink
             className="mb-10 ml-2 flex w-fit flex-col no-underline"
             to="/Inicio"
@@ -84,7 +84,7 @@ function AdminLayout({ children }) {
              <img src={logoBlanco} alt="Studio13" className="h-10 w-auto object-contain" />
             </span>
             <span className="mt-1.5 text-[9px] font-semibold! tracking-[.3em] text-neutral-500">
-              ADMINISTRACION
+              ADMINISTRACIÓN
             </span>
           </NavLink>
 
@@ -124,12 +124,24 @@ function AdminLayout({ children }) {
             onClick={cerrarSesion}
           >
             <Icono name="logout" size={18} />
-            <span>CERRAR SESION</span>
+            <span>CERRAR SESIÓN</span>
           </button>
         </aside>
 
-        <div className="min-w-0 flex-1">
-          {children ?? <Outlet />}
+        <div className="studio13-admin-body min-w-0 flex-1">
+          <header className="studio13-admin-mobilebar">
+            <button
+              type="button"
+              aria-label="Abrir menú de administración"
+              onClick={() => setMenuAbierto(true)}
+            >
+              <Icono name="menu" size={20} />
+            </button>
+            <span><strong>Studio13</strong><small>Administración</small></span>
+          </header>
+          <div className="studio13-admin-content">
+            {children ?? <Outlet />}
+          </div>
         </div>
       </div>
     </MenuContext.Provider>
