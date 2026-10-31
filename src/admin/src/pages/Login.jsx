@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import logo from '../assets/Studio13_blanco.png';
+import logo from '../assets/studio13_negro.PNG';
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/+$/, '');
+const loginPhoto = 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=2000&h=1300&fit=crop&auto=format&q=90';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -35,113 +36,134 @@ export default function Login() {
     } catch (err) {
       setError(err instanceof TypeError
         ? 'No se pudo contactar con el servidor. Comprueba que el backend esté disponible.'
-        : (err.message || 'Error al iniciar sesión'));    } finally {
+        : (err.message || 'Error al iniciar sesión'));
+    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Fondos decorativos */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_50%,rgba(200,16,46,0.15)_0%,transparent_50%),radial-gradient(ellipse_at_80%_20%,rgba(200,16,46,0.08)_0%,transparent_40%)]" />
-      
-      <div className="relative z-10 w-full max-w-105">
-        <div className="bg-[rgba(20,20,20,0.85)] border border-white/10 rounded-2xl p-10 backdrop-blur-xl shadow-2xl shadow-black/50">
-          
-          {/* Logo */}
-          <div className="text-center mb-9">
-           <img src={logo} alt="Studio13 Logo" className="mx-auto mb-2 w-50 h-auto" />
-            <p className="text-xs text-zinc-400 mt-1.5 tracking-[2px] uppercase">
-              Panel de Administración
-            </p>
-          </div>
+    <main className="grid min-h-screen place-items-center bg-white p-4 sm:p-7">
+      <div className="grid min-h-140 w-full max-w-245 grid-cols-1 overflow-hidden rounded-[22px] bg-white shadow-[0_20px_64px_rgba(10,10,10,0.14)] ring-1 ring-black/5 md:h-[min(620px,calc(100svh-56px))] md:min-h-135 md:grid-cols-2">
+        <section className="flex items-center justify-center bg-white px-7 py-8 sm:px-10 sm:py-9 lg:px-12" aria-label="Inicio de sesión del panel administrativo">
+          <div className="w-full max-w-85">
+            <header className="mb-7 sm:mb-8">
+              <img src={logo} alt="Studio13" className="mb-2.5 h-auto w-45 object-contain object-left" />
+              <p className="m-0 text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                Panel de administración
+              </p>
+            </header>
 
-          {/* Formulario */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-zinc-300 mb-2">
-                Correo
-              </label>
-              <div className="relative">
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="correo@dominio.com"
-                  required
-                  className="w-full pl-11 pr-4 py-3.5 bg-[#161616] border border-zinc-800 rounded-xl text-white placeholder:text-zinc-600 focus:outline-none focus:border-[#c8102e] focus:ring-2 focus:ring-[#c8102e]/20 transition-all"
-                />
-                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-500" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-                </svg>
-              </div>
+            <div className="mb-6">
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#c8102e]">
+                Acceso privado
+              </p>
+              <h1 className="m-0 font-(--font-display) text-[clamp(32px,3vw,42px)] leading-tight tracking-[-0.03em] text-[#0a0a0a]">
+                Bienvenido de nuevo
+              </h1>
+              <p className="mt-3 text-sm leading-relaxed text-zinc-500">
+                Accede al panel de administración
+              </p>
             </div>
 
-            {/* Password */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-zinc-300 mb-2">
-                Contraseña
-              </label>
-              <div className="relative">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="email" className="mb-2 block text-xs font-semibold text-zinc-800">
+                  Correo electrónico
+                </label>
+                <div className="relative">
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="correo@dominio.com"
+                    autoComplete="username"
+                    required
+                    className="h-12.5 w-full rounded-lg border border-zinc-300 bg-zinc-50 pl-4 pr-4 text-sm text-[#0a0a0a] outline-none transition placeholder:text-zinc-400 hover:border-zinc-400 focus:border-[#c8102e] focus:bg-white focus:ring-4 focus:ring-[#c8102e]/10"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="password" className="mb-2 block text-xs font-semibold text-zinc-800">
+                  Contraseña
+                </label>
                 <input
                   id="password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                  placeholder="••••••••••••"
+                  autoComplete="current-password"
                   required
-                  className="w-full pl-11 pr-4 py-3.5 bg-[#161616] border border-zinc-800 rounded-xl text-white placeholder:text-zinc-600 focus:outline-none focus:border-[#c8102e] focus:ring-2 focus:ring-[#c8102e]/20 transition-all"
+                  className="h-12.5 w-full rounded-lg border border-zinc-300 bg-zinc-50 px-4 text-sm text-[#0a0a0a] outline-none transition placeholder:text-zinc-400 hover:border-zinc-400 focus:border-[#c8102e] focus:bg-white focus:ring-4 focus:ring-[#c8102e]/10"
                 />
-                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-500" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z" />
-                </svg>
               </div>
-            </div>
 
-            {/* Remember + Forgot */}
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 text-zinc-400 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={remember}
-                  onChange={(e) => setRemember(e.target.checked)}
-                  className="w-4 h-4 rounded accent-[#c8102e] cursor-pointer"
-                />
-                Recordarme
-              </label>
-              <a href="#" className="text-[#c8102e] font-medium hover:text-[#ff2a4a] transition-colors">
-                ¿Olvidaste tu contraseña?
-              </a>
-            </div>
-
-            {/* Error */}
-            {error && (
-              <div className="text-sm text-red-400 bg-red-950/40 border border-red-900/50 rounded-lg px-4 py-3">
-                {error}
+              <div className="flex items-center justify-between gap-3">
+                <label className="flex w-fit cursor-pointer select-none items-center gap-2.5 text-xs text-zinc-600">
+                  <input
+                    type="checkbox"
+                    checked={remember}
+                    onChange={(e) => setRemember(e.target.checked)}
+                    className="h-4 w-4 cursor-pointer rounded border-zinc-300 accent-[#c8102e]"
+                  />
+                  Recordarme
+                </label>
+                <a
+                  href="#"
+                  className="text-right text-xs font-semibold text-[#c8102e] underline-offset-4 transition hover:text-[#a50d27] hover:underline focus-visible:outline focus-visible:outline-offset-4 focus-visible:outline-[#c8102e]"
+                >
+                  ¿Olvidaste tu contraseña?
+                </a>
               </div>
-            )}
 
-            {/* Botón */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3.5 rounded-xl font-semibold text-white bg-linear-to-r from-[#c8102e] to-[#9b0a22] hover:from-[#e01235] hover:to-[#b00c26] shadow-lg shadow-[#c8102e]/40 hover:shadow-[#c8102e]/50 hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-            >
-              {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-            </button>
-          </form>
+              {error && (
+                <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs leading-relaxed text-red-700">
+                  {error}
+                </div>
+              )}
 
-          {/* Nota admin */}
-          <div className="mt-8 pt-6 border-t border-zinc-800">
-            <p className="text-center text-xs text-zinc-500 leading-relaxed">
-              Solo personal autorizado.<br />
-              <span className="text-[#c8102e] font-medium">No hay registro público.</span>
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex h-12.5 w-full items-center justify-between rounded-lg bg-linear-to-r from-[#c8102e] to-[#a50d27] px-5 text-xs font-bold uppercase tracking-[0.14em] text-white shadow-lg shadow-[#c8102e]/20 transition hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[#c8102e]/30 focus-visible:outline focus-visible:outline-offset-4 focus-visible:outline-[#c8102e] active:translate-y-0 disabled:cursor-wait disabled:opacity-65 disabled:hover:translate-y-0"
+              >
+                <span>{loading ? 'Iniciando sesión…' : 'Iniciar sesión'}</span>
+                {!loading && <span aria-hidden="true" className="text-lg font-normal">→</span>}
+              </button>
+            </form>
+
+            <footer className="mt-6 border-t border-zinc-200 pt-4">
+              <p className="m-0 text-center text-[11px] leading-relaxed text-zinc-500">
+                Acceso exclusivo para personal autorizado
+              </p>
+            </footer>
+          </div>
+        </section>
+
+        <section className="group relative min-h-65 overflow-hidden bg-[#0a0a0a] md:min-h-162.5" aria-label="Fotografía profesional de Studio13">
+          <img
+            src={loginPhoto}
+            alt="Fotografía profesional de Studio13"
+            fetchPriority="high"
+            className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.025]"
+          />
+          <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/10 to-black/15" aria-hidden="true" />
+          <div className="absolute bottom-0 left-0 right-0 p-7 text-white sm:p-10">
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-red-200">
+              Historias en cada encuadre
+            </p>
+            <p className="m-0 max-w-95 font-(--font-display) text-2xl leading-tight sm:text-3xl">
+              Capturamos momentos que merecen quedarse.
             </p>
           </div>
-        </div>
+          <span className="absolute right-7 top-7 rounded-full border border-white/35 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-white/85 sm:right-10 sm:top-10">
+            Studio13 · Est. 2017
+          </span>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
