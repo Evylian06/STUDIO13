@@ -13,8 +13,6 @@ const fields = [
   "duracionDias",
   "periodo",
   "limiteSesiones",
-  "imagenUrl",
-  "publicId",
   "activo",
   "archivado",
   "orden",
@@ -120,14 +118,6 @@ const validarCampos = (data, requireComplete = false) => {
     (!Number.isInteger(data.limiteSesiones) || data.limiteSesiones < 1)
   )
     return "El límite de sesiones debe ser un entero positivo.";
-  for (const field of ["imagenUrl", "publicId"]) {
-    if (
-      Object.hasOwn(data, field) &&
-      data[field] !== null &&
-      typeof data[field] !== "string"
-    )
-      return `${field} debe ser texto.`;
-  }
   if (requireComplete) {
     if (typeof data.nombre !== "string" || !data.nombre.trim())
       return "El nombre es obligatorio.";
@@ -228,8 +218,6 @@ const create = async (req, res) => {
   data.periodo = data.periodo || "MENSUAL";
   data.duracionDias = periodosDias[data.periodo];
   data.limiteSesiones ??= null;
-  data.imagenUrl ??= null;
-  data.publicId ??= null;
   data.ubicacionPublica ??= "MEMBRESIAS";
   data.agregarInicio ??= false;
   data.activo ??= false;
@@ -303,8 +291,6 @@ const update = async (req, res) => {
         "duracionDias",
         "periodo",
         "limiteSesiones",
-        "imagenUrl",
-        "publicId",
       ];
       if (
         tieneCompras &&

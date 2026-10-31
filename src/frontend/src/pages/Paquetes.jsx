@@ -364,7 +364,6 @@ export default function Paquetes() {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 border-t border-[rgba(26,24,24,0.1)]">
               {membresias.map((membresia) => (
                 <article key={membresia.id} className="border-b border-[rgba(26,24,24,0.1)] p-6">
-                  {membresia.imagenUrl && <img src={membresia.imagenUrl} alt={membresia.nombre} className="-mx-6 -mt-6 mb-5 h-40 w-[calc(100%+3rem)] object-cover" />}
                   <h2 className="mb-3 font-[Fraunces,Georgia,serif] text-base font-light tracking-widest uppercase text-[#8a8880]">{membresia.nombre}</h2>
                   <p className="mb-2 font-[Fraunces,Georgia,serif] text-2xl font-light text-[#1a1818]">{mostrarPrecio(membresia.precio)}</p>
                   <p className="t-body mb-4 text-[0.75rem]">{({ MENSUAL: "Mensual", TRIMESTRAL: "Trimestral", ANUAL: "Anual" })[membresia.periodo] || `${membresia.duracionDias} días`}</p>

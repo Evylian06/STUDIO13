@@ -628,12 +628,6 @@ router.get("/planes-membresia", planMembresiaController.listAdmin);
  *               limiteSesiones:
  *                 type: integer
  *                 nullable: true
- *               imagenUrl:
- *                 type: string
- *                 nullable: true
- *               publicId:
- *                 type: string
- *                 nullable: true
  *               beneficiosItems:
  *                 type: array
  *                 items:
