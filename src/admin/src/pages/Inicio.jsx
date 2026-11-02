@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Icono, useMenuAdmin } from "./Layout/AdminLayout.jsx";
 import portada from "../assets/imagen01.jpg";
 import portada2 from "../assets/imagen02.jpg";
@@ -82,7 +82,6 @@ function Inicio() {
   const setMenuAbierto = menu?.setMenuAbierto;
   const [cargando, setCargando] = useState(true);
   const [datos, setDatos] = useState({});
-  const [imagenesSeleccionadas, setImagenesSeleccionadas] = useState([]);
   const [imagenesRota, setImagenesRota] = useState({});
   const [errores, setErrores] = useState([]);
   const [actualizacion, setActualizacion] = useState(0);
@@ -146,14 +145,7 @@ function Inicio() {
     setActualizacion((value) => value + 1);
   };
 
-  useEffect(() => {
-    if (Array.isArray(datos.galerias)) {
-      setImagenesSeleccionadas(elegirImagenesAleatorias(obtenerImagenes(datos.galerias)));
-      setImagenesRota({});
-    }
-  }, [datos.galerias]);
-
-  const imagenes = imagenesSeleccionadas;
+  const imagenes = useMemo(() => elegirImagenesAleatorias(obtenerImagenes(datos.galerias)), [datos.galerias]);
   const reservaciones = datos.reservaciones;
   const proximasReservaciones = (reservaciones || [])
     .filter((reserva) => ["PENDIENTE", "CONFIRMADA"].includes(reserva.estado) && fechaHoraLocal(reserva) >= new Date())

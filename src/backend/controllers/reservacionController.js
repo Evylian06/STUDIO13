@@ -9,6 +9,7 @@ import {
 } from "./_shared.js";
 
 const fields = ["tipoSesion", "fecha", "hora"];
+const categoriasServicio = new Set(["SESION", "ALQUILER", "TARIFA", "MEMBRESIAS"]);
 const requiredFields = ["nombre", "email", "tipoSesion"];
 const includeCliente = { cliente: { select: { id: true, nombre: true, email: true, telefono: true } } };
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -49,8 +50,8 @@ const create = async (req, res) => {
   const usarClienteExistente = esAdmin && req.body.clienteId !== undefined && req.body.clienteId !== null;
   const crearOReutilizarCliente = esAdmin && !usarClienteExistente;
   const data = pickDefined(req.body, esAdmin
-    ? ["clienteId", "nombre", "email", "telefono", "tipoSesion", "fecha", "hora", "mensaje"]
-    : ["nombre", "email", "telefono", "tipoSesion", "fecha", "hora", "mensaje"]);
+    ? ["clienteId", "nombre", "email", "telefono", "tipoSesion", "categoriaServicio", "fecha", "hora", "mensaje"]
+    : ["nombre", "email", "telefono", "tipoSesion", "categoriaServicio", "fecha", "hora", "mensaje"]);
   if (!data.tipoSesion || (esAdmin && ((!data.clienteId && (!data.nombre || !data.email || !data.telefono)) || !data.fecha || !data.hora)) || (!esAdmin && (!data.nombre || !data.email))) {
     return res.status(400).json({ error: esAdmin ? "Selecciona un cliente o indica nombre, email y teléfono; tipoSesion, fecha y hora son obligatorios." : "nombre, email y tipoSesion son obligatorios." });
   }
@@ -62,6 +63,9 @@ const create = async (req, res) => {
   }
   if (typeof data.tipoSesion !== "string" || !data.tipoSesion.trim()) {
     return res.status(400).json({ error: "tipoSesion debe ser una cadena no vacía." });
+  }
+  if (data.categoriaServicio !== undefined && !categoriasServicio.has(data.categoriaServicio)) {
+    return res.status(400).json({ error: "categoriaServicio no es una categoría válida." });
   }
   if (esAdmin && (typeof data.hora !== "string" || !data.hora.trim())) {
     return res.status(400).json({ error: "hora debe ser una hora válida." });
@@ -83,6 +87,7 @@ const create = async (req, res) => {
   const nombre = usarClienteExistente ? null : data.nombre.trim();
   const telefono = typeof data.telefono === "string" ? data.telefono.trim() : "";
   const tipoSesion = data.tipoSesion.trim();
+  const categoriaServicio = data.categoriaServicio || "SESION";
   const mensaje = typeof data.mensaje === "string" ? data.mensaje.trim() : null;
   let fecha = null;
   if (data.fecha !== undefined && data.fecha !== null && data.fecha !== "") {
@@ -104,6 +109,7 @@ const create = async (req, res) => {
             email: cliente.email,
             telefono: cliente.telefono,
             tipoSesion,
+            categoriaServicio,
             fecha,
             hora: data.hora,
             mensaje,
@@ -132,6 +138,7 @@ const create = async (req, res) => {
                 email: clienteNuevo.email,
                 telefono: clienteNuevo.telefono,
                 tipoSesion,
+                categoriaServicio,
                 fecha,
                 hora: data.hora,
                 mensaje,
@@ -177,6 +184,7 @@ const create = async (req, res) => {
             email,
             telefono: telefono || null,
             tipoSesion,
+            categoriaServicio,
             mensaje,
             estado: "PENDIENTE",
             clienteId: cliente.id,

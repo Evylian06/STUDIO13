@@ -17,7 +17,7 @@ model AdminUser {
 }
 
 model Imagen {
-  id          Int      @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   nombre      String
   url         String
   publicId    String?
@@ -27,11 +27,11 @@ model Imagen {
   textoBoton  String?
   enlace      String?
   tipo        TipoImagen @default(GENERAL)
-  orden       Int      @default(0)
-  activo      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  servicio    Servicio? @relation(fields: [servicioId], references: [id], onDelete: SetNull)
+  orden       Int        @default(0)
+  activo      Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  servicio    Servicio?  @relation(fields: [servicioId], references: [id], onDelete: SetNull)
 
   @@index([tipo, activo])
   @@index([tipo, servicioId])
@@ -129,33 +129,33 @@ model Cliente {
 }
 
 model PlanMembresia {
-  id                Int                         @id @default(autoincrement())
-  nombre            String
-  descripcion       String?
-  precio            Decimal                     @db.Decimal(10, 2)
-  duracionDias      Int
-  periodo           PeriodoPlanMembresia         @default(MENSUAL)
-  limiteSesiones    Int?
-  imagenUrl         String?
-  publicId          String?
-  activo            Boolean                     @default(true)
-  archivado         Boolean                     @default(false)
-  orden             Int                         @default(0)
-  ubicacionPublica  String                      @default("MEMBRESIAS")
-  agregarInicio     Boolean                     @default(false)
-  beneficios        String?
-  beneficiosItems   PlanMembresiaBeneficio[]
-  createdAt         DateTime                    @default(now())
-  updatedAt         DateTime                    @updatedAt
-  membresias        Membresia[]
+  id               Int                      @id @default(autoincrement())
+  nombre           String
+  descripcion      String?
+  precio           Decimal                  @db.Decimal(10, 2)
+  duracionDias     Int
+  periodo          PeriodoPlanMembresia     @default(MENSUAL)
+  limiteSesiones   Int?
+  imagenUrl        String?
+  publicId         String?
+  activo           Boolean                  @default(true)
+  archivado        Boolean                  @default(false)
+  orden            Int                      @default(0)
+  ubicacionPublica String                   @default("MEMBRESIAS")
+  agregarInicio    Boolean                  @default(false)
+  beneficios       String?
+  beneficiosItems  PlanMembresiaBeneficio[]
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+  membresias       Membresia[]
 }
 
 model PlanMembresiaBeneficio {
-  id        Int           @id @default(autoincrement())
-  nombre    String
-  orden     Int           @default(0)
-  planId    Int
-  plan      PlanMembresia @relation(fields: [planId], references: [id], onDelete: Cascade)
+  id     Int           @id @default(autoincrement())
+  nombre String
+  orden  Int           @default(0)
+  planId Int
+  plan   PlanMembresia @relation(fields: [planId], references: [id], onDelete: Cascade)
 
   @@index([planId])
 }
@@ -183,23 +183,32 @@ model Membresia {
 }
 
 model Reservacion {
-  id         Int               @id @default(autoincrement())
-  nombre     String
-  email      String
-  telefono   String?
-  tipoSesion String
-  fecha      DateTime?
-  hora       String?
-  mensaje    String?
-  estado     EstadoReservacion @default(PENDIENTE)
-  estadoPago EstadoPagoReservacion @default(PENDIENTE)
-  clienteId  Int?
-  createdAt  DateTime          @default(now())
-  updatedAt  DateTime          @updatedAt
-  cliente    Cliente?          @relation(fields: [clienteId], references: [id])
+  id                Int                          @id @default(autoincrement())
+  nombre            String
+  email             String
+  telefono          String?
+  tipoSesion        String
+  categoriaServicio CategoriaServicioReservacion @default(SESION)
+  fecha             DateTime?
+  hora              String?
+  mensaje           String?
+  estado            EstadoReservacion            @default(PENDIENTE)
+  estadoPago        EstadoPagoReservacion        @default(PENDIENTE)
+  clienteId         Int?
+  createdAt         DateTime                     @default(now())
+  updatedAt         DateTime                     @updatedAt
+  cliente           Cliente?                     @relation(fields: [clienteId], references: [id])
 
   @@index([clienteId])
   @@index([fecha])
+  @@index([categoriaServicio])
+}
+
+enum CategoriaServicioReservacion {
+  SESION
+  ALQUILER
+  TARIFA
+  MEMBRESIAS
 }
 
 enum EstadoMembresia {

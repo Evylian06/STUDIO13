@@ -19,6 +19,7 @@ const safeSelect = {
     select: {
       id: true,
       tipoSesion: true,
+      categoriaServicio: true,
       fecha: true,
       hora: true,
       estado: true,
@@ -82,6 +83,15 @@ const update = async (req, res) => {
   if (!id) return res.status(400).json({ error: "El id debe ser un entero positivo." });
   if (!isObjectBody(req.body)) return res.status(400).json({ error: "El cuerpo debe ser un objeto JSON." });
   const data = pickDefined(req.body, fields);
+  if (data.nombre !== undefined && (typeof data.nombre !== "string" || !data.nombre.trim())) {
+    return res.status(400).json({ error: "nombre debe ser una cadena no vacía." });
+  }
+  if (data.email !== undefined && (typeof data.email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim()))) {
+    return res.status(400).json({ error: "email debe ser una dirección válida." });
+  }
+  if (data.telefono !== undefined && data.telefono !== null && typeof data.telefono !== "string") {
+    return res.status(400).json({ error: "telefono debe ser una cadena." });
+  }
   if (Object.hasOwn(req.body, "password")) {
     if (typeof req.body.password !== "string" || !req.body.password) {
       return res.status(400).json({ error: "password debe ser una cadena no vacía." });
@@ -93,7 +103,18 @@ const update = async (req, res) => {
     if (Object.hasOwn(req.body, "password")) {
       data.passwordHash = await bcrypt.hash(req.body.password, 12);
     }
-    const result = await prisma.cliente.updateMany({ where: { id }, data });
+    const result = await prisma.$transaction(async (tx) => {
+      const actualizacion = await tx.cliente.updateMany({ where: { id }, data });
+      if (actualizacion.count && ["nombre", "email", "telefono"].some((campo) => Object.hasOwn(data, campo))) {
+        const datosRelacionados = Object.fromEntries(
+          ["nombre", "email", "telefono"]
+            .filter((campo) => Object.hasOwn(data, campo))
+            .map((campo) => [campo, data[campo]]),
+        );
+        await tx.reservacion.updateMany({ where: { clienteId: id }, data: datosRelacionados });
+      }
+      return actualizacion;
+    });
     if (!result.count) return res.status(404).json({ error: "Cliente no encontrado." });
     return res.json(await prisma.cliente.findUnique({ where: { id }, select: safeSelect }));
   } catch (error) {

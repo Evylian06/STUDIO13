@@ -2,10 +2,18 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL, adminHeaders, mensajeError, redirigirSiNoAutorizado, useAdminCollection } from "./useAdminCollection.js";
 
+const categoriasClientes = [
+  { id: "SESION", nombre: "Sesiones fotográficas" },
+  { id: "ALQUILER", nombre: "Alquiler" },
+  { id: "TARIFA", nombre: "Tarifas" },
+  { id: "MEMBRESIAS", nombre: "Membresías" },
+];
+
 export default function Clientes() {
   const navigate = useNavigate();
   const { filas, setFilas, cargando, error, recargar } = useAdminCollection("/api/clientes");
   const [busqueda, setBusqueda] = useState("");
+  const [categoriaActiva, setCategoriaActiva] = useState("SESION");
   const [clienteEditando, setClienteEditando] = useState(null);
   const [borrador, setBorrador] = useState({ nombre: "", email: "", telefono: "" });
   const [guardando, setGuardando] = useState(false);
@@ -13,7 +21,8 @@ export default function Clientes() {
   const [errorPago, setErrorPago] = useState("");
   const [reservacionSeleccionada, setReservacionSeleccionada] = useState({});
 
-  const filasVisibles = filas.filter((cliente) => String(cliente.nombre ?? "").toLocaleLowerCase().includes(busqueda.trim().toLocaleLowerCase()));
+  const clientesCategoria = filas.filter((cliente) => (cliente.reservaciones || []).some((reserva) => reserva.categoriaServicio === categoriaActiva && reserva.estado !== "CANCELADA"));
+  const filasVisibles = clientesCategoria.filter((cliente) => String(cliente.nombre ?? "").toLocaleLowerCase().includes(busqueda.trim().toLocaleLowerCase()));
   const iniciarEdicion = (cliente) => {
     setClienteEditando(cliente);
     setBorrador({ nombre: cliente.nombre ?? "", email: cliente.email ?? "", telefono: cliente.telefono ?? "" });
@@ -55,11 +64,13 @@ export default function Clientes() {
   return (
     <main className="pagina-tabla-admin pagina-clientes mx-auto min-h-screen w-full max-w-350 px-5 py-8 sm:px-7 md:px-10 md:py-10 xl:px-12">
       <div className="mb-7 flex flex-wrap items-end justify-between gap-4"><div><p className="mb-2 text-[10px] font-semibold! tracking-[.2em] text-neutral-500 uppercase sm:text-xs">Administración</p><h1 className="m-0 font-[Georgia] text-3xl font-normal! text-neutral-900 sm:text-4xl">Clientes</h1><p className="mb-0 mt-2 text-xs text-neutral-500 sm:text-sm">Consulta los registros de Studio13.</p></div><button className="border border-neutral-300 bg-white px-4 py-2.5 text-xs font-semibold! text-neutral-800 transition-colors hover:border-[#b51f2a] hover:text-[#a51c1c] sm:text-sm" type="button" onClick={recargar}>Actualizar</button></div>
+      <nav className="mb-5 flex flex-wrap border-b border-neutral-200" aria-label="Categorías de clientes">{categoriasClientes.map((categoria) => <button key={categoria.id} type="button" onClick={() => { setCategoriaActiva(categoria.id); setReservacionSeleccionada({}); }} className={`border-0 border-b-2 bg-transparent px-4 py-3 text-xs font-semibold! sm:text-sm ${categoriaActiva === categoria.id ? "border-[#a51c1c] text-[#a51c1c]" : "border-transparent text-neutral-500 hover:text-neutral-900"}`}>{categoria.nombre}</button>)}</nav>
+      <p className="mb-4 text-xs font-semibold! tracking-[.12em] text-neutral-500 uppercase">{categoriasClientes.find((categoria) => categoria.id === categoriaActiva)?.nombre}</p>
       <div className="mb-4 max-w-lg"><label className="mb-2 block text-xs font-semibold! text-neutral-700" htmlFor="buscar-clientes">Buscar clientes por nombre</label><input id="buscar-clientes" type="search" value={busqueda} onChange={(evento) => setBusqueda(evento.target.value)} placeholder="Escribe un nombre..." className="w-full border border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition focus:border-[#a51c1c] focus:ring-2 focus:ring-[#a51c1c]/15" /></div>
       {errorPago && <p className="mb-4 text-sm text-[#a51c1c]" role="alert">{errorPago}</p>}
       <div className="overflow-hidden border border-neutral-200 bg-white">{error ? <div className="flex flex-wrap items-center justify-between gap-4 p-5 text-sm text-[#a51c1c]" role="alert"><span>{error}</span><button className="underline" type="button" onClick={recargar}>Reintentar</button></div> : <div className="overflow-x-auto"><table className="w-full min-w-155 border-collapse text-left text-sm"><thead className="bg-[#111] text-white"><tr>{["Nombre", "Correo electrónico", "Teléfono", "Reservación", "Estado de pago", "Acciones"].map((titulo) => <th className="px-5 py-4 text-xs font-semibold! tracking-wide" key={titulo}>{titulo}</th>)}</tr></thead><tbody>
         {cargando ? <tr><td className="px-5 py-8 text-neutral-500" colSpan={6}>Cargando registros…</td></tr> : filasVisibles.length ? filasVisibles.map((cliente) => {
-          const reservaciones = cliente.reservaciones || [];
+          const reservaciones = (cliente.reservaciones || []).filter((elemento) => elemento.categoriaServicio === categoriaActiva && elemento.estado !== "CANCELADA");
           const reservaId = reservacionSeleccionada[cliente.id] || reservaciones[0]?.id || "";
           const reserva = reservaciones.find((elemento) => elemento.id === reservaId);
           return <tr className="border-t border-neutral-200 even:bg-[#faf9f8]" key={cliente.id}>

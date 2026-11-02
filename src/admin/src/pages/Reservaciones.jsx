@@ -1,12 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { API_BASE_URL, adminHeaders, mensajeError, redirigirSiNoAutorizado, useAdminCollection } from "./useAdminCollection.js";
 
-const opcionesSesion = [
-  ["Básico", "Básico — ₡45,000"], ["Estándar", "Estándar — ₡90,000"], ["Premium", "Premium — ₡165,000"],
-  ["Elite", "Elite — ₡300,000"], ["Alquiler por hora", "Alquiler por hora — ₡15,000"],
-  ["Alquiler medio día", "Alquiler medio día — ₡50,000"], ["Alquiler día completo", "Alquiler día completo — ₡85,000"],
-  ["Cotizaci\u00f3n personalizada", "Cotizaci\u00f3n personalizada — Precio por definir"],
+const categoriasReservaciones = [
+  { id: "SESION", nombre: "Sesiones fotográficas" },
+  { id: "ALQUILER", nombre: "Alquiler" },
+  { id: "TARIFA", nombre: "Tarifas" },
+  { id: "MEMBRESIAS", nombre: "Membresías" },
 ];
 const paisesTelefono = [
   { codigo: "CR", prefijo: "+506", bandera: "🇨🇷" }, { codigo: "PE", prefijo: "+51", bandera: "🇵🇪" },
@@ -19,8 +19,12 @@ const formularioVacio = { tipoSesion: "", fecha: "", hora: "", mensaje: "", emai
 
 export default function Reservaciones() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { filas, setFilas, cargando, error, recargar } = useAdminCollection("/api/reservaciones");
+  const [categoriaActiva, setCategoriaActiva] = useState("SESION");
+  const [paquetesCatalogo, setPaquetesCatalogo] = useState([]);
+  const [planesCatalogo, setPlanesCatalogo] = useState([]);
+  const [errorCatalogo, setErrorCatalogo] = useState("");
   const [busqueda, setBusqueda] = useState("");
   const [clientes, setClientes] = useState([]);
   const [errorClientes, setErrorClientes] = useState("");
@@ -35,21 +39,45 @@ export default function Reservaciones() {
   const [errorEdicion, setErrorEdicion] = useState("");
   const [errorOperacion, setErrorOperacion] = useState("");
   const [cotizacionAbierta, setCotizacionAbierta] = useState(null);
+  const reservaPorUrl = filas.find((fila) => String(fila.id) === searchParams.get("id"));
+  const detalleAbierto = cotizacionAbierta || reservaPorUrl;
   const botonVerRef = useRef(null);
   const modalCotizacionRef = useRef(null);
 
-  useEffect(() => {
-    const id = searchParams.get("id");
-    if (!id || !filas.length) return;
-    const reserva = filas.find((fila) => String(fila.id) === id);
-    if (reserva) setCotizacionAbierta(reserva);
-  }, [filas, searchParams]);
+  const cerrarDetalle = useCallback(() => {
+    setCotizacionAbierta(null);
+    if (searchParams.has("id")) setSearchParams({});
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
-    if (!cotizacionAbierta) return undefined;
+    const controller = new AbortController();
+    Promise.all([
+      fetch(`${API_BASE_URL}/api/admin/paquetes`, { signal: controller.signal, headers: adminHeaders() }),
+      fetch(`${API_BASE_URL}/api/admin/planes-membresia`, { signal: controller.signal, headers: adminHeaders() }),
+    ])
+      .then(async (respuestas) => {
+        const cuerpos = await Promise.all(respuestas.map((respuesta) => respuesta.json()));
+        respuestas.forEach((respuesta, indice) => {
+          redirigirSiNoAutorizado(respuesta, navigate);
+          if (!respuesta.ok) throw new Error(cuerpos[indice]?.error || "No se pudo cargar el catálogo de servicios.");
+        });
+        return cuerpos;
+      })
+      .then(([paquetes, planes]) => {
+        if (!controller.signal.aborted) {
+          setPaquetesCatalogo(paquetes);
+          setPlanesCatalogo(planes);
+        }
+      })
+      .catch((reason) => { if (!controller.signal.aborted) setErrorCatalogo(mensajeError(reason)); });
+    return () => controller.abort();
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!detalleAbierto) return undefined;
     const overflowAnterior = document.body.style.overflow;
     const cerrarConEscape = (evento) => {
-      if (evento.key === "Escape") setCotizacionAbierta(null);
+      if (evento.key === "Escape") cerrarDetalle();
     };
     document.body.style.overflow = "hidden";
     document.addEventListener("keydown", cerrarConEscape);
@@ -59,7 +87,7 @@ export default function Reservaciones() {
       document.removeEventListener("keydown", cerrarConEscape);
       botonVerRef.current?.focus();
     };
-  }, [cotizacionAbierta]);
+  }, [cerrarDetalle, detalleAbierto]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -75,8 +103,12 @@ export default function Reservaciones() {
     return () => controller.abort();
   }, [navigate]);
 
-  const filasVisibles = filas.filter((reserva) => String(reserva.cliente?.nombre ?? "").toLocaleLowerCase().includes(busqueda.trim().toLocaleLowerCase()));
+  const filasCategoria = filas.filter((reserva) => reserva.categoriaServicio === categoriaActiva);
+  const filasVisibles = filasCategoria.filter((reserva) => String(reserva.cliente?.nombre ?? reserva.nombre ?? "").toLocaleLowerCase().includes(busqueda.trim().toLocaleLowerCase()));
   const clientesVisibles = clientes.filter((cliente) => cliente.nombre.toLocaleLowerCase().includes(busquedaCliente.trim().toLocaleLowerCase()));
+  const opcionesCategoria = categoriaActiva === "MEMBRESIAS"
+    ? planesCatalogo.filter((plan) => plan.activo && !plan.archivado)
+    : paquetesCatalogo.filter((paquete) => paquete.activo && paquete.seccion === categoriaActiva);
 
   const iniciarEdicion = (reserva) => {
     setReservacionEditando(reserva);
@@ -147,7 +179,7 @@ export default function Reservaciones() {
             nombre: busquedaCliente.trim(), email: nuevaReservacion.email.trim(),
             telefono: `${paisesTelefono.find((pais) => pais.codigo === nuevaReservacion.paisTelefono)?.prefijo || "+506"} ${nuevaReservacion.telefono.trim()}`,
           }),
-          tipoSesion: nuevaReservacion.tipoSesion, fecha: nuevaReservacion.fecha, hora: nuevaReservacion.hora, mensaje: nuevaReservacion.mensaje,
+          tipoSesion: nuevaReservacion.tipoSesion, categoriaServicio: categoriaActiva, fecha: nuevaReservacion.fecha, hora: nuevaReservacion.hora, mensaje: nuevaReservacion.mensaje,
         }),
       });
       const body = await response.json();
@@ -169,9 +201,10 @@ export default function Reservaciones() {
   return (
     <main className="pagina-tabla-admin pagina-reservaciones mx-auto min-h-screen w-full max-w-350 px-5 py-8 sm:px-7 md:px-10 md:py-10 xl:px-12">
       <div className="mb-7 flex flex-wrap items-end justify-between gap-4"><div><p className="mb-2 text-[10px] font-semibold! tracking-[.2em] text-neutral-500 uppercase sm:text-xs">Administración</p><h1 className="m-0 font-[Georgia] text-3xl font-normal! text-neutral-900 sm:text-4xl">Reservaciones</h1><p className="mb-0 mt-2 text-xs text-neutral-500 sm:text-sm">Consulta los registros de Studio13.</p></div><div className="flex gap-3"><button className="border border-[#a51c1c] bg-[#a51c1c] px-4 py-2.5 text-xs font-semibold! text-white transition-colors hover:bg-black sm:text-sm" type="button" onClick={() => { setErrorOperacion(""); setCrearAbierto(true); }}>Nueva reservación</button><button className="border border-neutral-300 bg-white px-4 py-2.5 text-xs font-semibold! text-neutral-800 transition-colors hover:border-[#b51f2a] hover:text-[#a51c1c] sm:text-sm" type="button" onClick={recargar}>Actualizar</button></div></div>
-      {errorOperacion && <p className="mb-4 text-sm text-[#a51c1c]" role="alert">{errorOperacion}</p>}{errorClientes && <p className="mb-4 text-sm text-[#a51c1c]" role="alert">No se pudieron cargar clientes para crear una reservación: {errorClientes}</p>}
+      {errorOperacion && <p className="mb-4 text-sm text-[#a51c1c]" role="alert">{errorOperacion}</p>}{errorCatalogo && <p className="mb-4 text-sm text-[#a51c1c]" role="alert">No se pudo cargar el catálogo de servicios: {errorCatalogo}</p>}{errorClientes && <p className="mb-4 text-sm text-[#a51c1c]" role="alert">No se pudieron cargar clientes para crear una reservación: {errorClientes}</p>}
       <div className="mb-4 max-w-lg"><label className="mb-2 block text-xs font-semibold! text-neutral-700" htmlFor="buscar-reservaciones">Buscar reservaciones por nombre del cliente</label><input id="buscar-reservaciones" type="search" value={busqueda} onChange={(evento) => setBusqueda(evento.target.value)} placeholder="Escribe un nombre..." className="w-full border border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition focus:border-[#a51c1c] focus:ring-2 focus:ring-[#a51c1c]/15" /></div>
-      <div className="overflow-hidden border border-neutral-200 bg-white">{error ? <div className="flex flex-wrap items-center justify-between gap-4 p-5 text-sm text-[#a51c1c]" role="alert"><span>{error}</span><button className="underline" type="button" onClick={recargar}>Reintentar</button></div> : <div className="overflow-x-auto"><table className="tabla-admin-compacta w-full min-w-155 border-collapse text-left text-sm"><thead className="bg-[#111] text-white"><tr>{["Cliente", "Sesión", "Fecha", "Hora", "Estado", "Pago", "Acciones"].map((titulo) => <th className="px-5 py-4 text-xs font-semibold! tracking-wide" key={titulo}>{titulo}</th>)}</tr></thead><tbody>
+      <nav className="mb-5 flex flex-wrap border-b border-neutral-200" aria-label="Categorías de reservaciones">{categoriasReservaciones.map((categoria) => <button key={categoria.id} type="button" onClick={() => { setCategoriaActiva(categoria.id); setBusqueda(""); }} className={`border-0 border-b-2 bg-transparent px-4 py-3 text-xs font-semibold! sm:text-sm ${categoriaActiva === categoria.id ? "border-[#a51c1c] text-[#a51c1c]" : "border-transparent text-neutral-500 hover:text-neutral-900"}`}>{categoria.nombre}</button>)}</nav>
+      <p className="mb-4 text-xs font-semibold! tracking-[.12em] text-neutral-500 uppercase">{categoriasReservaciones.find((categoria) => categoria.id === categoriaActiva)?.nombre}</p>      <div className="overflow-hidden border border-neutral-200 bg-white">{error ? <div className="flex flex-wrap items-center justify-between gap-4 p-5 text-sm text-[#a51c1c]" role="alert"><span>{error}</span><button className="underline" type="button" onClick={recargar}>Reintentar</button></div> : <div className="overflow-x-auto"><table className="tabla-admin-compacta w-full min-w-155 border-collapse text-left text-sm"><thead className="bg-[#111] text-white"><tr>{["Cliente", "Sesión", "Fecha", "Hora", "Estado", "Pago", "Acciones"].map((titulo) => <th className="px-5 py-4 text-xs font-semibold! tracking-wide" key={titulo}>{titulo}</th>)}</tr></thead><tbody>
         {cargando ? <tr><td className="px-5 py-8 text-neutral-500" colSpan={7}>Cargando registros…</td></tr> : filasVisibles.length ? filasVisibles.map((reserva) => { const estado = { PENDIENTE: "Pendiente", CONFIRMADA: "Confirmada", CANCELADA: "Cancelada", COMPLETADA: "Completada", RECHAZADA: "Rechazada" }[reserva.estado] || reserva.estado; const tono = reserva.estado === "CONFIRMADA" || reserva.estado === "COMPLETADA" ? "border-green-200 bg-green-50 text-green-800" : reserva.estado === "CANCELADA" || reserva.estado === "RECHAZADA" ? "border-neutral-300 bg-neutral-100 text-neutral-600" : "border-[#e3b8bb] bg-red-50 text-[#a51c1c]"; const pagado = reserva.estadoPago === "PAGADO"; return <tr className="border-t border-neutral-200 even:bg-[#faf9f8]" key={reserva.id}>
           <td className="px-5 py-4 text-neutral-700">{reserva.cliente?.nombre || "—"}</td><td className="px-5 py-4 text-neutral-700"><div>{reserva.tipoSesion || null}</div></td><td className="whitespace-nowrap px-5 py-4 text-neutral-700">{reserva.fecha ? new Intl.DateTimeFormat("es", { dateStyle: "medium" }).format(new Date(reserva.fecha)) : "—"}</td><td className="px-5 py-4 text-neutral-700">{reserva.hora || "—"}</td>
           <td className="whitespace-nowrap px-5 py-4"><div className="grid justify-items-start gap-2"><span className={`border px-2.5 py-1 text-[10px] font-semibold! uppercase ${tono}`}>{estado}</span>{reserva.estado !== "CANCELADA" && <select aria-label={`Cambiar estado de reservación de ${reserva.cliente?.nombre || "cliente"}`} value={reserva.estado} onChange={(evento) => cambiarEstado(reserva, evento.target.value)} className="border border-neutral-300 bg-white px-2 py-1 text-xs"><option value="PENDIENTE">Pendiente</option><option value="CONFIRMADA">Confirmada</option><option value="RECHAZADA">Rechazada</option><option value="COMPLETADA">Completada</option><option value="CANCELADA">Cancelada</option></select>}</div></td>
@@ -186,7 +219,7 @@ export default function Reservaciones() {
           {busquedaCliente.trim() && clientesVisibles.length > 0 && <div className="grid max-h-48 gap-2 overflow-y-auto border border-neutral-200 p-2" aria-label="Coincidencias de clientes">{clientesVisibles.map((cliente) => <button key={cliente.id} type="button" onClick={() => { setClienteSeleccionado(cliente); setBusquedaCliente(cliente.nombre); setNuevaReservacion((actual) => ({ ...actual, email: "", telefono: "" })); }} className="grid gap-1 border border-neutral-200 bg-white px-3 py-2 text-left text-xs text-neutral-700 transition-colors hover:border-[#a51c1c]"><span className="font-semibold!">{cliente.nombre}</span><span>{cliente.email} · {cliente.telefono || "Sin teléfono"}</span></button>)}</div>}
           {(!busquedaCliente.trim() || clientesVisibles.length === 0) && <><p className="m-0 text-xs text-neutral-500">{busquedaCliente.trim() ? "No encontramos un cliente con ese nombre. Completa sus datos para registrarlo." : "Busca un cliente existente o completa sus datos para registrarlo."}</p><label className="grid gap-2 text-xs font-semibold! text-neutral-700">Correo electrónico<input required type="email" value={nuevaReservacion.email} onChange={(evento) => setNuevaReservacion((actual) => ({ ...actual, email: evento.target.value }))} className="w-full border border-neutral-300 bg-white px-3 py-3 text-sm font-normal! text-neutral-900 outline-none focus:border-[#a51c1c]" /></label><label className="grid gap-2 text-xs font-semibold! text-neutral-700">Teléfono<div className="flex overflow-hidden border border-neutral-300 bg-white focus-within:border-[#a51c1c]"><select aria-label="País del teléfono" value={nuevaReservacion.paisTelefono} onChange={(evento) => setNuevaReservacion((actual) => ({ ...actual, paisTelefono: evento.target.value }))} className="max-w-40 border-0 border-r border-neutral-300 bg-neutral-50 px-2 py-3 text-sm text-neutral-800 outline-none">{paisesTelefono.map((pais) => <option key={pais.codigo} value={pais.codigo}>{pais.bandera} {pais.prefijo}</option>)}</select><input required type="tel" value={nuevaReservacion.telefono} onChange={(evento) => setNuevaReservacion((actual) => ({ ...actual, telefono: evento.target.value.replace(/[^\d\s()-]/g, "") }))} placeholder="8886-2187" className="min-w-0 flex-1 border-0 px-3 py-3 text-sm text-neutral-900 outline-none" /></div><span className="text-xs font-normal! text-neutral-500">Se guardará con el prefijo {paisesTelefono.find((pais) => pais.codigo === nuevaReservacion.paisTelefono)?.prefijo}.</span></label></>}
         </>}
-        <label className="grid gap-2 text-xs font-semibold! text-neutral-700">Sesión<select required value={nuevaReservacion.tipoSesion} onChange={(evento) => setNuevaReservacion((actual) => ({ ...actual, tipoSesion: evento.target.value }))} className="w-full border border-neutral-300 bg-white px-3 py-3 text-sm font-normal! text-neutral-900"><option value="" disabled>Seleccionar sesión…</option>{opcionesSesion.map(([valor, etiqueta]) => <option key={valor} value={valor}>{etiqueta}</option>)}</select></label>
+        <label className="grid gap-2 text-xs font-semibold! text-neutral-700">Sesión<select required value={nuevaReservacion.tipoSesion} onChange={(evento) => setNuevaReservacion((actual) => ({ ...actual, tipoSesion: evento.target.value }))} className="w-full border border-neutral-300 bg-white px-3 py-3 text-sm font-normal! text-neutral-900"><option value="" disabled>Seleccionar sesión…</option>{opcionesCategoria.map((opcion) => <option key={opcion.id} value={opcion.nombre}>{opcion.nombre}</option>)}{categoriaActiva === "SESION" && <option value="Cotización personalizada">Cotización personalizada — Precio por definir</option>}</select></label>
         <div className="grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-xs font-semibold! text-neutral-700">Fecha<input required type="date" value={nuevaReservacion.fecha} onChange={(evento) => setNuevaReservacion((actual) => ({ ...actual, fecha: evento.target.value }))} className="w-full border border-neutral-300 bg-white px-3 py-3 text-sm font-normal! text-neutral-900" /></label><label className="grid gap-2 text-xs font-semibold! text-neutral-700">Hora<input required type="time" value={nuevaReservacion.hora} onChange={(evento) => setNuevaReservacion((actual) => ({ ...actual, hora: evento.target.value }))} className="w-full border border-neutral-300 bg-white px-3 py-3 text-sm font-normal! text-neutral-900" /></label></div>
         {nuevaReservacion.tipoSesion === "Cotizaci\u00f3n personalizada" && <label className="grid gap-2 text-xs font-semibold! text-neutral-700">Descripción de la cotización (precio por definir)<textarea required rows={4} value={nuevaReservacion.mensaje} onChange={(evento) => setNuevaReservacion((actual) => ({ ...actual, mensaje: evento.target.value }))} className="w-full border border-neutral-300 bg-white px-3 py-3 text-sm font-normal! text-neutral-900" /></label>}
         <p className="m-0 text-xs text-neutral-500">Se registrará como Confirmada. El estado del pago se administra desde Clientes.</p>{errorOperacion && <p className="m-0 text-sm text-[#a51c1c]" role="alert">{errorOperacion}</p>}<div className="flex justify-end gap-3"><button type="button" disabled={guardandoNueva} onClick={() => setCrearAbierto(false)} className="border border-neutral-300 px-4 py-2.5 text-xs font-semibold! text-neutral-700">Cancelar</button><button type="submit" disabled={guardandoNueva || (!clienteSeleccionado && (!busquedaCliente.trim() || clientesVisibles.length > 0))} className="border border-[#a51c1c] bg-[#a51c1c] px-4 py-2.5 text-xs font-semibold! text-white disabled:opacity-60">{guardandoNueva ? "Guardando…" : "Crear reservación"}</button></div>
@@ -194,11 +227,11 @@ export default function Reservaciones() {
 
       {reservacionEditando && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4" onMouseDown={(evento) => { if (evento.target === evento.currentTarget && !guardandoEdicion) setReservacionEditando(null); }}><section role="dialog" aria-modal="true" aria-labelledby="editar-reservacion-titulo" className="w-full max-w-lg border border-neutral-200 bg-white p-6 shadow-2xl sm:p-8"><p className="mb-2 text-[10px] font-semibold! tracking-[.2em] text-[#a51c1c] uppercase">Reservaciones</p><h2 id="editar-reservacion-titulo" className="mb-6 text-2xl text-neutral-900">Editar reservación</h2><form className="grid gap-5" onSubmit={guardarEdicion}>
         <div className="grid gap-2 text-xs font-semibold! text-neutral-700">Cliente<p className="m-0 border border-neutral-200 bg-neutral-50 px-3 py-3 text-sm font-normal! text-neutral-600">{reservacionEditando.cliente?.nombre || "Cliente no disponible"}</p></div>
-        <label className="grid gap-2 text-xs font-semibold! text-neutral-700">Sesión<select required value={borrador.tipoSesion} onChange={(evento) => setBorrador((actual) => ({ ...actual, tipoSesion: evento.target.value }))} className="w-full border border-neutral-300 bg-white px-3 py-3 text-sm font-normal! text-neutral-900 outline-none focus:border-[#a51c1c] focus:ring-2 focus:ring-[#a51c1c]/15"><option value="" disabled>Seleccionar sesión…</option>{opcionesSesion.map(([valor, etiqueta]) => <option key={valor} value={valor}>{etiqueta}</option>)}</select></label>
+        <label className="grid gap-2 text-xs font-semibold! text-neutral-700">Sesión<select required value={borrador.tipoSesion} onChange={(evento) => setBorrador((actual) => ({ ...actual, tipoSesion: evento.target.value }))} className="w-full border border-neutral-300 bg-white px-3 py-3 text-sm font-normal! text-neutral-900 outline-none focus:border-[#a51c1c] focus:ring-2 focus:ring-[#a51c1c]/15"><option value="" disabled>Seleccionar sesión…</option>{opcionesCategoria.map((opcion) => <option key={opcion.id} value={opcion.nombre}>{opcion.nombre}</option>)}{categoriaActiva === "SESION" && <option value="Cotización personalizada">Cotización personalizada — Precio por definir</option>}</select></label>
         <label className="grid gap-2 text-xs font-semibold! text-neutral-700">Fecha<input type="date" value={borrador.fecha} onChange={(evento) => setBorrador((actual) => ({ ...actual, fecha: evento.target.value }))} className="w-full border border-neutral-300 bg-white px-3 py-3 text-sm font-normal! text-neutral-900 outline-none focus:border-[#a51c1c] focus:ring-2 focus:ring-[#a51c1c]/15" /></label><label className="grid gap-2 text-xs font-semibold! text-neutral-700">Hora<input type="time" value={borrador.hora} onChange={(evento) => setBorrador((actual) => ({ ...actual, hora: evento.target.value }))} className="w-full border border-neutral-300 bg-white px-3 py-3 text-sm font-normal! text-neutral-900 outline-none focus:border-[#a51c1c] focus:ring-2 focus:ring-[#a51c1c]/15" /></label>
         {errorEdicion && <p className="m-0 text-sm text-[#a51c1c]" role="alert">{errorEdicion}</p>}<div className="mt-1 flex flex-wrap justify-end gap-3"><button className="border border-neutral-300 bg-white px-4 py-2.5 text-xs font-semibold! text-neutral-700" type="button" disabled={guardandoEdicion} onClick={() => setReservacionEditando(null)}>Cancelar</button><button className="border border-[#a51c1c] bg-[#a51c1c] px-4 py-2.5 text-xs font-semibold! text-white disabled:opacity-60" type="submit" disabled={guardandoEdicion}>{guardandoEdicion ? "Guardando…" : "Guardar cambios"}</button></div>
       </form></section></div>}
-      {cotizacionAbierta && <div className="quote-detail-overlay" onMouseDown={(evento) => { if (evento.target === evento.currentTarget) setCotizacionAbierta(null); }}><section ref={modalCotizacionRef} role="dialog" aria-modal="true" aria-labelledby="detalle-cotizacion-titulo" tabIndex={-1} className="quote-detail-panel"><header className="quote-detail-header"><h2 id="detalle-cotizacion-titulo">{cotizacionAbierta.tipoSesion === "Cotización personalizada" ? "Detalle de la cotización" : "Detalle de la reservación"}</h2><button type="button" aria-label="Cerrar detalle de la cotización" onClick={() => setCotizacionAbierta(null)}>×</button></header><div className="quote-detail-content"><section className="quote-detail-section"><h3>Datos del cliente</h3><dl><div><dt>Nombre</dt><dd>{cotizacionAbierta.cliente?.nombre || cotizacionAbierta.nombre || "—"}</dd></div><div><dt>Correo</dt><dd>{cotizacionAbierta.cliente?.email || cotizacionAbierta.email || "—"}</dd></div><div><dt>Teléfono</dt><dd>{cotizacionAbierta.cliente?.telefono || cotizacionAbierta.telefono || "—"}</dd></div></dl></section><section className="quote-detail-section"><h3>Datos de la reserva</h3><dl><div><dt>Tipo de sesión</dt><dd>{cotizacionAbierta.tipoSesion || "—"}</dd></div><div><dt>Fecha</dt><dd>{cotizacionAbierta.fecha ? new Intl.DateTimeFormat("es", { dateStyle: "medium" }).format(new Date(cotizacionAbierta.fecha)) : "—"}</dd></div><div><dt>Hora</dt><dd>{cotizacionAbierta.hora || "—"}</dd></div><div><dt>Estado</dt><dd><span className={`quote-detail-badge ${cotizacionAbierta.estado === "CONFIRMADA" || cotizacionAbierta.estado === "COMPLETADA" ? "quote-detail-badge-success" : cotizacionAbierta.estado === "CANCELADA" || cotizacionAbierta.estado === "RECHAZADA" ? "quote-detail-badge-neutral" : "quote-detail-badge-pending"}`}>{({ PENDIENTE: "Pendiente", CONFIRMADA: "Confirmada", CANCELADA: "Cancelada", COMPLETADA: "Completada", RECHAZADA: "Rechazada" })[cotizacionAbierta.estado] || cotizacionAbierta.estado || "—"}</span></dd></div><div><dt>Estado de pago</dt><dd><span className={`quote-detail-badge ${cotizacionAbierta.estadoPago === "PAGADO" ? "quote-detail-badge-success" : "quote-detail-badge-pending"}`}>{cotizacionAbierta.estadoPago === "PAGADO" ? "Pagado" : "Pendiente de pago"}</span></dd></div></dl></section><section className="quote-detail-section"><h3>Solicitud del cliente</h3><div className="quote-detail-message">{cotizacionAbierta.mensaje?.trim() || "No hay un mensaje guardado en esta reservación."}</div></section></div><footer className="quote-detail-footer"><button type="button" onClick={() => setCotizacionAbierta(null)}>Cerrar</button></footer></section></div>}
+      {detalleAbierto && <div className="quote-detail-overlay" onMouseDown={(evento) => { if (evento.target === evento.currentTarget) cerrarDetalle(); }}><section ref={modalCotizacionRef} role="dialog" aria-modal="true" aria-labelledby="detalle-cotizacion-titulo" tabIndex={-1} className="quote-detail-panel"><header className="quote-detail-header"><h2 id="detalle-cotizacion-titulo">{detalleAbierto.tipoSesion === "Cotización personalizada" ? "Detalle de la cotización" : "Detalle de la reservación"}</h2><button type="button" aria-label="Cerrar detalle de la cotización" onClick={() => cerrarDetalle()}>×</button></header><div className="quote-detail-content"><section className="quote-detail-section"><h3>Datos del cliente</h3><dl><div><dt>Nombre</dt><dd>{detalleAbierto.cliente?.nombre || detalleAbierto.nombre || "—"}</dd></div><div><dt>Correo</dt><dd>{detalleAbierto.cliente?.email || detalleAbierto.email || "—"}</dd></div><div><dt>Teléfono</dt><dd>{detalleAbierto.cliente?.telefono || detalleAbierto.telefono || "—"}</dd></div></dl></section><section className="quote-detail-section"><h3>Datos de la reserva</h3><dl><div><dt>Categoría</dt><dd>{categoriasReservaciones.find((categoria) => categoria.id === detalleAbierto.categoriaServicio)?.nombre || "—"}</dd></div><div><dt>Tipo de sesión</dt><dd>{detalleAbierto.tipoSesion || "—"}</dd></div><div><dt>Fecha</dt><dd>{detalleAbierto.fecha ? new Intl.DateTimeFormat("es", { dateStyle: "medium" }).format(new Date(detalleAbierto.fecha)) : "—"}</dd></div><div><dt>Hora</dt><dd>{detalleAbierto.hora || "—"}</dd></div><div><dt>Estado</dt><dd><span className={`quote-detail-badge ${detalleAbierto.estado === "CONFIRMADA" || detalleAbierto.estado === "COMPLETADA" ? "quote-detail-badge-success" : detalleAbierto.estado === "CANCELADA" || detalleAbierto.estado === "RECHAZADA" ? "quote-detail-badge-neutral" : "quote-detail-badge-pending"}`}>{({ PENDIENTE: "Pendiente", CONFIRMADA: "Confirmada", CANCELADA: "Cancelada", COMPLETADA: "Completada", RECHAZADA: "Rechazada" })[detalleAbierto.estado] || detalleAbierto.estado || "—"}</span></dd></div><div><dt>Estado de pago</dt><dd><span className={`quote-detail-badge ${detalleAbierto.estadoPago === "PAGADO" ? "quote-detail-badge-success" : "quote-detail-badge-pending"}`}>{detalleAbierto.estadoPago === "PAGADO" ? "Pagado" : "Pendiente de pago"}</span></dd></div></dl></section><section className="quote-detail-section"><h3>Solicitud del cliente</h3><div className="quote-detail-message">{detalleAbierto.mensaje?.trim() || "No hay un mensaje guardado en esta reservación."}</div></section></div><footer className="quote-detail-footer"><button type="button" onClick={() => cerrarDetalle()}>Cerrar</button></footer></section></div>}
     </main>
   );
 }

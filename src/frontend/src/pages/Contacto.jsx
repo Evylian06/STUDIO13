@@ -1,24 +1,43 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Layout from "../pages/Layout/Layout";
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3001").replace(/\/+$/, "");
-const etiquetasPaquete = {
-  basico: "Básico",
-  estandar: "Estándar",
-  premium: "Premium",
-  elite: "Elite",
-  "alquiler-hora": "Alquiler por hora",
-  "alquiler-medio": "Alquiler medio día",
-  "alquiler-dia": "Alquiler día completo",
-  personalizado: "Cotización personalizada",
-};
+const categoriasReserva = [
+  { id: "SESION", nombre: "Sesiones", endpoint: "/api/paquetes?seccion=SESION" },
+  { id: "ALQUILER", nombre: "Alquiler", endpoint: "/api/paquetes?seccion=ALQUILER" },
+  { id: "TARIFA", nombre: "Tarifas", endpoint: "/api/paquetes?seccion=TARIFA" },
+  { id: "MEMBRESIAS", nombre: "Membresías", endpoint: "/api/planes-membresia" },
+];
 const formularioVacio = { nombre: "", email: "", telefono: "", paquete: "", mensaje: "" };
 
 export default function Contacto() {
   const [form, setForm] = useState(formularioVacio);
+  const [categoriaReserva, setCategoriaReserva] = useState(null);
+  const [opcionesPaquete, setOpcionesPaquete] = useState([]);
+  const [cargandoOpciones, setCargandoOpciones] = useState(false);
+  const [errorOpciones, setErrorOpciones] = useState("");
   const [sent, setSent] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [errorEnvio, setErrorEnvio] = useState("");
+
+  useEffect(() => {
+    if (!categoriaReserva) return undefined;
+    const controller = new AbortController();
+    setCargandoOpciones(true);
+    setErrorOpciones("");
+    setOpcionesPaquete([]);
+    fetch(`${API_BASE_URL}${categoriaReserva.endpoint}`, { signal: controller.signal })
+      .then(async (response) => {
+        const body = await response.json();
+        if (!response.ok) throw new Error(body.error || `No se pudieron cargar ${categoriaReserva.nombre.toLowerCase()}.`);
+        if (!Array.isArray(body)) throw new Error("El servidor devolvió un formato de opciones no válido.");
+        return body;
+      })
+      .then((body) => { if (!controller.signal.aborted) setOpcionesPaquete(body); })
+      .catch((error) => { if (!controller.signal.aborted) setErrorOpciones(error.message); })
+      .finally(() => { if (!controller.signal.aborted) setCargandoOpciones(false); });
+    return () => controller.abort();
+  }, [categoriaReserva]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,7 +53,8 @@ export default function Contacto() {
           nombre: form.nombre.trim(),
           email: form.email.trim(),
           telefono: form.telefono.trim(),
-          tipoSesion: etiquetasPaquete[form.paquete],
+          tipoSesion: form.paquete,
+          categoriaServicio: categoriaReserva.id,
           mensaje: form.mensaje.trim(),
         }),
       });
@@ -42,6 +62,7 @@ export default function Contacto() {
       if (!response.ok) throw new Error(body?.error || "No se pudo enviar la solicitud. Inténtalo nuevamente.");
 
       setForm(formularioVacio);
+      setCategoriaReserva(null);
       setSent(true);
     } catch (error) {
       setErrorEnvio(error instanceof TypeError
@@ -179,9 +200,33 @@ export default function Contacto() {
                     Enviar otra solicitud
                   </button>
                 </div>
+              ) : !categoriaReserva ? (
+                <div>
+                  <p className="t-label mb-4">Formulario de reserva</p>
+                  <h2 className="mb-8 font-[Fraunces,Georgia,serif] text-3xl font-extralight italic text-[#1a1818]">Elige una categoría</h2>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {categoriasReserva.map((categoria) => (
+                      <button
+                        key={categoria.id}
+                        type="button"
+                        onClick={() => { setForm((actual) => ({ ...actual, paquete: "", mensaje: "" })); setOpcionesPaquete([]); setErrorOpciones(""); setCategoriaReserva(categoria); }}
+                        className="group border border-[rgba(26,24,24,0.15)] bg-transparent p-5 text-left transition-colors duration-200 hover:border-[#a51c1c]"
+                      >
+                        <span className="t-label block">{categoria.nombre}</span>
+                        <span className="mt-3 block text-xs text-[#8a8880]">Ver opciones y reservar <span className="transition-transform group-hover:translate-x-1">→</span></span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               ) : (
                 <>
-                  <p className="t-label mb-10">Formulario de reserva</p>
+                  <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                      <p className="t-label mb-2">Formulario de reserva</p>
+                      <h2 className="m-0 font-[Fraunces,Georgia,serif] text-3xl font-extralight italic text-[#1a1818]">{categoriaReserva.nombre}</h2>
+                    </div>
+                    <button type="button" onClick={() => { setCategoriaReserva(null); setOpcionesPaquete([]); setErrorOpciones(""); setForm((actual) => ({ ...actual, paquete: "", mensaje: "" })); }} className="border-0 bg-transparent p-0 text-xs text-[#8a8880] underline decoration-[#a51c1c] underline-offset-4 hover:text-[#a51c1c]">← Elegir otra categoría</button>
+                  </div>
 
                   <form onSubmit={handleSubmit} className="flex flex-col gap-8">
                     <div>
@@ -233,60 +278,48 @@ export default function Contacto() {
 
                     <div>
                       <label className="t-label block mb-2">
-                        Paquete de interés
+                        {categoriaReserva.id === "MEMBRESIAS" ? "Plan de membresía" : "Paquete de interés"}
                       </label>
 
+                      {cargandoOpciones && <p className="t-body py-2 text-sm">Cargando opciones…</p>}
+                      {errorOpciones && <p className="py-2 text-sm text-[#a51c1c]" role="alert">{errorOpciones}</p>}
                       <select
                         required
+                        disabled={cargandoOpciones || (opcionesPaquete.length === 0 && categoriaReserva.id !== "SESION")}
                         value={form.paquete}
-                        onChange={(e) =>
-                          setForm({ ...form, paquete: e.target.value })
-                        }
-                        className={`w-full bg-transparent border-0 border-b border-[rgba(26,24,24,0.2)] py-3 font-['Inter'] font-light text-sm outline-none transition-colors duration-200 cursor-pointer appearance-none focus:border-[#1a1818] ${
-                          form.paquete ? "text-[#1a1818]" : "text-[#9a9490]"
-                        }`}
+                        onChange={(e) => setForm({ ...form, paquete: e.target.value })}
+                        className={`w-full bg-transparent border-0 border-b border-[rgba(26,24,24,0.2)] py-3 font-['Inter'] font-light text-sm outline-none transition-colors duration-200 cursor-pointer appearance-none focus:border-[#1a1818] ${form.paquete ? "text-[#1a1818]" : "text-[#9a9490]"}`}
                       >
-                        <option value="" disabled>
-                          Seleccionar...
-                        </option>
-                        <option value="basico">Básico — ₡45,000</option>
-                        <option value="estandar">Estándar — ₡90,000</option>
-                        <option value="premium">Premium — ₡165,000</option>
-                        <option value="elite">Elite — ₡300,000</option>
-                        <option value="alquiler-hora">
-                          Alquiler por hora — ₡15,000
-                        </option>
-                        <option value="alquiler-medio">
-                          Alquiler medio día — ₡50,000
-                        </option>
-                        <option value="alquiler-dia">
-                          Alquiler día completo — ₡85,000
-                        </option>
-                        <option value="personalizado">
-                          Cotización personalizada — Precio por definir
-                        </option>
+                        <option value="" disabled>Seleccionar opción…</option>
+                        {opcionesPaquete.map((opcion) => (
+                          <option key={opcion.id} value={opcion.nombre}>
+                            {opcion.nombre}{opcion.precio != null ? ` — ${new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN", minimumFractionDigits: 2 }).format(Number(opcion.precio))}` : ""}
+                          </option>
+                        ))}
+                        {categoriaReserva.id === "SESION" && <option value="Cotización personalizada">Cotización personalizada — Precio por definir</option>}
                       </select>
+                      {!cargandoOpciones && !errorOpciones && opcionesPaquete.length === 0 && categoriaReserva.id !== "SESION" && <p className="t-body mt-2 text-sm">No hay opciones publicadas en esta categoría.</p>}
                     </div>
 
                     <div>
                       <label className="t-label block mb-2" htmlFor="mensaje-reservacion">
-                        {form.paquete === "personalizado" ? "Describe qué necesitas para la cotización" : "Cuéntanos tu idea"}
+                        {form.paquete === "Cotización personalizada" ? "Describe qué necesitas para la cotización" : "Cuéntanos tu idea"}
                       </label>
                       <textarea
                         id="mensaje-reservacion"
                         rows={5}
-                        required={form.paquete === "personalizado"}
+                        required={form.paquete === "Cotización personalizada"}
                         value={form.mensaje}
                         onChange={(e) => setForm({ ...form, mensaje: e.target.value })}
                         placeholder="Detalles de la sesión o solicitud..."
                         className="w-full bg-transparent resize-none border border-[rgba(26,24,24,0.15)] p-3 font-['Inter'] font-light text-sm text-[#1a1818] outline-none transition-colors duration-200 focus:border-[#1a1818]"
                       />
-                      {form.paquete === "personalizado" && <p className="t-body mt-2 text-[0.75rem]!">Precio por definir según lo que necesites.</p>}
+                      {form.paquete === "Cotización personalizada" && <p className="t-body mt-2 text-[0.75rem]!">Precio por definir según lo que necesites.</p>}
                     </div>
 
                     <div className="pt-2">
                       {errorEnvio && <p className="mb-4 text-sm text-[#a51c1c]" role="alert">{errorEnvio}</p>}
-                      <button type="submit" className="btn-ghost" disabled={enviando}>
+                      <button type="submit" className="btn-ghost" disabled={enviando || cargandoOpciones || (!opcionesPaquete.length && categoriaReserva.id !== "SESION")}>
                         {enviando ? "Enviando..." : "Enviar solicitud"}
                       </button>
 
