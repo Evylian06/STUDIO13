@@ -106,7 +106,7 @@ export default function Login() {
                     onClick={() => setShowPassword((visible) => !visible)}
                     aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                     aria-pressed={showPassword}
-                    className="absolute inset-y-0 right-0 grid w-12 place-items-center rounded-r-lg text-zinc-500 transition hover:text-[#c8102e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[#c8102e]"
+                    className="absolute inset-y-0 right-0 grid w-12 place-items-center rounded-r-lg text-zinc-500 transition hover:text-[#c8102e] focus-visible:outline focus-visible:outline-offset-[-3px] focus-visible:outline-[#c8102e]"
                   >
                     {showPassword ? (
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5" aria-hidden="true">
