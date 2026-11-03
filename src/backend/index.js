@@ -49,6 +49,22 @@ const startServer = async () => {
     app.use("/api/membresias", membresiasRoutes);
     app.use("/api/reservaciones", reservacionesRoutes);
 
+    app.use((error, req, res, next) => {
+      if (res.headersSent) return next(error);
+      console.error("[error de solicitud]", error);
+
+      if (error.name === "MulterError" && error.code === "LIMIT_FILE_SIZE") {
+        const limite = req.originalUrl.includes("/imagenes") ? "30 MB para imágenes de galería" : "5 MB";
+        return res.status(413).json({ error: `El archivo supera el límite de ${limite}.` });
+      }
+      if (error.name === "MulterError") {
+        return res.status(400).json({ error: error.message || "La carga del archivo no es válida." });
+      }
+
+      const status = Number.isInteger(error.status) && error.status >= 400 && error.status < 600 ? error.status : 500;
+      return res.status(status).json({ error: error.message || "Ocurrió un error interno al procesar la solicitud." });
+    });
+
     const server = app.listen(port, () => {
       console.log(`Studio13 backend escuchando en http://localhost:${port}`);
       console.log(`Documentación Swagger disponible en http://localhost:${port}/api-docs`);

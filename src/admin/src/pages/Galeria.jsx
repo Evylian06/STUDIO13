@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL, adminHeaders, mensajeError, redirigirSiNoAutorizado } from "./useAdminCollection.js";
+import { comprimirImagenParaSubida } from "./ImageCompretion.js";
 
 const categorias = [
   "Corporativas",
@@ -74,7 +75,7 @@ export default function Galeria() {
 
   const agregarArchivos = (archivos) => {
     const seleccion = Array.from(archivos || []);
-    const permitidos = seleccion.filter((archivo) => tiposPermitidos.includes(archivo.type) && archivo.size > 0 && archivo.size <= 5 * 1024 * 1024);
+    const permitidos = seleccion.filter((archivo) => tiposPermitidos.includes(archivo.type) && archivo.size > 0);
     const existentes = imagenes.filter((imagen) => imagen.categoria === categoriaActiva).length;
     const espaciosDisponibles = Math.max(0, MAX_IMAGENES_POR_CATEGORIA - existentes);
     const archivosAceptados = permitidos.slice(0, espaciosDisponibles);
@@ -82,7 +83,7 @@ export default function Galeria() {
     const nuevos = archivosAceptados
       .map((archivo) => ({ id: `${archivo.name}-${archivo.lastModified}-${crypto.randomUUID()}`, nombre: archivo.name.replace(/\.[^.]+$/, "").slice(0, 120), titulo: "", archivo, categoria: categoriaActiva, preview: URL.createObjectURL(archivo), guardada: false, activo: true }));
     const avisos = [];
-    if (permitidos.length < seleccion.length) avisos.push("Solo se aceptan JPG, PNG o WEBP de hasta 5 MB.");
+    if (permitidos.length < seleccion.length) avisos.push("Solo se aceptan JPG, PNG o WEBP.");
     if (excedentes > 0) avisos.push(`Cada servicio admite hasta ${MAX_IMAGENES_POR_CATEGORIA} imágenes. Se omitieron ${excedentes} archivo(s) porque quedan ${espaciosDisponibles} espacio(s).`);
     setAvisoArchivo(avisos.join(" "));
     setErrorOperacion("");
@@ -124,8 +125,9 @@ export default function Galeria() {
     let subidas = 0;
     try {
       for (const imagen of pendientes) {
+        const archivoComprimido = await comprimirImagenParaSubida(imagen.archivo);
         const data = new FormData();
-        data.append("imagen", imagen.archivo);
+        data.append("imagen", archivoComprimido, archivoComprimido.name);
         data.append("nombre", imagen.titulo.trim() || imagen.nombre);
         data.append("seccion", categoriaActiva);
         const response = await fetch(`${API_BASE_URL}/api/admin/imagenes`, { method: "POST", headers: adminHeaders(), body: data });
@@ -169,8 +171,8 @@ export default function Galeria() {
 
   const seleccionarReemplazo = (archivo) => {
     if (!archivo) return;
-    if (!tiposPermitidos.includes(archivo.type) || archivo.size <= 0 || archivo.size > 5 * 1024 * 1024) {
-      setErrorOperacion("El archivo debe ser JPG, PNG o WEBP y pesar hasta 5 MB.");
+    if (!tiposPermitidos.includes(archivo.type) || archivo.size <= 0) {
+      setErrorOperacion("El archivo debe ser JPG, PNG o WEBP y no puede estar vacío.");
       return;
     }
     setErrorOperacion("");
@@ -200,8 +202,9 @@ export default function Galeria() {
       let headers;
       let body;
       if (archivoReemplazo) {
+        const archivoComprimido = await comprimirImagenParaSubida(archivoReemplazo);
         body = new FormData();
-        body.append("imagen", archivoReemplazo);
+        body.append("imagen", archivoComprimido, archivoComprimido.name);
         Object.entries(datos).forEach(([key, value]) => body.append(key, value === null ? "" : String(value)));
         headers = adminHeaders();
       } else {
@@ -279,7 +282,7 @@ export default function Galeria() {
             <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#a51c1c] shadow-sm"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 16V4m0 0L7 9m5-5 5 5" /><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" /></svg></span>
             <span className="text-sm font-semibold! text-neutral-800">Arrastra tus imagenes aqui</span>
             <span className="mt-1 text-xs text-neutral-500">o <span className="text-[#a51c1c] underline">selecciona archivos</span> de tu dispositivo</span>
-            <span className="mt-4 text-[10px] tracking-wide text-neutral-400 uppercase">JPG, PNG o WEBP · hasta 5 MB por imagen</span>
+            <span className="mt-4 text-[10px] tracking-wide text-neutral-400 uppercase">JPG, PNG o WEBP · las imágenes mayores a 5 MB se comprimen automáticamente</span>
           </button>
           <p className="mb-0 mt-3 text-xs font-medium text-neutral-600" aria-live="polite">
             {espaciosDisponibles > 0
@@ -318,7 +321,7 @@ export default function Galeria() {
 
         <div className="grid content-start gap-3">
           <aside className="border border-neutral-200 bg-white p-5 sm:p-6"><h2 className="m-0 font-[Georgia] text-xl font-normal! text-neutral-900">Vista previa de la carga</h2><p className="mb-3 mt-2 text-xs text-neutral-500">{imagenesPendientes.length} imagen(es) seleccionada(s) para {categoriaActiva}.</p>{imagenesPendientes.length ? <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">{imagenesPendientes.map((imagen) => <div key={imagen.id} className="overflow-hidden border border-neutral-200"><img src={imagen.preview} alt={imagen.nombre} className="aspect-square w-full object-cover" /><p className="m-0 truncate p-2 text-xs text-neutral-700" title={imagen.nombre}>{imagen.nombre}</p></div>)}</div> : <p className="m-0 border border-dashed border-neutral-200 bg-neutral-50 p-6 text-center text-xs text-neutral-400">Selecciona una imagen para verla aquí.</p>}</aside>
-          <button type="button" disabled={subiendo || !imagenes.some((imagen) => imagen.categoria === categoriaActiva && !imagen.guardada)} onClick={publicarImagenes} className="w-full border border-[#a51c1c] bg-[#a51c1c] px-4 py-3 text-sm font-semibold! text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-50">{subiendo ? "Subiendo..." : "Guardar y publicar"}</button>
+          <button type="button" disabled={subiendo || !imagenes.some((imagen) => imagen.categoria === categoriaActiva && !imagen.guardada)} onClick={publicarImagenes} className="w-full border border-[#a51c1c] bg-[#a51c1c] px-4 py-3 text-sm font-semibold! text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-50">{subiendo ? "Comprimiendo y subiendo..." : "Guardar y publicar"}</button>
           <p className="m-0 text-center text-[10px] text-neutral-400">Las imágenes guardadas aparecerán en Portafolio bajo su categoría.</p>
         </div>
       </section>}
@@ -346,7 +349,7 @@ export default function Galeria() {
 
       {imagenEditando && borradorEdicion && <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/55 p-4" onMouseDown={(evento) => { if (evento.target === evento.currentTarget) cerrarEdicion(); }}><form role="dialog" aria-modal="true" aria-labelledby="editar-imagen-titulo" onSubmit={guardarEdicion} className="my-auto max-h-[92vh] w-full max-w-2xl overflow-y-auto border border-neutral-300 bg-white p-5 shadow-2xl sm:p-7"><div className="mb-5 flex items-start justify-between gap-4"><div><p className="mb-1 text-[10px] font-semibold! tracking-[.18em] text-[#a51c1c] uppercase">Gestión de imágenes</p><h2 id="editar-imagen-titulo" className="m-0 font-[Georgia] text-2xl font-normal! text-neutral-900">Editar imagen</h2></div><button type="button" onClick={cerrarEdicion} disabled={guardandoEdicion} className="border border-neutral-300 px-3 py-2 text-xs text-neutral-700">Cerrar</button></div>
         {errorOperacion && <p className="mb-4 border border-red-200 bg-red-50 p-3 text-xs text-[#a51c1c]" role="alert">{errorOperacion}</p>}
-        <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]"><div><img src={previewReemplazo || imagenEditando.preview} alt={borradorEdicion.nombre} className="aspect-square w-full border border-neutral-200 bg-neutral-100 object-cover" /><label className="mt-3 block text-xs font-semibold! text-neutral-700">Reemplazar archivo<input type="file" accept="image/jpeg,image/png,image/webp" onChange={(evento) => seleccionarReemplazo(evento.target.files?.[0])} className="mt-2 block w-full cursor-pointer text-xs text-neutral-600 file:mr-3 file:cursor-pointer file:border-0 file:bg-[#a51c1c] file:px-4 file:py-2.5 file:text-xs file:font-semibold! file:text-white hover:file:bg-black" /></label><p className="mb-0 mt-1 text-[10px] text-neutral-500">JPG, PNG o WEBP · máximo 5 MB</p></div>
+        <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]"><div><img src={previewReemplazo || imagenEditando.preview} alt={borradorEdicion.nombre} className="aspect-square w-full border border-neutral-200 bg-neutral-100 object-cover" /><label className="mt-3 block text-xs font-semibold! text-neutral-700">Reemplazar archivo<input type="file" accept="image/jpeg,image/png,image/webp" onChange={(evento) => seleccionarReemplazo(evento.target.files?.[0])} className="mt-2 block w-full cursor-pointer text-xs text-neutral-600 file:mr-3 file:cursor-pointer file:border-0 file:bg-[#a51c1c] file:px-4 file:py-2.5 file:text-xs file:font-semibold! file:text-white hover:file:bg-black" /></label><p className="mb-0 mt-1 text-[10px] text-neutral-500">JPG, PNG o WEBP · las imágenes mayores a 5 MB se comprimen automáticamente</p></div>
           <div className="grid content-start gap-4"><label className="grid gap-1.5 text-xs font-semibold! text-neutral-700">Nombre o título<input required maxLength={120} value={borradorEdicion.nombre} onChange={(evento) => setBorradorEdicion((actual) => ({ ...actual, nombre: evento.target.value }))} className="border border-neutral-300 px-3 py-2.5 text-sm font-normal! outline-none focus:border-[#a51c1c]" /></label>
             <label className="grid gap-1.5 text-xs font-semibold! text-neutral-700">Categoría<select required value={borradorEdicion.seccion} onChange={(evento) => setBorradorEdicion((actual) => ({ ...actual, seccion: evento.target.value }))} className="border border-neutral-300 bg-white px-3 py-2.5 text-sm font-normal! outline-none focus:border-[#a51c1c]">{[...new Set([...categorias, ...categoriasDisponibles, borradorEdicion.seccion])].map((categoria) => <option key={categoria} value={categoria}>{categoria}</option>)}</select></label>
             <label className="flex items-center gap-2 text-xs font-semibold! text-neutral-700"><input type="checkbox" checked={borradorEdicion.activo} onChange={(evento) => setBorradorEdicion((actual) => ({ ...actual, activo: evento.target.checked }))} className="accent-[#a51c1c]" />Publicada en el portafolio</label>

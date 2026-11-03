@@ -1,5 +1,6 @@
 import prisma from "../config/databases.js";
 import { deleteImage, uploadImage } from "../config/imageStorage.js";
+import sharp from "sharp";
 import {
   isObjectBody,
   parseId,
@@ -9,8 +10,20 @@ import {
 
 const fields = ["nombre", "url", "publicId", "servicioId", "seccion", "descripcion", "orden", "activo"];
 const editableFields = ["nombre", "servicioId", "descripcion", "orden", "activo"];
-const requiredFields = ["nombre", "url", "servicioId"];
+const requiredFields = ["nombre", "url", "seccion"];
 const MAX_IMAGENES_POR_SERVICIO = 10;
+const optimizarImagen = (buffer) => sharp(buffer)
+  .rotate()
+  .resize({ width: 1920, withoutEnlargement: true })
+  .webp({ quality: 80 })
+  .toBuffer();
+
+const reportarErrorImagen = (res, operacion, error) => {
+  console.error(`[${operacion}]`, error);
+  return res.status(error.status || 500).json({ error: error.message || `No se pudo ${operacion}.` });
+};
+
+const nombreWebp = (nombreOriginal) => nombreOriginal.replace(/\.[^.]+$/, ".webp");
 
 const errorServicio = (message, status) => Object.assign(new Error(message), { status });
 
@@ -124,10 +137,17 @@ const create = async (req, res) => {
     const nombre = typeof req.body.nombre === "string" ? req.body.nombre.trim() : "";
     const seccion = typeof req.body.seccion === "string" ? req.body.seccion.trim() : "";
     if (!nombre || !seccion) return res.status(400).json({ error: "nombre y seccion son obligatorios para subir una imagen." });
+    const activo = req.body.activo === undefined || req.body.activo === "" || req.body.activo === "true"
+      ? true
+      : req.body.activo === "false"
+        ? false
+        : null;
+    if (activo === null) return res.status(400).json({ error: "activo debe ser verdadero o falso." });
 
     let imagenSubida;
     try {
-      imagenSubida = await uploadImage(req.file.buffer, req.file.originalname, "galeria", { requireCloudinary: true });
+      const bufferOptimizado = await optimizarImagen(req.file.buffer);
+      imagenSubida = await uploadImage(bufferOptimizado, nombreWebp(req.file.originalname), "galeria", { requireCloudinary: true });
       const imagen = await prisma.imagen.create({
         data: {
           nombre,
@@ -135,14 +155,13 @@ const create = async (req, res) => {
           publicId: imagenSubida.public_id,
           seccion,
           tipo: "GENERAL",
-          activo: true,
+          activo,
         },
       });
       return res.status(201).json(imagen);
     } catch (error) {
       if (imagenSubida?.public_id) await deleteImage(imagenSubida.public_id).catch((deleteError) => console.error("[limpiar imagen de galería]", deleteError));
-      if (error.status === 503) return res.status(503).json({ error: error.message });
-      return reportControllerError(res, "subir la imagen de galería", error);
+      return reportarErrorImagen(res, "subir la imagen de galería", error);
     }
   }
 
@@ -175,7 +194,8 @@ const update = async (req, res) => {
     if (!imagenActual) return res.status(404).json({ error: "Imagen no encontrada." });
     let referenciasAntiguoAsset = [];
     if (req.file) {
-      imagenSubida = await uploadImage(req.file.buffer, req.file.originalname, "galeria", { requireCloudinary: true });
+      const bufferOptimizado = await optimizarImagen(req.file.buffer);
+      imagenSubida = await uploadImage(bufferOptimizado, nombreWebp(req.file.originalname), "galeria", { requireCloudinary: true });
       data.url = imagenSubida.secure_url;
       data.publicId = imagenSubida.public_id;
       referenciasAntiguoAsset = await buscarReferencias(imagenActual);

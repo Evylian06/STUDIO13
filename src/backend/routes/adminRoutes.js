@@ -5,7 +5,7 @@ import publicidadController from "../controllers/publicidadController.js";
 import paqueteController from "../controllers/paqueteController.js";
 import planMembresiaController from "../controllers/planMembresiaController.js";
 import servicioController from "../controllers/servicioController.js";
-import upload from "../config/multer.js";
+import upload, { uploadGallery } from "../config/multer.js";
 
 const router = Router();
 
@@ -23,7 +23,7 @@ router.delete("/publicidad/:id", publicidadController.remove);
  *   post:
  *     tags: [Imágenes]
  *     summary: Crear una imagen
- *     description: Crea un registro de imagen por JSON o sube una imagen de galería desde multipart/form-data.
+ *     description: Crea un registro por JSON o sube una imagen de galería desde multipart/form-data. Las imágenes de galería admiten archivos de hasta 30 MB y se redimensionan a un máximo de 1920 px de ancho y convierten a WebP calidad 80 antes de almacenarse.
  *     requestBody:
  *       required: true
  *       content:
@@ -58,6 +58,9 @@ router.delete("/publicidad/:id", publicidadController.remove);
  *               imagen:
  *                 type: string
  *                 format: binary
+ *               activo:
+ *                 type: boolean
+ *                 default: true
  *     responses:
  *       201:
  *         description: Imagen creada.
@@ -67,8 +70,10 @@ router.delete("/publicidad/:id", publicidadController.remove);
  *               $ref: '#/components/schemas/Imagen'
  *       400:
  *         description: Datos inválidos.
+ *       413:
+ *         description: El archivo supera el límite de 30 MB.
  */
-router.post("/imagenes", upload.single("imagen"), imagenController.create);
+router.post("/imagenes", uploadGallery.single("imagen"), imagenController.create);
 /**
  * @swagger
  * /api/admin/imagenes/{id}:
@@ -97,7 +102,7 @@ router.post("/imagenes", upload.single("imagen"), imagenController.create);
  *       404:
  *         description: Imagen no encontrada.
  */
-router.patch("/imagenes/:id", upload.single("imagen"), imagenController.update);
+router.patch("/imagenes/:id", uploadGallery.single("imagen"), imagenController.update);
 /**
  * @swagger
  * /api/admin/imagenes/{id}:

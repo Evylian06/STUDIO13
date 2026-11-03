@@ -16,15 +16,18 @@ const fileFilter = (_req, file, callback) => {
     return;
   }
 
-  callback(new Error("Formato no permitido. Solo se aceptan JPG, JPEG, PNG y WEBP."));
+  const error = new Error("Formato no permitido. Solo se aceptan JPG, JPEG, PNG y WEBP.");
+  error.status = 400;
+  callback(error);
 };
 
-const upload = multer({
+const createUpload = (fileSize) => multer({
   storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 5 * 1024 * 1024,
-  },
+  limits: { fileSize },
   fileFilter,
 });
+
+const upload = createUpload(5 * 1024 * 1024);
+export const uploadGallery = createUpload(30 * 1024 * 1024);
 
 export default upload;

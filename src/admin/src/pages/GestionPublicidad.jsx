@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL, adminHeaders, mensajeError, redirigirSiNoAutorizado, useAdminCollection } from "./useAdminCollection.js";
+import { comprimirImagenParaSubida } from "./ImageCompretion.js";
 
 const servicios = ["Corporativas", "Quince\u00f1ero", "Fotos Familiares", "Embarazo", "Parejas", "Snacks Queik", "Eventos", "Exteriores", "Talleres"];
 const formularioVacio = { titulo: "", servicio: servicios[0], descripcion: "", enlace: "", textoBoton: "Ver mas", imagenPreview: "", archivoImagen: null };
@@ -43,7 +44,11 @@ export default function GestionPublicidad() {
   const anunciosBorrador = anuncios.length - anunciosPublicados;
 
   const seleccionarImagen = (archivo) => {
-    if (!archivo || !["image/jpeg", "image/png", "image/webp"].includes(archivo.type) || archivo.size > 5 * 1024 * 1024) return;
+    if (!archivo || !["image/jpeg", "image/png", "image/webp"].includes(archivo.type) || archivo.size <= 0) {
+      setErrorOperacion("Selecciona una imagen JPG, PNG o WEBP válida.");
+      return;
+    }
+    setErrorOperacion("");
     if (formulario.imagenPreview) URL.revokeObjectURL(formulario.imagenPreview);
     setFormulario((actual) => ({ ...actual, archivoImagen: archivo, imagenPreview: URL.createObjectURL(archivo) }));
   };
@@ -61,8 +66,9 @@ export default function GestionPublicidad() {
     datos.append("descripcion", formulario.descripcion.trim());
     datos.append("textoBoton", formulario.textoBoton.trim());
     datos.append("enlace", formulario.enlace.trim());
-    datos.append("imagen", formulario.archivoImagen);
     try {
+      const imagenComprimida = await comprimirImagenParaSubida(formulario.archivoImagen);
+      datos.append("imagen", imagenComprimida, imagenComprimida.name);
       const response = await fetch(`${API_BASE_URL}/api/admin/publicidad`, { method: "POST", headers: adminHeaders(), body: datos });
       const body = await response.json().catch(() => ({}));
       redirigirSiNoAutorizado(response, navigate);
@@ -149,8 +155,8 @@ export default function GestionPublicidad() {
               <label className={etiqueta}>Texto del boton<input className={campo} maxLength={32} value={formulario.textoBoton} onChange={(evento) => setFormulario((actual) => ({ ...actual, textoBoton: evento.target.value }))} /></label>
               <label className={etiqueta}>Enlace<input className={campo} type="url" placeholder="https://..." value={formulario.enlace} onChange={(evento) => setFormulario((actual) => ({ ...actual, enlace: evento.target.value }))} /></label>
             </div>
-            <label className={etiqueta}>Imagen del anuncio<input ref={archivoRef} className={`${campo} file:mr-3 file:cursor-pointer file:border-0 file:bg-[#a51c1c] file:px-3 file:py-2 file:text-xs file:font-semibold! file:text-white hover:file:bg-black`} type="file" accept="image/jpeg,image/png,image/webp" required onChange={(evento) => seleccionarImagen(evento.target.files?.[0])} /><span className="font-normal! text-neutral-400">JPG, PNG o WEBP. Máximo 5 MB.</span></label>
-            <div className="flex justify-end border-t border-neutral-200 pt-4"><button type="submit" disabled={guardando} className="border border-[#a51c1c] bg-[#a51c1c] px-5 py-2.5 text-xs font-semibold! text-white transition-colors hover:bg-black disabled:opacity-60">{guardando ? "Guardando..." : "Guardar borrador"}</button></div>
+            <label className={etiqueta}>Imagen del anuncio<input ref={archivoRef} className={`${campo} file:mr-3 file:cursor-pointer file:border-0 file:bg-[#a51c1c] file:px-3 file:py-2 file:text-xs file:font-semibold! file:text-white hover:file:bg-black`} type="file" accept="image/jpeg,image/png,image/webp" required onChange={(evento) => seleccionarImagen(evento.target.files?.[0])} /><span className="font-normal! text-neutral-400">JPG, PNG o WEBP. Las imágenes mayores a 5 MB se comprimen automáticamente.</span></label>
+            <div className="flex justify-end border-t border-neutral-200 pt-4"><button type="submit" disabled={guardando} className="border border-[#a51c1c] bg-[#a51c1c] px-5 py-2.5 text-xs font-semibold! text-white transition-colors hover:bg-black disabled:opacity-60">{guardando ? "Comprimiendo y guardando..." : "Guardar borrador"}</button></div>
           </form>
         </section>
 
