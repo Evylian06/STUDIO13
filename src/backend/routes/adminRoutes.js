@@ -5,6 +5,7 @@ import publicidadController from "../controllers/publicidadController.js";
 import paqueteController from "../controllers/paqueteController.js";
 import planMembresiaController from "../controllers/planMembresiaController.js";
 import servicioController from "../controllers/servicioController.js";
+import campaniaController from "../controllers/campaniaController.js";
 import upload, { uploadGallery } from "../config/multer.js";
 
 const router = Router();
@@ -16,6 +17,10 @@ router.get("/publicidad", publicidadController.listAdmin);
 router.post("/publicidad", upload.single("imagen"), publicidadController.create);
 router.patch("/publicidad/:id/publicacion", publicidadController.setPublished);
 router.delete("/publicidad/:id", publicidadController.remove);
+router.get("/campanias", campaniaController.listAdmin);
+router.post("/campanias", upload.single("imagen"), campaniaController.create);
+router.patch("/campanias/:id", upload.single("imagen"), campaniaController.update);
+router.patch("/campanias/:id/publicacion", campaniaController.setEnabled);
 
 /**
  * @swagger

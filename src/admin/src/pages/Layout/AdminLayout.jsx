@@ -11,6 +11,7 @@ const secciones = [
   { label: "Paquetes", icon: "layers", to: "/admin/Paquetes" },
   { label: "Membresías", icon: "membership", to: "/admin/Membresias" },
   { label: "Galería", icon: "image", to: "/admin/Galeria" },
+  { label: "Campañas", icon: "megaphone", to: "/admin/Campanas" },
   { label: "Configuración", icon: "settings", to: "/admin/Configuracion" },
   { label: "Gesti\u00f3n publicidad", icon: "megaphone", to: "/admin/GestionPublicidad" },
 ];

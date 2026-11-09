@@ -106,6 +106,25 @@ model Paquete {
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
   caracteristicas PaqueteCaracteristica[]
+  campanias       Campania[]
+}
+
+model Campania {
+  id          Int      @id @default(autoincrement())
+  titulo      String   @db.VarChar(140)
+  descripcion String   @db.Text
+  imagenUrl   String
+  publicId    String?
+  inicio      DateTime @db.Timestamptz(3)
+  fin         DateTime @db.Timestamptz(3)
+  habilitada  Boolean  @default(false)
+  paqueteId   Int
+  paquete     Paquete  @relation(fields: [paqueteId], references: [id], onDelete: Restrict)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([habilitada, inicio, fin])
+  @@index([paqueteId])
 }
 
 enum SeccionPaquete {

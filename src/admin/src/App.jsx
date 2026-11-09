@@ -10,6 +10,7 @@ import Galeria from './pages/Galeria.jsx';
 import ConfiguracionPanel from './pages/ConfiguracionPanel.jsx';
 import GestionPublicidad from './pages/GestionPublicidad.jsx';
 import DiagnosticoTecnico from './pages/DiagnosticoTecnico.jsx';
+import Campanas from './pages/Campanas.jsx';
 import { ADMIN_ROLES } from './auth/adminRoles.js';
 
 function leerAdmin() {
@@ -48,6 +49,7 @@ function App() {
         <Route path="/admin/Galeria" element={<RutaAdministrativa roles={soloDuena}><AdminLayout><Galeria /></AdminLayout></RutaAdministrativa>} />
         <Route path="/admin/Configuracion" element={<RutaAdministrativa roles={soloDuena}><AdminLayout><ConfiguracionPanel /></AdminLayout></RutaAdministrativa>} />
         <Route path="/admin/GestionPublicidad" element={<RutaAdministrativa roles={soloDuena}><AdminLayout><GestionPublicidad /></AdminLayout></RutaAdministrativa>} />
+        <Route path="/admin/Campanas" element={<RutaAdministrativa roles={soloDuena}><AdminLayout><Campanas /></AdminLayout></RutaAdministrativa>} />
         <Route path="/admin/Diagnostico" element={<RutaAdministrativa roles={soloDesarrollador}><AdminLayout><DiagnosticoTecnico /></AdminLayout></RutaAdministrativa>} />
         <Route path="/" element={<Navigate to="/iniciar-sesion" replace />} />
         <Route path="*" element={<Navigate to="/Inicio" replace />} />

@@ -4,6 +4,7 @@ import studio13Logo from "../assets/studio13_blanco.png";
 import { Link } from "react-router-dom";
 import Testimonios from "../Components/Testimonios.jsx";
 import AnuncioEmergente from "../Components/AnuncioEmergente.jsx";
+import CampaniaTemporada from "../Components/CampaniaTemporada.jsx";
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3001").replace(/\/+$/, "");
 const normalizarNombre = (value) => value.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase();
@@ -146,6 +147,8 @@ const Inicio = () => {
             </p>
           </div>
         </section>
+
+        <CampaniaTemporada />
 
         <AnuncioEmergente />
 

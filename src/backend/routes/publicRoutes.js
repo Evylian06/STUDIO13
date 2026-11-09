@@ -5,8 +5,11 @@ import publicidadController from "../controllers/publicidadController.js";
 import paqueteController from "../controllers/paqueteController.js";
 import planMembresiaController from "../controllers/planMembresiaController.js";
 import servicioController from "../controllers/servicioController.js";
+import campaniaController from "../controllers/campaniaController.js";
 
 const router = Router();
+
+router.get("/campanias/activa", campaniaController.getActive);
 
 /**
  * @swagger

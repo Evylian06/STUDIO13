@@ -9,10 +9,12 @@ const backendDirectory = dirname(dirname(fileURLToPath(import.meta.url)));
 export const uploadsDirectory = join(backendDirectory, "uploads");
 const destinations = {
   anuncios: { cloudinaryFolder: "studio13/anuncios", localFolder: "anuncios" },
+  campanias: { cloudinaryFolder: "studio13/campanias", localFolder: "campanias" },
   galeria: { cloudinaryFolder: "studio13/Galeria", localFolder: "Galeria" },
 };
 const localDirectories = {
   anuncios: join(uploadsDirectory, "anuncios"),
+  campanias: join(uploadsDirectory, "campanias"),
   Galeria: join(uploadsDirectory, "Galeria"),
   publicidad: join(uploadsDirectory, "publicidad"),
 };

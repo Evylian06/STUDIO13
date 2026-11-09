@@ -8,6 +8,8 @@
     "dev": "nodemon index.js",
     "start": "node index.js",
     "admin:bootstrap": "node scripts/bootstrap-admins.js",
+    "admin:owner:ensure": "node scripts/ensure-owner-admin.js",
+    "admin:accounts:ensure": "node scripts/ensure-admin-accounts.js",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio"
   },

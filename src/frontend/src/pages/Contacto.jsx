@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Layout from "../pages/Layout/Layout";
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3001").replace(/\/+$/, "");
@@ -11,8 +12,10 @@ const categoriasReserva = [
 const formularioVacio = { nombre: "", email: "", telefono: "", paquete: "", mensaje: "" };
 
 export default function Contacto() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const paqueteCampaniaId = searchParams.get("paqueteId");
   const [form, setForm] = useState(formularioVacio);
-  const [categoriaReserva, setCategoriaReserva] = useState(null);
+  const [categoriaReserva, setCategoriaReserva] = useState(() => paqueteCampaniaId ? categoriasReserva[0] : null);
   const [opcionesPaquete, setOpcionesPaquete] = useState([]);
   const [cargandoOpciones, setCargandoOpciones] = useState(false);
   const [errorOpciones, setErrorOpciones] = useState("");
@@ -33,11 +36,22 @@ export default function Contacto() {
         if (!Array.isArray(body)) throw new Error("El servidor devolvió un formato de opciones no válido.");
         return body;
       })
-      .then((body) => { if (!controller.signal.aborted) setOpcionesPaquete(body); })
+      .then((body) => {
+        if (controller.signal.aborted) return;
+        setOpcionesPaquete(body);
+        if (categoriaReserva.id === "SESION" && paqueteCampaniaId) {
+          const paqueteSeleccionado = body.find((opcion) => String(opcion.id) === paqueteCampaniaId);
+          if (paqueteSeleccionado) {
+            setForm((actual) => ({ ...actual, paquete: paqueteSeleccionado.nombre }));
+          } else {
+            setErrorOpciones("El paquete de esta campaña ya no está disponible. Elige otra sesión.");
+          }
+        }
+      })
       .catch((error) => { if (!controller.signal.aborted) setErrorOpciones(error.message); })
       .finally(() => { if (!controller.signal.aborted) setCargandoOpciones(false); });
     return () => controller.abort();
-  }, [categoriaReserva]);
+  }, [categoriaReserva, paqueteCampaniaId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -209,7 +223,7 @@ export default function Contacto() {
                       <button
                         key={categoria.id}
                         type="button"
-                        onClick={() => { setForm((actual) => ({ ...actual, paquete: "", mensaje: "" })); setOpcionesPaquete([]); setErrorOpciones(""); setCategoriaReserva(categoria); }}
+                        onClick={() => { setSearchParams({}, { replace: true }); setForm((actual) => ({ ...actual, paquete: "", mensaje: "" })); setOpcionesPaquete([]); setErrorOpciones(""); setCategoriaReserva(categoria); }}
                         className="group border border-[rgba(26,24,24,0.15)] bg-transparent p-5 text-left transition-colors duration-200 hover:border-[#a51c1c]"
                       >
                         <span className="t-label block">{categoria.nombre}</span>
@@ -225,7 +239,7 @@ export default function Contacto() {
                       <p className="t-label mb-2">Formulario de reserva</p>
                       <h2 className="m-0 font-[Fraunces,Georgia,serif] text-3xl font-extralight italic text-[#1a1818]">{categoriaReserva.nombre}</h2>
                     </div>
-                    <button type="button" onClick={() => { setCategoriaReserva(null); setOpcionesPaquete([]); setErrorOpciones(""); setForm((actual) => ({ ...actual, paquete: "", mensaje: "" })); }} className="border-0 bg-transparent p-0 text-xs text-[#8a8880] underline decoration-[#a51c1c] underline-offset-4 hover:text-[#a51c1c]">← Elegir otra categoría</button>
+                    <button type="button" onClick={() => { setSearchParams({}, { replace: true }); setCategoriaReserva(null); setOpcionesPaquete([]); setErrorOpciones(""); setForm((actual) => ({ ...actual, paquete: "", mensaje: "" })); }} className="border-0 bg-transparent p-0 text-xs text-[#8a8880] underline decoration-[#a51c1c] underline-offset-4 hover:text-[#a51c1c]">← Elegir otra categoría</button>
                   </div>
 
                   <form onSubmit={handleSubmit} className="flex flex-col gap-8">
