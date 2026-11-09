@@ -1,0 +1,8 @@
+BEGIN;
+
+CREATE TYPE "AdminRole" AS ENUM ('DUEÑA', 'DESARROLLADOR');
+
+ALTER TABLE "AdminUser"
+ADD COLUMN "role" "AdminRole" NOT NULL;
+
+COMMIT;

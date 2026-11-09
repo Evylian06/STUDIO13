@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { isAdminRole } from "./adminRoles.js";
 const TOKEN_LIFETIME_SECONDS = 60 * 60 * 8;
 const MINIMUM_SECRET_LENGTH = 32;
 let signingSecretWarningShown = false;
@@ -29,6 +30,9 @@ export const createAdminToken = (admin, secret) => {
   if (!hasValidSigningSecret(secret)) {
     throw new Error("Configura JWT_SECRET en src/backend/.env con al menos 32 bytes.");
   }
+  if (!isAdminRole(admin?.role)) {
+    throw new Error("El rol administrativo no es válido.");
+  }
 
   const now = Math.floor(Date.now() / 1000);
   const header = encode(JSON.stringify({ alg: "HS256", typ: "JWT" }));
@@ -36,6 +40,7 @@ export const createAdminToken = (admin, secret) => {
     JSON.stringify({
       sub: String(admin.id),
       email: admin.email,
+      role: admin.role,
       iat: now,
       exp: now + TOKEN_LIFETIME_SECONDS,
     }),
@@ -70,6 +75,7 @@ export const verifyAdminToken = (token, secret) => {
       typeof claims.sub !== "string" ||
       !claims.sub ||
       typeof claims.email !== "string" ||
+      !isAdminRole(claims.role) ||
       !Number.isInteger(claims.exp) ||
       claims.exp <= Math.floor(Date.now() / 1000)
     ) {
@@ -79,7 +85,7 @@ export const verifyAdminToken = (token, secret) => {
     const id = Number(claims.sub);
     if (!Number.isInteger(id) || id <= 0) return null;
 
-    return { id, email: claims.email };
+    return { id, email: claims.email, role: claims.role };
   } catch {
     return null;
   }

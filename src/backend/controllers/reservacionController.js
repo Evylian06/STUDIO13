@@ -269,13 +269,36 @@ const update = async (req, res) => {
   }
 };
 
+export const removeReservationAndOrphanClient = async (database, id) => database.$transaction(async (tx) => {
+  const reservacion = await tx.reservacion.findUnique({
+    where: { id },
+    select: { id: true, clienteId: true },
+  });
+  if (!reservacion) return null;
+
+  await tx.reservacion.delete({ where: { id } });
+
+  let clienteEliminado = false;
+  if (reservacion.clienteId !== null) {
+    const reservacionesRestantes = await tx.reservacion.count({
+      where: { clienteId: reservacion.clienteId },
+    });
+    if (reservacionesRestantes === 0) {
+      const cliente = await tx.cliente.deleteMany({ where: { id: reservacion.clienteId } });
+      clienteEliminado = cliente.count > 0;
+    }
+  }
+
+  return { reservacionId: reservacion.id, clienteId: reservacion.clienteId, clienteEliminado };
+}, { isolationLevel: "Serializable" });
+
 const remove = async (req, res) => {
   const id = parseId(req.params.id);
   if (!id) return res.status(400).json({ error: "El id debe ser un entero positivo." });
   try {
-    const result = await prisma.reservacion.deleteMany({ where: { id } });
-    if (!result.count) return res.status(404).json({ error: "Reservación no encontrada." });
-    return res.status(204).end();
+    const resultado = await removeReservationAndOrphanClient(prisma, id);
+    if (!resultado) return res.status(404).json({ error: "Reservación no encontrada." });
+    return res.json(resultado);
   } catch (error) {
     return reportControllerError(res, "eliminar la reservación", error);
   }

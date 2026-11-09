@@ -32,6 +32,9 @@ const startServer = async () => {
       { default: reservacionesRoutes },
       { default: authRoutes },
       { default: requireAdmin },
+      { default: requireRole },
+      { ADMIN_ROLES },
+      { default: technicalRoutes },
     ] = await Promise.all([
       import("./routes/publicRoutes.js"),
       import("./routes/adminRoutes.js"),
@@ -40,11 +43,15 @@ const startServer = async () => {
       import("./routes/reservacionesRoutes.js"),
       import("./routes/authRoutes.js"),
       import("./middleware/requireAdmin.js"),
+      import("./middleware/requireRole.js"),
+      import("./auth/adminRoles.js"),
+      import("./routes/technicalRoutes.js"),
     ]);
 
     app.use("/api/auth", authRoutes);
     app.use("/api", publicRoutes);
-    app.use("/api/admin", requireAdmin, adminRoutes);
+    app.use("/api/admin", requireAdmin, requireRole(ADMIN_ROLES.OWNER), adminRoutes);
+    app.use("/api/tecnico", requireAdmin, technicalRoutes);
     app.use("/api/clientes", clientesRoutes);
     app.use("/api/membresias", membresiasRoutes);
     app.use("/api/reservaciones", reservacionesRoutes);

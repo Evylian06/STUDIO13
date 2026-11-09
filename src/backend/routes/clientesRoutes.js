@@ -1,5 +1,8 @@
 import { Router } from "express";
 import clienteController from "../controllers/clienteController.js";
+import requireAdmin from "../middleware/requireAdmin.js";
+import requireRole from "../middleware/requireRole.js";
+import { ADMIN_ROLES } from "../auth/adminRoles.js";
 
 const router = Router();
 
@@ -32,7 +35,7 @@ router.post("/", clienteController.create);
  *   get:
  *     tags: [Clientes]
  *     summary: Listar clientes
- *     description: Devuelve datos de clientes sin hashes de contraseña. El acceso no está protegido actualmente.
+ *     description: Devuelve datos de clientes sin hashes de contraseña. Requiere el rol DUEÑA.
  *     responses:
  *       200:
  *         description: Lista de clientes.
@@ -43,14 +46,14 @@ router.post("/", clienteController.create);
  *               items:
  *                 $ref: '#/components/schemas/Cliente'
  */
-router.get("/", clienteController.list);
+router.get("/", requireAdmin, requireRole(ADMIN_ROLES.OWNER), clienteController.list);
 /**
  * @swagger
  * /api/clientes/{id}:
  *   get:
  *     tags: [Clientes]
  *     summary: Obtener un cliente
- *     description: Devuelve datos sin el hash de contraseña. El acceso no está protegido actualmente.
+ *     description: Devuelve datos sin el hash de contraseña. Requiere el rol DUEÑA.
  *     parameters:
  *       - in: path
  *         name: id
@@ -67,14 +70,14 @@ router.get("/", clienteController.list);
  *       404:
  *         description: Cliente no encontrado.
  */
-router.get("/:id", clienteController.getById);
+router.get("/:id", requireAdmin, requireRole(ADMIN_ROLES.OWNER), clienteController.getById);
 /**
  * @swagger
  * /api/clientes/{id}:
  *   patch:
  *     tags: [Clientes]
  *     summary: Actualizar un cliente
- *     description: Acepta nombre, email, teléfono y opcionalmente password. No está protegido actualmente.
+ *     description: Acepta nombre, email, teléfono y opcionalmente password. Requiere el rol DUEÑA.
  *     parameters:
  *       - in: path
  *         name: id
@@ -97,14 +100,14 @@ router.get("/:id", clienteController.getById);
  *       404:
  *         description: Cliente no encontrado.
  */
-router.patch("/:id", clienteController.update);
+router.patch("/:id", requireAdmin, requireRole(ADMIN_ROLES.OWNER), clienteController.update);
 /**
  * @swagger
  * /api/clientes/{id}:
  *   delete:
  *     tags: [Clientes]
  *     summary: Eliminar un cliente
- *     description: No está protegido actualmente.
+ *     description: Requiere el rol DUEÑA.
  *     parameters:
  *       - in: path
  *         name: id
@@ -114,9 +117,11 @@ router.patch("/:id", clienteController.update);
  *     responses:
  *       204:
  *         description: Cliente eliminado.
+ *       409:
+ *         description: El cliente tiene reservaciones o membresías asociadas.
  *       404:
  *         description: Cliente no encontrado.
  */
-router.delete("/:id", clienteController.remove);
+router.delete("/:id", requireAdmin, requireRole(ADMIN_ROLES.OWNER), clienteController.remove);
 
 export default router;

@@ -126,8 +126,22 @@ const remove = async (req, res) => {
   const id = parseId(req.params.id);
   if (!id) return res.status(400).json({ error: "El id debe ser un entero positivo." });
   try {
-    const result = await prisma.cliente.deleteMany({ where: { id } });
-    if (!result.count) return res.status(404).json({ error: "Cliente no encontrado." });
+    const result = await prisma.$transaction(async (tx) => {
+      const cliente = await tx.cliente.findUnique({
+        where: { id },
+        select: { _count: { select: { reservaciones: true, membresias: true } } },
+      });
+      if (!cliente) return { encontrado: false };
+      if (cliente._count.reservaciones || cliente._count.membresias) {
+        return { encontrado: true, tieneRelaciones: true };
+      }
+      await tx.cliente.delete({ where: { id } });
+      return { encontrado: true, tieneRelaciones: false };
+    }, { isolationLevel: "Serializable" });
+    if (!result.encontrado) return res.status(404).json({ error: "Cliente no encontrado." });
+    if (result.tieneRelaciones) {
+      return res.status(409).json({ error: "No se puede eliminar el cliente mientras tenga reservaciones o membresías asociadas." });
+    }
     return res.status(204).end();
   } catch (error) {
     return reportControllerError(res, "eliminar el cliente", error);

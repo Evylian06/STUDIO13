@@ -1,7 +1,11 @@
 import { Router } from "express";
 import membresiaController from "../controllers/membresiaController.js";
+import requireAdmin from "../middleware/requireAdmin.js";
+import requireRole from "../middleware/requireRole.js";
+import { ADMIN_ROLES } from "../auth/adminRoles.js";
 
 const router = Router();
+router.use(requireAdmin, requireRole(ADMIN_ROLES.OWNER));
 
 /**
  * @swagger
@@ -9,7 +13,7 @@ const router = Router();
  *   get:
  *     tags: [Membresías]
  *     summary: Listar membresías
- *     description: Incluye el cliente (sin contraseña) y el plan de cada membresía. El acceso no está protegido actualmente.
+ *     description: Incluye el cliente (sin contraseña) y el plan de cada membresía. Requiere el rol DUEÑA.
  *     responses:
  *       200:
  *         description: Lista de membresías.
@@ -66,7 +70,7 @@ router.post("/", membresiaController.create);
  *   get:
  *     tags: [Membresías]
  *     summary: Obtener una membresía
- *     description: El acceso no está protegido actualmente.
+ *     description: Requiere el rol DUEÑA.
  *     parameters:
  *       - in: path
  *         name: id
@@ -90,7 +94,7 @@ router.get("/:id", membresiaController.getById);
  *   patch:
  *     tags: [Membresías]
  *     summary: Actualizar una membresía
- *     description: El estado permitido es ACTIVA, VENCIDA o CANCELADA. El acceso no está protegido actualmente.
+ *     description: El estado permitido es ACTIVA, VENCIDA o CANCELADA. Requiere el rol DUEÑA.
  *     parameters:
  *       - in: path
  *         name: id
@@ -120,7 +124,7 @@ router.patch("/:id", membresiaController.update);
  *   delete:
  *     tags: [Membresías]
  *     summary: Eliminar una membresía
- *     description: El acceso no está protegido actualmente.
+ *     description: Requiere el rol DUEÑA.
  *     parameters:
  *       - in: path
  *         name: id

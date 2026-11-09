@@ -2,6 +2,8 @@ import { Router } from "express";
 import reservacionController from "../controllers/reservacionController.js";
 import { getSigningSecret, verifyAdminToken } from "../auth/adminToken.js";
 import requireAdmin from "../middleware/requireAdmin.js";
+import requireRole from "../middleware/requireRole.js";
+import { ADMIN_ROLES } from "../auth/adminRoles.js";
 
 const router = Router();
 
@@ -12,6 +14,9 @@ const allowPublicOrAdminCreate = (req, res, next) => {
   const secret = getSigningSecret();
   const admin = match && secret ? verifyAdminToken(match[1], secret) : null;
   if (!admin) return res.status(401).json({ error: "La sesión administrativa no es válida." });
+  if (admin.role !== ADMIN_ROLES.OWNER) {
+    return res.status(403).json({ error: "Solo la dueña puede crear reservaciones desde el panel." });
+  }
   req.admin = admin;
   return next();
 };
@@ -76,7 +81,7 @@ router.post("/", allowPublicOrAdminCreate, reservacionController.create);
  *               items:
  *                 $ref: '#/components/schemas/Reservacion'
  */
-router.get("/", requireAdmin, reservacionController.list);
+router.get("/", requireAdmin, requireRole(ADMIN_ROLES.OWNER), reservacionController.list);
 /**
  * @swagger
  * /api/reservaciones/{id}:
@@ -100,7 +105,7 @@ router.get("/", requireAdmin, reservacionController.list);
  *       404:
  *         description: Reservación no encontrada.
  */
-router.get("/:id", requireAdmin, reservacionController.getById);
+router.get("/:id", requireAdmin, requireRole(ADMIN_ROLES.OWNER), reservacionController.getById);
 /**
  * @swagger
  * /api/reservaciones/{id}:
@@ -130,7 +135,7 @@ router.get("/:id", requireAdmin, reservacionController.getById);
  *       404:
  *         description: Reservación no encontrada.
  */
-router.patch("/:id", requireAdmin, reservacionController.update);
+router.patch("/:id", requireAdmin, requireRole(ADMIN_ROLES.OWNER), reservacionController.update);
 /**
  * @swagger
  * /api/reservaciones/{id}:
@@ -145,11 +150,23 @@ router.patch("/:id", requireAdmin, reservacionController.update);
  *         schema:
  *           type: integer
  *     responses:
- *       204:
- *         description: Reservación eliminada.
+ *       200:
+ *         description: Reservación y, si ya no tenía otras reservaciones, cliente eliminados.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 reservacionId:
+ *                   type: integer
+ *                 clienteId:
+ *                   type: integer
+ *                   nullable: true
+ *                 clienteEliminado:
+ *                   type: boolean
  *       404:
  *         description: Reservación no encontrada.
  */
-router.delete("/:id", requireAdmin, reservacionController.remove);
+router.delete("/:id", requireAdmin, requireRole(ADMIN_ROLES.OWNER), reservacionController.remove);
 
 export default router;

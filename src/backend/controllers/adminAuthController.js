@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import prisma from "../config/databases.js";
 import { createAdminToken, getSigningSecret } from "../auth/adminToken.js";
+import { prismaRoleToPublicRole } from "../auth/adminRoles.js";
 import { isObjectBody } from "./_shared.js";
 
 const isDatabaseConnectionError = (error) =>
@@ -31,7 +32,11 @@ const login = async (req, res) => {
       });
     }
 
-    const admin = { id: adminUser.id, name: adminUser.name, email: adminUser.email };
+    const role = prismaRoleToPublicRole(adminUser.role);
+    if (!role) {
+      return res.status(500).json({ error: "La cuenta administrativa tiene un rol inválido." });
+    }
+    const admin = { id: adminUser.id, name: adminUser.name, email: adminUser.email, role };
     return res.status(200).json({ token: createAdminToken(admin, signingSecret), admin });
   } catch (error) {
     if (isDatabaseConnectionError(error)) {

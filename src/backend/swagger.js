@@ -42,12 +42,13 @@ const swaggerSpec = swaggerJSDoc({
         },
         AdminUser: {
           type: "object",
-          required: ["id", "name", "email", "passwordHash", "createdAt", "updatedAt"],
+          required: ["id", "name", "email", "passwordHash", "role", "createdAt", "updatedAt"],
           properties: {
             id: { type: "integer" },
             name: { type: "string" },
             email: { type: "string", format: "email" },
             passwordHash: { type: "string", writeOnly: true },
+            role: { type: "string", enum: ["DUEÑA", "DESARROLLADOR"] },
             createdAt: { type: "string", format: "date-time" },
             updatedAt: { type: "string", format: "date-time" },
           },
@@ -63,7 +64,7 @@ const swaggerSpec = swaggerJSDoc({
               properties: {
                 name: { type: "string" },
                 email: { type: "string", format: "email" },
-                role: { type: "string", enum: ["ADMIN", "OWNER"] },
+                role: { type: "string", enum: ["DUEÑA", "DESARROLLADOR"] },
               },
             },
           },

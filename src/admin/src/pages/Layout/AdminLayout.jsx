@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import logoBlanco from "../../assets/Studio13_blanco.png";
+import { ADMIN_ROLES } from "../../auth/adminRoles.js";
 
 const MenuContext = createContext(null);
 const secciones = [
@@ -12,6 +13,9 @@ const secciones = [
   { label: "Galería", icon: "image", to: "/admin/Galeria" },
   { label: "Configuración", icon: "settings", to: "/admin/Configuracion" },
   { label: "Gesti\u00f3n publicidad", icon: "megaphone", to: "/admin/GestionPublicidad" },
+];
+const seccionesTecnicas = [
+  { label: "Diagnóstico técnico", icon: "settings", to: "/admin/Diagnostico" },
 ];
 
 const trazosIcono = {
@@ -28,6 +32,14 @@ const trazosIcono = {
   logout: <><path d="M10 17l5-5-5-5M15 12H3" /><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6" /></>,
   menu: <><path d="M4 6h16M4 12h16M4 18h16" /></>,
 };
+
+function leerAdminActual() {
+  try {
+    return JSON.parse(sessionStorage.getItem("studio13Admin") || "null");
+  } catch {
+    return null;
+  }
+}
 
 export function Icono({ name, size = 18 }) {
   return (
@@ -48,6 +60,8 @@ function AdminLayout({ children }) {
   const navigate = useNavigate();
   const menuExistente = useContext(MenuContext);
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const admin = leerAdminActual();
+  const seccionesVisibles = admin?.role === ADMIN_ROLES.DEVELOPER ? seccionesTecnicas : secciones;
 
   if (menuExistente) {
     return children ?? <Outlet />;
@@ -93,7 +107,7 @@ function AdminLayout({ children }) {
           </p>
 
           <nav className="grid gap-1.5" aria-label="NavegaciÃ³n administrativa">
-            {secciones.map((seccion) => seccion.to ? (
+            {seccionesVisibles.map((seccion) => seccion.to ? (
               <NavLink
                 key={seccion.label}
                 to={seccion.to}

@@ -166,6 +166,26 @@ export default function Reservaciones() {
     cambiarReservacion(reserva.id, { estado });
   };
 
+  const eliminarReservacion = async (reserva) => {
+    setErrorOperacion("");
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/reservaciones/${reserva.id}`, { method: "DELETE", headers: adminHeaders() });
+      const body = await response.json();
+      redirigirSiNoAutorizado(response, navigate);
+      if (!response.ok) throw new Error(body.error || "No se pudo eliminar la reservación.");
+      setFilas((actuales) => actuales.filter((fila) => fila.id !== reserva.id));
+      if (body.clienteId !== null) {
+        setClientes((actuales) => body.clienteEliminado
+          ? actuales.filter((cliente) => cliente.id !== body.clienteId)
+          : actuales.map((cliente) => cliente.id === body.clienteId
+            ? { ...cliente, reservaciones: (cliente.reservaciones || []).filter((elemento) => elemento.id !== reserva.id) }
+            : cliente));
+      }
+    } catch (reason) {
+      setErrorOperacion(mensajeError(reason));
+    }
+  };
+
   const crearReservacion = async (evento) => {
     evento.preventDefault();
     if ((!clienteSeleccionado && !busquedaCliente.trim()) || guardandoNueva) return;
@@ -208,7 +228,7 @@ export default function Reservaciones() {
         {cargando ? <tr><td className="px-5 py-8 text-neutral-500" colSpan={7}>Cargando registros…</td></tr> : filasVisibles.length ? filasVisibles.map((reserva) => { const estado = { PENDIENTE: "Pendiente", CONFIRMADA: "Confirmada", CANCELADA: "Cancelada", COMPLETADA: "Completada", RECHAZADA: "Rechazada" }[reserva.estado] || reserva.estado; const tono = reserva.estado === "CONFIRMADA" || reserva.estado === "COMPLETADA" ? "border-green-200 bg-green-50 text-green-800" : reserva.estado === "CANCELADA" || reserva.estado === "RECHAZADA" ? "border-neutral-300 bg-neutral-100 text-neutral-600" : "border-[#e3b8bb] bg-red-50 text-[#a51c1c]"; const pagado = reserva.estadoPago === "PAGADO"; return <tr className="border-t border-neutral-200 even:bg-[#faf9f8]" key={reserva.id}>
           <td className="px-5 py-4 text-neutral-700">{reserva.cliente?.nombre || "—"}</td><td className="px-5 py-4 text-neutral-700"><div>{reserva.tipoSesion || null}</div></td><td className="whitespace-nowrap px-5 py-4 text-neutral-700">{reserva.fecha ? new Intl.DateTimeFormat("es", { dateStyle: "medium" }).format(new Date(reserva.fecha)) : "—"}</td><td className="px-5 py-4 text-neutral-700">{reserva.hora || "—"}</td>
           <td className="whitespace-nowrap px-5 py-4"><div className="grid justify-items-start gap-2"><span className={`border px-2.5 py-1 text-[10px] font-semibold! uppercase ${tono}`}>{estado}</span>{reserva.estado !== "CANCELADA" && <select aria-label={`Cambiar estado de reservación de ${reserva.cliente?.nombre || "cliente"}`} value={reserva.estado} onChange={(evento) => cambiarEstado(reserva, evento.target.value)} className="border border-neutral-300 bg-white px-2 py-1 text-xs"><option value="PENDIENTE">Pendiente</option><option value="CONFIRMADA">Confirmada</option><option value="RECHAZADA">Rechazada</option><option value="COMPLETADA">Completada</option><option value="CANCELADA">Cancelada</option></select>}</div></td>
-          <td className="whitespace-nowrap px-5 py-4"><span className={`border px-2.5 py-1 text-[10px] font-semibold! uppercase ${pagado ? "border-green-200 bg-green-50 text-green-800" : "border-[#e3b8bb] bg-red-50 text-[#a51c1c]"}`}>{pagado ? "Pagado" : "Pendiente de pago"}</span></td><td className="whitespace-nowrap px-5 py-4"><div className="flex gap-2">{reserva.tipoSesion === "Cotización personalizada" && <button className="border border-neutral-800 px-3 py-2 text-xs font-semibold! text-neutral-900 transition-colors hover:bg-neutral-900 hover:text-white" type="button" onClick={(evento) => { evento.stopPropagation(); botonVerRef.current = evento.currentTarget; setCotizacionAbierta(reserva); }}>Ver</button>}<button className="border border-[#a51c1c] px-3 py-2 text-xs font-semibold! text-[#a51c1c] transition-colors hover:bg-[#a51c1c] hover:text-white" type="button" onClick={() => iniciarEdicion(reserva)}>Editar</button><button className="border border-neutral-400 px-3 py-2 text-xs font-semibold! text-neutral-700 disabled:cursor-not-allowed disabled:opacity-45" type="button" disabled={reserva.estado === "CANCELADA"} onClick={() => cambiarEstado(reserva, "CANCELADA")}>{reserva.estado === "CANCELADA" ? "Cancelada" : "Cancelar"}</button></div></td>
+          <td className="whitespace-nowrap px-5 py-4"><span className={`border px-2.5 py-1 text-[10px] font-semibold! uppercase ${pagado ? "border-green-200 bg-green-50 text-green-800" : "border-[#e3b8bb] bg-red-50 text-[#a51c1c]"}`}>{pagado ? "Pagado" : "Pendiente de pago"}</span></td><td className="whitespace-nowrap px-5 py-4"><div className="flex gap-2">{reserva.tipoSesion === "Cotización personalizada" && <button className="border border-neutral-800 px-3 py-2 text-xs font-semibold! text-neutral-900 transition-colors hover:bg-neutral-900 hover:text-white" type="button" onClick={(evento) => { evento.stopPropagation(); botonVerRef.current = evento.currentTarget; setCotizacionAbierta(reserva); }}>Ver</button>}<button className="border border-[#a51c1c] px-3 py-2 text-xs font-semibold! text-[#a51c1c] transition-colors hover:bg-[#a51c1c] hover:text-white" type="button" onClick={() => iniciarEdicion(reserva)}>Editar</button><button className="border border-neutral-400 px-3 py-2 text-xs font-semibold! text-neutral-700 disabled:cursor-not-allowed disabled:opacity-45" type="button" disabled={reserva.estado === "CANCELADA"} onClick={() => cambiarEstado(reserva, "CANCELADA")}>{reserva.estado === "CANCELADA" ? "Cancelada" : "Cancelar"}</button><button className="border border-neutral-400 px-3 py-2 text-xs font-semibold! text-neutral-700 hover:border-[#a51c1c] hover:text-[#a51c1c]" type="button" onClick={() => { if (window.confirm("¿Eliminar esta reservación permanentemente?")) eliminarReservacion(reserva); }}>Eliminar</button></div></td>
         </tr>; }) : <tr><td className="px-5 py-8 text-neutral-500" colSpan={7}>{busqueda.trim() ? "No hay reservaciones que coincidan con esa búsqueda." : "Todavía no hay reservaciones para mostrar."}</td></tr>}
       </tbody></table></div>}</div>
       {!cargando && !error && <p className="mt-3 text-xs text-neutral-500">{filasVisibles.length} {filasVisibles.length === 1 ? "reservación" : "reservaciones"}</p>}
