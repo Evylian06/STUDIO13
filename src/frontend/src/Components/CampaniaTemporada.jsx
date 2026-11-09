@@ -11,11 +11,12 @@ export default function CampaniaTemporada() {
     let timerFin;
     const cargar = () => {
       controller?.abort();
-      controller = new AbortController();
-      fetch(`${API_BASE_URL}/api/campanias/activa`, { signal: controller.signal, cache: "no-store" })
+      const request = new AbortController();
+      controller = request;
+      fetch(`${API_BASE_URL}/api/campanias/activa`, { signal: request.signal, cache: "no-store" })
         .then((response) => response.ok ? response.json() : null)
         .then((data) => {
-          if (controller.signal.aborted) return;
+          if (request.signal.aborted) return;
           setCampania(data);
           window.clearTimeout(timerFin);
           if (data?.fin) {

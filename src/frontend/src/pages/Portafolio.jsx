@@ -7,13 +7,13 @@ const seccionesOriginales = [
   "Quinceañero",
   "Fotos Familiares",
   "Embarazo",
-  "Parejas",
-  "Snacks Queik",
+  "Bodas",
   "Eventos",
   "Exteriores",
   "Talleres",
 ];
 const normalizarNombre = (value) => value.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase();
+const categoriasRetiradas = new Set(["parejas", "snacks quick", "snacks queick", "snacks queik"]);
 
 const urlPublica = (value) => {
   if (typeof value !== "string" || !value.trim()) return "";
@@ -24,7 +24,7 @@ const urlPublica = (value) => {
 };
 
 const validarImagenes = (data) => Array.isArray(data) ? data
-  .filter((image) => image && Number.isInteger(image.id) && image.activo !== false && typeof image.seccion === "string" && image.seccion.trim() && urlPublica(image.url))
+  .filter((image) => image && Number.isInteger(image.id) && image.activo !== false && typeof image.seccion === "string" && image.seccion.trim() && !categoriasRetiradas.has(normalizarNombre(image.seccion)) && urlPublica(image.url))
   .map((image) => ({
     id: image.id,
     url: urlPublica(image.url),

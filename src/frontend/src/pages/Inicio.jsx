@@ -40,10 +40,6 @@ const Inicio = () => {
   const [galerias, setGalerias] = useState([]);
   const categories = [
     {
-      label: "Parejas",
-      img: "https://images.unsplash.com/photo-1529636798458-92182e662485?w=900&h=1100&fit=crop&auto=format&q=85",
-    },
-    {
       label: "Bodas",
       img: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=900&h=1100&fit=crop&auto=format&q=85",
     },

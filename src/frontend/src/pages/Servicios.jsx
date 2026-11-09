@@ -48,11 +48,6 @@ const specialties = [
     desc: "Cobertura completa del día. Desde la preparación hasta el último baile.",
   },
   {
-    label: "Parejas",
-    align: "center 30%",
-    desc: "Sesiones íntimas en estudio o exteriores. Aniversarios, compromisos, amor.",
-  },
-  {
     label: "Familia",
     align: "center center",
     desc: "Momentos espontáneos, vínculos reales. Un ambiente cómodo para todos.",

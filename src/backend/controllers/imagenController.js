@@ -9,9 +9,16 @@ import {
 } from "./_shared.js";
 
 const fields = ["nombre", "url", "publicId", "servicioId", "seccion", "descripcion", "orden", "activo"];
-const editableFields = ["nombre", "servicioId", "descripcion", "orden", "activo"];
+const editableFields = ["nombre", "servicioId", "descripcion", "orden", "activo", "seccion"];
 const requiredFields = ["nombre", "url", "seccion"];
+const categoriasPortafolio = ["Corporativas", "Quinceañero", "Fotos Familiares", "Embarazo", "Bodas", "Eventos", "Exteriores", "Talleres"];
+const categoriasRetiradas = new Set(["Parejas", "Snacks Quick", "Snacks Queick", "Snacks Queik"].map(normalizarCategoria));
 const MAX_IMAGENES_POR_SERVICIO = 10;
+function normalizarCategoria(value) {
+  return String(value || "").trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase();
+}
+const categoriaPortafolio = (value) => categoriasPortafolio.find((categoria) => normalizarCategoria(categoria) === normalizarCategoria(value)) || null;
+const categoriaRetirada = (value) => categoriasRetiradas.has(normalizarCategoria(value));
 const optimizarImagen = (buffer) => sharp(buffer)
   .rotate()
   .resize({ width: 1920, withoutEnlargement: true })
@@ -70,6 +77,10 @@ const buscarReferencias = async (imagen) => {
 
 const normalizarActualizacion = (payload) => {
   const data = pickDefined(payload, editableFields);
+  if (Object.hasOwn(data, "seccion")) {
+    if (typeof data.seccion !== "string" || !data.seccion.trim()) throw new Error("Selecciona una categoría válida.");
+    data.seccion = data.seccion.trim();
+  }
   if (Object.hasOwn(data, "nombre")) {
     if (typeof data.nombre !== "string" || !data.nombre.trim() || data.nombre.trim().length > 120) throw new Error("El nombre es obligatorio y debe tener hasta 120 caracteres.");
     data.nombre = data.nombre.trim();
@@ -100,7 +111,8 @@ const validPayload = (payload, requireAll = false) =>
 
 const list = async (_req, res) => {
   try {
-    const imagenes = await prisma.imagen.findMany({ where: { tipo: "GENERAL", activo: true }, orderBy: [{ orden: "asc" }, { id: "asc" }] });
+    const imagenes = (await prisma.imagen.findMany({ where: { tipo: "GENERAL", activo: true }, orderBy: [{ orden: "asc" }, { id: "asc" }] }))
+      .filter((imagen) => !categoriaRetirada(imagen.seccion));
     res.set("Cache-Control", "no-store");
     return res.json(imagenes);
   } catch (error) {
@@ -124,7 +136,7 @@ const getById = async (req, res) => {
 
   try {
     const imagen = await prisma.imagen.findFirst({ where: { id, tipo: "GENERAL", activo: true } });
-    if (!imagen) return res.status(404).json({ error: "Imagen no encontrada." });
+    if (!imagen || categoriaRetirada(imagen.seccion)) return res.status(404).json({ error: "Imagen no encontrada." });
     res.set("Cache-Control", "no-store");
     return res.json(imagen);
   } catch (error) {
@@ -137,6 +149,8 @@ const create = async (req, res) => {
     const nombre = typeof req.body.nombre === "string" ? req.body.nombre.trim() : "";
     const seccion = typeof req.body.seccion === "string" ? req.body.seccion.trim() : "";
     if (!nombre || !seccion) return res.status(400).json({ error: "nombre y seccion son obligatorios para subir una imagen." });
+    const categoria = categoriaPortafolio(seccion);
+    if (!categoria) return res.status(400).json({ error: "Selecciona una categoría disponible del portafolio." });
     const activo = req.body.activo === undefined || req.body.activo === "" || req.body.activo === "true"
       ? true
       : req.body.activo === "false"
@@ -153,7 +167,7 @@ const create = async (req, res) => {
           nombre,
           url: imagenSubida.secure_url,
           publicId: imagenSubida.public_id,
-          seccion,
+          seccion: categoria,
           tipo: "GENERAL",
           activo,
         },
@@ -170,6 +184,9 @@ const create = async (req, res) => {
   if (!validPayload(data, true)) {
     return res.status(400).json({ error: "nombre, url y seccion son obligatorios." });
   }
+  const categoria = categoriaPortafolio(data.seccion);
+  if (!categoria) return res.status(400).json({ error: "Selecciona una categoría disponible del portafolio." });
+  data.seccion = categoria;
 
   try {
     const imagen = await prisma.imagen.create({ data });
@@ -192,6 +209,12 @@ const update = async (req, res) => {
   try {
     const imagenActual = await prisma.imagen.findFirst({ where: { id, tipo: "GENERAL" } });
     if (!imagenActual) return res.status(404).json({ error: "Imagen no encontrada." });
+    if (Object.hasOwn(data, "seccion")) {
+      const categoria = categoriaPortafolio(data.seccion);
+      if (categoria) data.seccion = categoria;
+      else if (categoriaRetirada(data.seccion) && normalizarCategoria(data.seccion) === normalizarCategoria(imagenActual.seccion)) data.seccion = imagenActual.seccion;
+      else return res.status(400).json({ error: "Selecciona una categoría disponible. Las fotos antiguas conservan su categoría si no la cambias." });
+    }
     let referenciasAntiguoAsset = [];
     if (req.file) {
       const bufferOptimizado = await optimizarImagen(req.file.buffer);

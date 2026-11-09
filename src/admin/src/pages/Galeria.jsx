@@ -5,15 +5,17 @@ import { comprimirImagenParaSubida } from "./ImageCompretion.js";
 
 const categorias = [
   "Corporativas",
-  "Quince\u00f1ero",
+  "Quincea\u00f1ero",
   "Fotos Familiares",
   "Embarazo",
-  "Parejas",
-  "Snacks Queik",
+  "Bodas",
   "Eventos",
   "Exteriores",
   "Talleres",
 ];
+const normalizarCategoria = (value) => value.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase();
+const categoriasRetiradas = new Set(["parejas", "snacks quick", "snacks queick", "snacks queik"]);
+const categoriaRetirada = (value) => categoriasRetiradas.has(normalizarCategoria(value || ""));
 const tiposPermitidos = ["image/jpeg", "image/png", "image/webp"];
 const MAX_IMAGENES_POR_CATEGORIA = 10;
 const urlImagen = (url) => typeof url === "string" && url.startsWith("/uploads/") ? `${API_BASE_URL}${url}` : url;
@@ -108,7 +110,7 @@ export default function Galeria() {
   const imagenesPendientes = imagenesCategoria.filter((imagen) => !imagen.guardada);
   const espaciosDisponibles = Math.max(0, MAX_IMAGENES_POR_CATEGORIA - imagenesCategoria.length);
   const imagenesGuardadas = imagenes.filter((imagen) => imagen.guardada);
-  const categoriasDisponibles = [...new Set(imagenesGuardadas.map((imagen) => imagen.categoria))].sort((a, b) => a.localeCompare(b, "es"));
+  const categoriasDisponibles = [...new Set(imagenesGuardadas.map((imagen) => imagen.categoria).filter((categoria) => !categoriaRetirada(categoria)))].sort((a, b) => a.localeCompare(b, "es"));
   const imagenesFiltradas = imagenesGuardadas
     .filter((imagen) => `${imagen.titulo} ${imagen.nombre}`.toLocaleLowerCase().includes(busquedaImagen.trim().toLocaleLowerCase()))
     .filter((imagen) => filtroCategoria === "todas" || imagen.categoria === filtroCategoria)
@@ -351,7 +353,7 @@ export default function Galeria() {
         {errorOperacion && <p className="mb-4 border border-red-200 bg-red-50 p-3 text-xs text-[#a51c1c]" role="alert">{errorOperacion}</p>}
         <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]"><div><img src={previewReemplazo || imagenEditando.preview} alt={borradorEdicion.nombre} className="aspect-square w-full border border-neutral-200 bg-neutral-100 object-cover" /><label className="mt-3 block text-xs font-semibold! text-neutral-700">Reemplazar archivo<input type="file" accept="image/jpeg,image/png,image/webp" onChange={(evento) => seleccionarReemplazo(evento.target.files?.[0])} className="mt-2 block w-full cursor-pointer text-xs text-neutral-600 file:mr-3 file:cursor-pointer file:border-0 file:bg-[#a51c1c] file:px-4 file:py-2.5 file:text-xs file:font-semibold! file:text-white hover:file:bg-black" /></label><p className="mb-0 mt-1 text-[10px] text-neutral-500">JPG, PNG o WEBP · las imágenes mayores a 5 MB se comprimen automáticamente</p></div>
           <div className="grid content-start gap-4"><label className="grid gap-1.5 text-xs font-semibold! text-neutral-700">Nombre o título<input required maxLength={120} value={borradorEdicion.nombre} onChange={(evento) => setBorradorEdicion((actual) => ({ ...actual, nombre: evento.target.value }))} className="border border-neutral-300 px-3 py-2.5 text-sm font-normal! outline-none focus:border-[#a51c1c]" /></label>
-            <label className="grid gap-1.5 text-xs font-semibold! text-neutral-700">Categoría<select required value={borradorEdicion.seccion} onChange={(evento) => setBorradorEdicion((actual) => ({ ...actual, seccion: evento.target.value }))} className="border border-neutral-300 bg-white px-3 py-2.5 text-sm font-normal! outline-none focus:border-[#a51c1c]">{[...new Set([...categorias, ...categoriasDisponibles, borradorEdicion.seccion])].map((categoria) => <option key={categoria} value={categoria}>{categoria}</option>)}</select></label>
+            <label className="grid gap-1.5 text-xs font-semibold! text-neutral-700">Categoría<select required value={borradorEdicion.seccion} onChange={(evento) => setBorradorEdicion((actual) => ({ ...actual, seccion: evento.target.value }))} className="border border-neutral-300 bg-white px-3 py-2.5 text-sm font-normal! outline-none focus:border-[#a51c1c]">{categoriaRetirada(borradorEdicion.seccion) && <option value={borradorEdicion.seccion} disabled>{borradorEdicion.seccion} (se conserva en esta foto)</option>}{[...new Set([...categorias, ...categoriasDisponibles])].map((categoria) => <option key={categoria} value={categoria}>{categoria}</option>)}</select></label>
             <label className="flex items-center gap-2 text-xs font-semibold! text-neutral-700"><input type="checkbox" checked={borradorEdicion.activo} onChange={(evento) => setBorradorEdicion((actual) => ({ ...actual, activo: evento.target.checked }))} className="accent-[#a51c1c]" />Publicada en el portafolio</label>
           </div></div>
         <div className="mt-6 flex justify-end gap-2 border-t border-neutral-200 pt-4"><button type="button" onClick={cerrarEdicion} disabled={guardandoEdicion} className="border border-neutral-300 bg-white px-4 py-2.5 text-xs font-semibold! text-neutral-700">Cancelar</button><button type="submit" disabled={guardandoEdicion} className="border border-[#a51c1c] bg-[#a51c1c] px-4 py-2.5 text-xs font-semibold! text-white hover:bg-black disabled:opacity-50">{guardandoEdicion ? "Guardando..." : "Guardar cambios"}</button></div>
