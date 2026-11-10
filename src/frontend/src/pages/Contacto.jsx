@@ -29,9 +29,13 @@ export default function Contacto() {
     setCargandoOpciones(true);
     setErrorOpciones("");
     setOpcionesPaquete([]);
-    fetch(`${API_BASE_URL}${categoriaReserva.endpoint}`, { signal: controller.signal })
+    const endpointPaquetes = categoriaReserva.id === "SESION" && paqueteCampaniaId
+      ? `/api/paquetes/${encodeURIComponent(paqueteCampaniaId)}`
+      : categoriaReserva.endpoint;
+    fetch(`${API_BASE_URL}${endpointPaquetes}`, { signal: controller.signal })
       .then(async (response) => {
-        const body = await response.json();
+        const payload = await response.json();
+        const body = Array.isArray(payload) ? payload : payload && typeof payload === "object" ? [payload] : payload;
         if (!response.ok) throw new Error(body.error || `No se pudieron cargar ${categoriaReserva.nombre.toLowerCase()}.`);
         if (!Array.isArray(body)) throw new Error("El servidor devolvió un formato de opciones no válido.");
         return body;

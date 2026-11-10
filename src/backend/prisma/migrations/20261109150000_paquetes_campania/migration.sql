@@ -1,0 +1,1 @@
+ALTER TYPE "SeccionPaquete" ADD VALUE 'CAMPANIA';

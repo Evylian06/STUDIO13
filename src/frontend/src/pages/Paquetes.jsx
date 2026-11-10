@@ -37,6 +37,8 @@ export default function Paquetes() {
   const [alquileres, setAlquileres] = useState([]);
   const [tarifas, setTarifas] = useState([]);
   const [membresias, setMembresias] = useState([]);
+  const [campania, setCampania] = useState(null);
+  const [paquetesDeCampania, setPaquetesDeCampania] = useState([]);
   const [cargandoPaquetes, setCargandoPaquetes] = useState(true);
   const [errorPaquetes, setErrorPaquetes] = useState("");
   const [cargandoCatalogo, setCargandoCatalogo] = useState(true);
@@ -90,6 +92,44 @@ export default function Paquetes() {
     return () => controller.abort();
   }, []);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(`${API_BASE_URL}/api/paquetes?seccion=CAMPANIA`, { signal: controller.signal })
+      .then(async (response) => {
+        const body = await response.json();
+        if (!response.ok) throw new Error(body.error || "No se pudieron cargar los paquetes de campaña.");
+        return body;
+      })
+      .then((body) => { if (!controller.signal.aborted) setPaquetesDeCampania(body); })
+      .catch(() => { if (!controller.signal.aborted) setPaquetesDeCampania([]); });
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    let controller;
+    const cargar = () => {
+      controller?.abort();
+      controller = new AbortController();
+      fetch(`${API_BASE_URL}/api/campanias/activa`, { signal: controller.signal, cache: "no-store" })
+        .then((response) => response.ok ? response.json() : null)
+        .then((data) => { if (!controller.signal.aborted) setCampania(data); })
+        .catch(() => { if (!controller.signal.aborted) setCampania(null); });
+    };
+    cargar();
+    const timer = window.setInterval(cargar, 15000);
+    return () => { controller?.abort(); window.clearInterval(timer); };
+  }, []);
+
+  useEffect(() => {
+    if (tab === "campaigns" && !campania?.paqueteId) setTab("session");
+  }, [tab, campania]);
+
+  const paquetesCampania = campania?.paqueteId
+    ? [...paquetesDeCampania, ...paquetes].filter((pkg, index, all) => Number(pkg.id) === Number(campania.paqueteId) && all.findIndex((item) => Number(item.id) === Number(pkg.id)) === index)
+    : [];
+  const idsPaquetesCampania = new Set(paquetesCampania.map((pkg) => Number(pkg.id)));
+  const paquetesRegulares = paquetes.filter((pkg) => !idsPaquetesCampania.has(Number(pkg.id)));
+
   return (
     <Layout>
       <div className="bg-white">
@@ -106,7 +146,7 @@ export default function Paquetes() {
 
         {/* TABS */}
         <div className="border-b border-[rgba(26,24,24,0.08)] px-8 md:px-12 flex">
-          {["session", "rental", "rates", "memberships"].map((type) => (
+          {["session", ...(campania?.paqueteId ? ["campaigns"] : []), "rental", "rates", "memberships"].map((type) => (
             <button
               key={type}
               onClick={() => setTab(type)}
@@ -120,6 +160,8 @@ export default function Paquetes() {
             >
               {type === "session"
                 ? "Sesiones"
+                : type === "campaigns"
+                  ? "Campañas"
                 : type === "rental"
                   ? "Alquiler"
                   : type === "rates"
@@ -136,9 +178,9 @@ export default function Paquetes() {
             {/* PACKAGES GRID */}
             {cargandoPaquetes && <p className="t-body py-8">Cargando paquetes...</p>}
             {errorPaquetes && <p className="py-8 text-sm text-[#a51c1c]" role="alert">{errorPaquetes}</p>}
-            {!cargandoPaquetes && !errorPaquetes && paquetes.length === 0 && <p className="t-body py-8">Pronto publicaremos nuestros paquetes.</p>}
+            {!cargandoPaquetes && !errorPaquetes && paquetesRegulares.length === 0 && <p className="t-body py-8">Pronto publicaremos nuestros paquetes.</p>}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 items-stretch border-t border-[rgba(26,24,24,0.1)]">
-              {paquetes.map((pkg, index) => (
+              {paquetesRegulares.map((pkg, index) => (
                 <div
                   key={pkg.id}
                   className={`
@@ -185,7 +227,7 @@ export default function Paquetes() {
                     {pkg.descripcion}
                   </p>
 
-                  <Link to="/contacto" className="btn-ghost mt-auto text-[0.62rem]">
+                  <Link to={`/contacto?paqueteId=${encodeURIComponent(pkg.id)}`} className="btn-ghost mt-auto text-[0.62rem]">
                     Reservar
                   </Link>
                 </div>
@@ -217,6 +259,25 @@ export default function Paquetes() {
                   </div>
                 ))}
               </div>
+            </div>
+          </section>
+        )}
+
+        {tab === "campaigns" && campania?.paqueteId && (
+          <section className="px-8 py-12 md:px-12">
+            <div className="mx-auto grid max-w-340 grid-cols-1 border-t border-[rgba(26,24,24,0.1)] md:grid-cols-2 xl:grid-cols-4">
+              {paquetesCampania.map((pkg) => (
+                <article key={pkg.id} className="relative flex flex-col border-b border-[rgba(26,24,24,0.1)] p-8 md:border-r">
+                  {pkg.imagenUrl && <img src={pkg.imagenUrl} alt={pkg.nombre} className="-mx-8 -mt-8 mb-6 h-40 w-[calc(100%+4rem)] object-cover" />}
+                  <p className="mb-6 font-[Fraunces,Georgia,serif] text-base font-light uppercase tracking-widest text-[#8a8880]">{pkg.nombre}</p>
+                  <p className="mb-1 font-[Fraunces,Georgia,serif] text-[2.4rem] font-extralight leading-none text-[#1a1818]">{mostrarPrecio(pkg.precio)}</p>
+                  <div className="mb-6 border-t border-[rgba(26,24,24,0.08)] pt-6">
+                    {(pkg.caracteristicas || []).map((item) => <div key={item.id} className="mb-[0.55rem] flex items-baseline gap-[0.6rem]"><span className="mt-1.25 h-1 w-1 shrink-0 rounded-full bg-[#a51c1c]" /><span className="font-['Inter'] text-[0.78rem] font-light leading-[1.4] text-[#5a5856]">{item.nombre}</span></div>)}
+                  </div>
+                  {pkg.descripcion && <p className="t-body mb-8 text-[0.7rem] italic text-[#aaa8a4]">{pkg.descripcion}</p>}
+                  <Link to={`/contacto?paqueteId=${encodeURIComponent(pkg.id)}`} className="btn-ghost mt-auto text-[0.62rem]">Reservar sesión</Link>
+                </article>
+              ))}
             </div>
           </section>
         )}

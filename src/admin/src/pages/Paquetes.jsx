@@ -5,6 +5,7 @@ import { API_BASE_URL, adminHeaders, mensajeError, redirigirSiNoAutorizado, useA
 const formularioVacio = { nombre: "", descripcion: "", precio: "", duracion: "", beneficios: "", imagenId: "", activo: true };
 const secciones = [
   { id: "SESION", nombre: "Sesiones" },
+  { id: "CAMPANIA", nombre: "Campañas" },
   { id: "ALQUILER", nombre: "Alquiler" },
   { id: "TARIFA", nombre: "Tarifas" },
 ];
@@ -31,7 +32,7 @@ export default function Paquetes() {
   const [seccionActiva, setSeccionActiva] = useState("SESION");
   const filasVisibles = filas.filter((paquete) => (paquete.seccion || "SESION") === seccionActiva);
   const nombreSeccion = secciones.find((seccion) => seccion.id === seccionActiva)?.nombre || "Sesiones";
-  const textoNuevo = seccionActiva === "SESION" ? "Nueva sesión" : seccionActiva === "ALQUILER" ? "Nuevo alquiler" : "Nueva tarifa";
+  const textoNuevo = seccionActiva === "SESION" ? "Nueva sesión" : seccionActiva === "CAMPANIA" ? "Nuevo paquete de campaña" : seccionActiva === "ALQUILER" ? "Nuevo alquiler" : "Nueva tarifa";
   const etiquetaNombre = seccionActiva === "TARIFA" ? "Nombre del servicio" : seccionActiva === "ALQUILER" ? "Nombre del alquiler" : "Nombre del paquete";
 
   useEffect(() => {
@@ -159,7 +160,7 @@ export default function Paquetes() {
   return (
     <main className="mx-auto min-h-screen w-full max-w-350 px-5 py-8 sm:px-7 md:px-10 md:py-10 xl:px-12">
       <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
-        <div><p className="mb-2 text-[10px] font-semibold! tracking-[.2em] text-neutral-500 uppercase sm:text-xs">Administración</p><h1 className="m-0 font-[Georgia] text-3xl font-normal! text-neutral-900 sm:text-4xl">Paquetes</h1><p className="mb-0 mt-2 text-xs text-neutral-500 sm:text-sm">Administra las opciones que se muestran en el catálogo.</p></div>
+        <div><p className="mb-2 text-[10px] font-semibold! tracking-[.2em] text-neutral-500 uppercase sm:text-xs">Administración</p><h1 className="m-0 font-[Georgia] text-3xl font-normal! text-neutral-900 sm:text-4xl">Paquetes</h1><p className="mb-0 mt-2 text-xs text-neutral-500 sm:text-sm">Administra las opciones del catálogo y los paquetes para anuncios de campaña.</p></div>
         <div className="flex gap-3"><button className="border border-[#a51c1c] bg-[#a51c1c] px-4 py-2.5 text-xs font-semibold! text-white transition-colors hover:bg-black sm:text-sm" type="button" onClick={abrirNuevo}>{textoNuevo}</button><button className="border border-neutral-300 bg-white px-4 py-2.5 text-xs font-semibold! text-neutral-800 transition-colors hover:border-[#b51f2a] hover:text-[#a51c1c] sm:text-sm" type="button" onClick={recargar}>Actualizar</button></div>
       </div>
       <nav className="mb-6 flex flex-wrap border-b border-neutral-200" aria-label="Secciones de paquetes">{secciones.map((seccion) => <button key={seccion.id} type="button" onClick={() => setSeccionActiva(seccion.id)} className={`border-0 border-b-2 bg-transparent px-4 py-3 text-sm font-semibold! ${seccionActiva === seccion.id ? "border-[#a51c1c] text-[#a51c1c]" : "border-transparent text-neutral-500 hover:text-neutral-900"}`}>{seccion.nombre}</button>)}</nav>
@@ -182,7 +183,7 @@ export default function Paquetes() {
       {!cargando && !error && <p className="mt-3 text-xs text-neutral-500">{filasVisibles.length} {nombreSeccion.toLowerCase()}</p>}
 
       {modalAbierto && <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/55 p-3 sm:p-4" onMouseDown={(evento) => { if (evento.target === evento.currentTarget && !guardando) setModalAbierto(false); }}><section role="dialog" aria-modal="true" aria-labelledby="paquete-modal-titulo" className="my-auto max-h-[75vh] w-full max-w-105 overflow-y-auto rounded-xl border border-neutral-300 bg-white p-4 shadow-2xl sm:p-5">
-        <p className="mb-2 text-[10px] font-semibold! tracking-[.2em] text-[#a51c1c] uppercase">Catálogo</p><h2 id="paquete-modal-titulo" className="mb-4 font-[Georgia] text-xl font-normal! text-neutral-900">{paqueteEditando ? "Editar paquete" : seccionActiva === "SESION" ? "Nueva sesión" : seccionActiva === "ALQUILER" ? "Nuevo alquiler" : "Nueva tarifa"}</h2>
+        <p className="mb-2 text-[10px] font-semibold! tracking-[.2em] text-[#a51c1c] uppercase">Catálogo</p><h2 id="paquete-modal-titulo" className="mb-4 font-[Georgia] text-xl font-normal! text-neutral-900">{paqueteEditando ? "Editar paquete" : seccionActiva === "SESION" ? "Nueva sesión" : seccionActiva === "CAMPANIA" ? "Nuevo paquete de campaña" : seccionActiva === "ALQUILER" ? "Nuevo alquiler" : "Nueva tarifa"}</h2>
         <form className="grid gap-3" onSubmit={guardar}>
           <label className={etiqueta}>{etiquetaNombre}{seccionActiva === "TARIFA" ? <select className={campo} required value={borrador.nombre} onChange={(evento) => setBorrador((actual) => ({ ...actual, nombre: evento.target.value }))}><option value="">Selecciona un servicio</option>{paqueteEditando?.nombre && !tiposServicio.includes(paqueteEditando.nombre) && <option value={paqueteEditando.nombre}>{paqueteEditando.nombre}</option>}{tiposServicio.map((tipo) => <option key={tipo} value={tipo}>{tipo}</option>)}</select> : <input className={campo} required maxLength={120} value={borrador.nombre} onChange={(evento) => setBorrador((actual) => ({ ...actual, nombre: evento.target.value }))} />}</label>
           <label className={etiqueta}>Descripción<textarea className={campo} rows={2} value={borrador.descripcion} onChange={(evento) => setBorrador((actual) => ({ ...actual, descripcion: evento.target.value }))} /></label>

@@ -28,14 +28,14 @@ const parsePayload = async (body, existing = null) => {
   return { titulo, descripcion, inicio, fin, paqueteId, habilitada };
 };
 
-const validatePackage = async (client, paqueteId) => {
+const validatePackage = async (client, paqueteId, allowLegacySession = false) => {
   const paquete = await client.paquete.findUnique({ where: { id: paqueteId }, select: { id: true, nombre: true, activo: true, seccion: true } });
-  if (!paquete || paquete.seccion !== "SESION" || !paquete.activo) throw errorOperacion("El paquete debe estar publicado en la sección Sesiones.", 422);
+  if (!paquete || (paquete.seccion !== "CAMPANIA" && !(allowLegacySession && paquete.seccion === "SESION")) || !paquete.activo) throw errorOperacion("El paquete asociado debe estar publicado en Paquetes → Campañas.", 422);
   return paquete;
 };
 
 const lockCampaignSchedule = async (tx) => {
-  await tx.$queryRaw`SELECT pg_advisory_xact_lock(131013, 1)`;
+  await tx.$queryRaw`SELECT 1 AS locked FROM pg_advisory_xact_lock(131013, 1)`;
 };
 
 const assertNoOverlap = async (tx, data, excludeId = null) => {
@@ -68,7 +68,7 @@ const getActive = async (_req, res) => {
         habilitada: true,
         inicio: { lte: now },
         fin: { gt: now },
-        paquete: { activo: true, seccion: "SESION" },
+        paquete: { activo: true, seccion: { in: ["CAMPANIA", "SESION"] } },
       },
       select: { id: true, titulo: true, descripcion: true, imagenUrl: true, inicio: true, fin: true, paqueteId: true },
       orderBy: [{ inicio: "desc" }, { id: "desc" }],
@@ -111,11 +111,11 @@ const update = async (req, res) => {
     const existing = await prisma.campania.findUnique({ where: { id } });
     if (!existing) return res.status(404).json({ error: "Campaña no encontrada." });
     const data = await parsePayload(req.body, existing);
-    await validatePackage(prisma, data.paqueteId);
+    await validatePackage(prisma, data.paqueteId, data.paqueteId === existing.paqueteId);
     if (req.file) uploaded = await uploadImage(req.file.buffer, req.file.originalname, "campanias");
     const campaign = await prisma.$transaction(async (tx) => {
       await lockCampaignSchedule(tx);
-      await validatePackage(tx, data.paqueteId);
+      await validatePackage(tx, data.paqueteId, data.paqueteId === existing.paqueteId);
       await assertNoOverlap(tx, data, id);
       return tx.campania.update({
         where: { id },
@@ -146,7 +146,7 @@ const setEnabled = async (req, res) => {
       if (!existing) return null;
       const data = { ...existing, habilitada };
       if (habilitada) {
-        await validatePackage(tx, existing.paqueteId);
+        await validatePackage(tx, existing.paqueteId, true);
         await assertNoOverlap(tx, data, id);
       }
       return tx.campania.update({ where: { id }, data: { habilitada }, include: includePackage });

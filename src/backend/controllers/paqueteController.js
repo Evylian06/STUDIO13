@@ -6,7 +6,7 @@ import {
   reportControllerError,
 } from "./_shared.js";
 
-const sections = ["SESION", "ALQUILER", "TARIFA"];
+const sections = ["SESION", "ALQUILER", "TARIFA", "CAMPANIA"];
 const packageFields = ["nombre", "descripcion", "precio", "imagenUrl", "publicId", "orden", "activo", "seccion"];
 const characteristicFields = ["nombre", "orden"];
 const includeCharacteristics = { caracteristicas: { orderBy: [{ orden: "asc" }, { id: "asc" }] } };

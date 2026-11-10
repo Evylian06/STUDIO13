@@ -55,7 +55,7 @@ export default function Campanas() {
         if (!response.ok) throw new Error(body.error || "No se pudieron cargar los paquetes.");
         return body;
       })
-      .then((body) => { if (!controller.signal.aborted) setPaquetes(body.filter((paquete) => paquete.seccion === "SESION" && paquete.activo)); })
+      .then((body) => { if (!controller.signal.aborted) setPaquetes(body.filter((paquete) => paquete.activo && (paquete.seccion === "CAMPANIA" || paquete.seccion === "SESION"))); })
       .catch((reason) => { if (!controller.signal.aborted) setErrorPaquetes(mensajeError(reason)); });
     return () => controller.abort();
   }, [navigate]);
@@ -174,7 +174,7 @@ export default function Campanas() {
       {mensajeExito && <p className="mb-4 text-sm text-neutral-800" role="status">{mensajeExito}</p>}
       {errorOperacion && !modalAbierto && <p className="mb-4 text-sm text-[#a51c1c]" role="alert">{errorOperacion}</p>}
       {errorPaquetes && <p className="mb-4 text-sm text-[#a51c1c]" role="alert">{errorPaquetes}</p>}
-      {!errorPaquetes && !paquetes.length && <p className="mb-4 border border-neutral-200 bg-white p-4 text-sm text-neutral-600">Primero publica un paquete en Paquetes → Sesiones para poder asociarlo a una campaña.</p>}
+      {!errorPaquetes && !paquetes.some((paquete) => paquete.seccion === "CAMPANIA") && <p className="mb-4 border border-neutral-200 bg-white p-4 text-sm text-neutral-600">Primero publica un paquete en Paquetes → Campañas para poder asociarlo a un anuncio.</p>}
 
       {error ? <div className="border border-neutral-200 bg-white p-5 text-sm text-[#a51c1c]" role="alert">{error}<button className="ml-3 underline" type="button" onClick={recargar}>Reintentar</button></div>
         : cargando ? <p className="border border-neutral-200 bg-white p-8 text-sm text-neutral-500">Cargando campañas…</p>
@@ -197,7 +197,7 @@ export default function Campanas() {
         <form className="grid gap-4" onSubmit={guardar}>
           <label className={etiqueta}>Título<input className={campo} required maxLength={140} value={borrador.titulo} onChange={(evento) => setBorrador((actual) => ({ ...actual, titulo: evento.target.value }))} /></label>
           <label className={etiqueta}>Descripción<textarea className={campo} required rows={4} value={borrador.descripcion} onChange={(evento) => setBorrador((actual) => ({ ...actual, descripcion: evento.target.value }))} /></label>
-          <label className={etiqueta}>Paquete de Sesiones<select className={campo} required value={borrador.paqueteId} onChange={(evento) => setBorrador((actual) => ({ ...actual, paqueteId: evento.target.value }))}><option value="">Selecciona un paquete</option>{paquetes.map((paquete) => <option key={paquete.id} value={paquete.id}>{paquete.nombre}</option>)}</select></label>
+          <label className={etiqueta}>Paquete asociado<select className={campo} required value={borrador.paqueteId} onChange={(evento) => setBorrador((actual) => ({ ...actual, paqueteId: evento.target.value }))}><option value="">Selecciona un paquete</option>{paquetes.filter((paquete) => paquete.seccion === "CAMPANIA" || (campaniaEditando && Number(paquete.id) === Number(campaniaEditando.paqueteId))).map((paquete) => <option key={paquete.id} value={paquete.id}>{paquete.nombre} (ID {paquete.id})</option>)}</select></label>
           <div className="grid gap-4 sm:grid-cols-2"><label className={etiqueta}>Inicio (hora de Perú)<input className={campo} required type="datetime-local" value={borrador.inicio} onChange={(evento) => setBorrador((actual) => ({ ...actual, inicio: evento.target.value }))} /></label><label className={etiqueta}>Fin (hora de Perú)<input className={campo} required type="datetime-local" value={borrador.fin} onChange={(evento) => setBorrador((actual) => ({ ...actual, fin: evento.target.value }))} /></label></div>
           <label className={etiqueta}>Imagen de campaña<input className={campo} required={!campaniaEditando} type="file" accept="image/jpeg,image/png,image/webp" onChange={(evento) => { const file = evento.target.files?.[0] || null; setImagen(file); setVistaPrevia(file ? URL.createObjectURL(file) : campaniaEditando?.imagenUrl || ""); }} /><span className="font-normal! text-neutral-500">JPG, PNG o WEBP; hasta 5 MB.</span></label>
           {vistaPrevia && <img src={vistaPrevia} alt="Vista previa de la campaña" className="max-h-56 w-full border border-neutral-200 object-cover" />}
