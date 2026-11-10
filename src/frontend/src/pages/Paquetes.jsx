@@ -3,6 +3,11 @@ import { Link } from "react-router-dom";
 import Layout from "../pages/Layout/Layout";
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3001").replace(/\/+$/, "");
+const formatDate = (value) => new Intl.DateTimeFormat("es-PE", {
+  timeZone: "America/Lima",
+  dateStyle: "medium",
+  timeStyle: "short",
+}).format(new Date(value));
 
 const mostrarPrecio = (valor) => valor == null || valor === ""? "Precio por definir": new Intl.NumberFormat("es-PE", {
       style: "currency", currency: "PEN", minimumFractionDigits: 2, maximumFractionDigits: 2}).format(Number(valor));
@@ -120,15 +125,15 @@ export default function Paquetes() {
     return () => { controller?.abort(); window.clearInterval(timer); };
   }, []);
 
-  useEffect(() => {
-    if (tab === "campaigns" && !campania?.paqueteId) setTab("session");
-  }, [tab, campania]);
-
   const paquetesCampania = campania?.paqueteId
     ? [...paquetesDeCampania, ...paquetes].filter((pkg, index, all) => Number(pkg.id) === Number(campania.paqueteId) && all.findIndex((item) => Number(item.id) === Number(pkg.id)) === index)
     : [];
   const idsPaquetesCampania = new Set(paquetesCampania.map((pkg) => Number(pkg.id)));
   const paquetesRegulares = paquetes.filter((pkg) => !idsPaquetesCampania.has(Number(pkg.id)));
+
+  useEffect(() => {
+    if (tab === "campaigns" && paquetesCampania.length === 0) setTab("session");
+  }, [tab, paquetesCampania.length]);
 
   return (
     <Layout>
@@ -146,7 +151,7 @@ export default function Paquetes() {
 
         {/* TABS */}
         <div className="border-b border-[rgba(26,24,24,0.08)] px-8 md:px-12 flex">
-          {["session", ...(campania?.paqueteId ? ["campaigns"] : []), "rental", "rates", "memberships"].map((type) => (
+          {["session", ...(paquetesCampania.length > 0 ? ["campaigns"] : []), "rental", "rates", "memberships"].map((type) => (
             <button
               key={type}
               onClick={() => setTab(type)}
@@ -263,8 +268,9 @@ export default function Paquetes() {
           </section>
         )}
 
-        {tab === "campaigns" && campania?.paqueteId && (
+        {tab === "campaigns" && paquetesCampania.length > 0 && (
           <section className="px-8 py-12 md:px-12">
+            {campania && <p className="mx-auto mb-6 max-w-340 font-['Inter'] text-xs text-[#8a8880]">Promoción del {formatDate(campania.inicio)} al {formatDate(campania.fin)}</p>}
             <div className="mx-auto grid max-w-340 grid-cols-1 border-t border-[rgba(26,24,24,0.1)] md:grid-cols-2 xl:grid-cols-4">
               {paquetesCampania.map((pkg) => (
                 <article key={pkg.id} className="relative flex flex-col border-b border-[rgba(26,24,24,0.1)] p-8 md:border-r">

@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3001").replace(/\/+$/, "");
+const formatDate = (value) => new Intl.DateTimeFormat("es-PE", {
+  timeZone: "America/Lima",
+  dateStyle: "medium",
+  timeStyle: "short",
+}).format(new Date(value));
 
 export default function CampaniaTemporada() {
   const [campania, setCampania] = useState(null);
@@ -46,6 +51,7 @@ export default function CampaniaTemporada() {
           <p className="mb-4 font-['Inter'] text-[0.62rem] tracking-[0.32em] uppercase text-[#a9a5a0]">Temporada especial</p>
           <h2 id="campania-temporada-titulo" className="mb-5 font-[Fraunces,Georgia,serif] text-[clamp(2rem,4vw,3.5rem)] leading-tight font-light text-[#e8e6e2]">{campania.titulo}</h2>
           <p className="mb-8 whitespace-pre-line font-['Inter'] text-sm leading-7 text-[#b5b1ac]">{campania.descripcion}</p>
+          <p className="mb-6 font-['Inter'] text-xs text-[#b5b1ac]">Promoción del {formatDate(campania.inicio)} al {formatDate(campania.fin)}</p>
           <Link
             to={`/contacto?paqueteId=${encodeURIComponent(campania.paqueteId)}`}
             className="inline-flex min-h-11 items-center border border-[#a51c1c] bg-[#a51c1c] px-6 py-3 font-['Inter'] text-xs tracking-[0.14em] text-white no-underline transition-colors hover:border-white hover:bg-transparent"

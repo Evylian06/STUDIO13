@@ -9,7 +9,7 @@ const categoriasReserva = [
   { id: "TARIFA", nombre: "Tarifas", endpoint: "/api/paquetes?seccion=TARIFA" },
   { id: "MEMBRESIAS", nombre: "Membresías", endpoint: "/api/planes-membresia" },
 ];
-const formularioVacio = { nombre: "", email: "", telefono: "", paquete: "", mensaje: "" };
+const formularioVacio = { nombre: "", email: "", telefono: "", paquete: "", paqueteId: "", mensaje: "" };
 
 export default function Contacto() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -46,7 +46,7 @@ export default function Contacto() {
         if (categoriaReserva.id === "SESION" && paqueteCampaniaId) {
           const paqueteSeleccionado = body.find((opcion) => String(opcion.id) === paqueteCampaniaId);
           if (paqueteSeleccionado) {
-            setForm((actual) => ({ ...actual, paquete: paqueteSeleccionado.nombre }));
+            setForm((actual) => ({ ...actual, paquete: paqueteSeleccionado.nombre, paqueteId: String(paqueteSeleccionado.id) }));
           } else {
             setErrorOpciones("El paquete de esta campaña ya no está disponible. Elige otra sesión.");
           }
@@ -72,6 +72,7 @@ export default function Contacto() {
           email: form.email.trim(),
           telefono: form.telefono.trim(),
           tipoSesion: form.paquete,
+          paqueteId: form.paqueteId ? Number(form.paqueteId) : undefined,
           categoriaServicio: categoriaReserva.id,
           mensaje: form.mensaje.trim(),
         }),
@@ -227,7 +228,7 @@ export default function Contacto() {
                       <button
                         key={categoria.id}
                         type="button"
-                        onClick={() => { setSearchParams({}, { replace: true }); setForm((actual) => ({ ...actual, paquete: "", mensaje: "" })); setOpcionesPaquete([]); setErrorOpciones(""); setCategoriaReserva(categoria); }}
+                        onClick={() => { setSearchParams({}, { replace: true }); setForm((actual) => ({ ...actual, paquete: "", paqueteId: "", mensaje: "" })); setOpcionesPaquete([]); setErrorOpciones(""); setCategoriaReserva(categoria); }}
                         className="group border border-[rgba(26,24,24,0.15)] bg-transparent p-5 text-left transition-colors duration-200 hover:border-[#a51c1c]"
                       >
                         <span className="t-label block">{categoria.nombre}</span>
@@ -243,7 +244,7 @@ export default function Contacto() {
                       <p className="t-label mb-2">Formulario de reserva</p>
                       <h2 className="m-0 font-[Fraunces,Georgia,serif] text-3xl font-extralight italic text-[#1a1818]">{categoriaReserva.nombre}</h2>
                     </div>
-                    <button type="button" onClick={() => { setSearchParams({}, { replace: true }); setCategoriaReserva(null); setOpcionesPaquete([]); setErrorOpciones(""); setForm((actual) => ({ ...actual, paquete: "", mensaje: "" })); }} className="border-0 bg-transparent p-0 text-xs text-[#8a8880] underline decoration-[#a51c1c] underline-offset-4 hover:text-[#a51c1c]">← Elegir otra categoría</button>
+                    <button type="button" onClick={() => { setSearchParams({}, { replace: true }); setCategoriaReserva(null); setOpcionesPaquete([]); setErrorOpciones(""); setForm((actual) => ({ ...actual, paquete: "", paqueteId: "", mensaje: "" })); }} className="border-0 bg-transparent p-0 text-xs text-[#8a8880] underline decoration-[#a51c1c] underline-offset-4 hover:text-[#a51c1c]">← Elegir otra categoría</button>
                   </div>
 
                   <form onSubmit={handleSubmit} className="flex flex-col gap-8">
@@ -304,13 +305,20 @@ export default function Contacto() {
                       <select
                         required
                         disabled={cargandoOpciones || (opcionesPaquete.length === 0 && categoriaReserva.id !== "SESION")}
-                        value={form.paquete}
-                        onChange={(e) => setForm({ ...form, paquete: e.target.value })}
+                        value={form.paqueteId || form.paquete}
+                        onChange={(e) => {
+                          const opcion = opcionesPaquete.find((item) => String(item.id) === e.target.value);
+                          setForm({
+                            ...form,
+                            paquete: opcion?.nombre || e.target.value,
+                            paqueteId: categoriaReserva.id !== "MEMBRESIAS" && opcion ? String(opcion.id) : "",
+                          });
+                        }}
                         className={`w-full bg-transparent border-0 border-b border-[rgba(26,24,24,0.2)] py-3 font-['Inter'] font-light text-sm outline-none transition-colors duration-200 cursor-pointer appearance-none focus:border-[#1a1818] ${form.paquete ? "text-[#1a1818]" : "text-[#9a9490]"}`}
                       >
                         <option value="" disabled>Seleccionar opción…</option>
                         {opcionesPaquete.map((opcion) => (
-                          <option key={opcion.id} value={opcion.nombre}>
+                          <option key={opcion.id} value={categoriaReserva.id === "MEMBRESIAS" ? opcion.nombre : String(opcion.id)}>
                             {opcion.nombre}{opcion.precio != null ? ` — ${new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN", minimumFractionDigits: 2 }).format(Number(opcion.precio))}` : ""}
                           </option>
                         ))}

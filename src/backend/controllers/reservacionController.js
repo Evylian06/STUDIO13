@@ -50,8 +50,8 @@ const create = async (req, res) => {
   const usarClienteExistente = esAdmin && req.body.clienteId !== undefined && req.body.clienteId !== null;
   const crearOReutilizarCliente = esAdmin && !usarClienteExistente;
   const data = pickDefined(req.body, esAdmin
-    ? ["clienteId", "nombre", "email", "telefono", "tipoSesion", "categoriaServicio", "fecha", "hora", "mensaje"]
-    : ["nombre", "email", "telefono", "tipoSesion", "categoriaServicio", "fecha", "hora", "mensaje"]);
+    ? ["clienteId", "nombre", "email", "telefono", "tipoSesion", "categoriaServicio", "paqueteId", "fecha", "hora", "mensaje"]
+    : ["nombre", "email", "telefono", "tipoSesion", "categoriaServicio", "paqueteId", "fecha", "hora", "mensaje"]);
   if (!data.tipoSesion || (esAdmin && ((!data.clienteId && (!data.nombre || !data.email || !data.telefono)) || !data.fecha || !data.hora)) || (!esAdmin && (!data.nombre || !data.email))) {
     return res.status(400).json({ error: esAdmin ? "Selecciona un cliente o indica nombre, email y teléfono; tipoSesion, fecha y hora son obligatorios." : "nombre, email y tipoSesion son obligatorios." });
   }
@@ -66,6 +66,10 @@ const create = async (req, res) => {
   }
   if (data.categoriaServicio !== undefined && !categoriasServicio.has(data.categoriaServicio)) {
     return res.status(400).json({ error: "categoriaServicio no es una categoría válida." });
+  }
+  const paqueteId = data.paqueteId === undefined || data.paqueteId === null || data.paqueteId === "" ? null : parseId(data.paqueteId);
+  if (data.paqueteId !== undefined && data.paqueteId !== null && data.paqueteId !== "" && !paqueteId) {
+    return res.status(400).json({ error: "paqueteId debe ser un entero positivo." });
   }
   if (esAdmin && (typeof data.hora !== "string" || !data.hora.trim())) {
     return res.status(400).json({ error: "hora debe ser una hora válida." });
@@ -96,6 +100,10 @@ const create = async (req, res) => {
   }
 
   try {
+    if (paqueteId !== null) {
+      const paquete = await prisma.paquete.findUnique({ where: { id: paqueteId }, select: { id: true } });
+      if (!paquete) return res.status(404).json({ error: "El paquete asociado no existe." });
+    }
     if (esAdmin) {
       let cliente;
       if (usarClienteExistente) {
@@ -110,6 +118,7 @@ const create = async (req, res) => {
             telefono: cliente.telefono,
             tipoSesion,
             categoriaServicio,
+            paqueteId,
             fecha,
             hora: data.hora,
             mensaje,
@@ -139,6 +148,7 @@ const create = async (req, res) => {
                 telefono: clienteNuevo.telefono,
                 tipoSesion,
                 categoriaServicio,
+                paqueteId,
                 fecha,
                 hora: data.hora,
                 mensaje,
@@ -185,6 +195,7 @@ const create = async (req, res) => {
             telefono: telefono || null,
             tipoSesion,
             categoriaServicio,
+            paqueteId,
             mensaje,
             estado: "PENDIENTE",
             clienteId: cliente.id,

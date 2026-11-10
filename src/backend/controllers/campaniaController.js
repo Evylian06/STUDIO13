@@ -66,7 +66,6 @@ const getActive = async (_req, res) => {
     const campaign = await prisma.campania.findFirst({
       where: {
         habilitada: true,
-        inicio: { lte: now },
         fin: { gt: now },
         paquete: { activo: true, seccion: { in: ["CAMPANIA", "SESION"] } },
       },

@@ -20,6 +20,7 @@ const safeSelect = {
       id: true,
       tipoSesion: true,
       categoriaServicio: true,
+      paquete: { select: { seccion: true } },
       fecha: true,
       hora: true,
       estado: true,
@@ -29,13 +30,22 @@ const safeSelect = {
   },
 };
 
+const incluirPaqueteSeccion = (cliente) => ({
+  ...cliente,
+  reservaciones: (cliente.reservaciones || []).map(({ paquete, ...reservacion }) => ({
+    ...reservacion,
+    paqueteSeccion: paquete?.seccion ?? null,
+  })),
+});
+
 const list = async (_req, res) => {
   try {
-    return res.json(await prisma.cliente.findMany({
+    const clientes = await prisma.cliente.findMany({
       where: { reservaciones: { some: { estado: { not: "CANCELADA" } } } },
       select: safeSelect,
       orderBy: { id: "asc" },
-    }));
+    });
+    return res.json(clientes.map(incluirPaqueteSeccion));
   } catch (error) {
     return reportControllerError(res, "obtener los clientes", error);
   }
@@ -47,7 +57,7 @@ const getById = async (req, res) => {
   try {
     const cliente = await prisma.cliente.findUnique({ where: { id }, select: safeSelect });
     if (!cliente) return res.status(404).json({ error: "Cliente no encontrado." });
-    return res.json(cliente);
+    return res.json(incluirPaqueteSeccion(cliente));
   } catch (error) {
     return reportControllerError(res, "obtener el cliente", error);
   }
@@ -72,7 +82,7 @@ const create = async (req, res) => {
       data: { ...data, passwordHash: await bcrypt.hash(req.body.password, 12) },
       select: safeSelect,
     });
-    return res.status(201).json(cliente);
+    return res.status(201).json(incluirPaqueteSeccion(cliente));
   } catch (error) {
     return reportControllerError(res, "crear el cliente", error);
   }
@@ -116,7 +126,7 @@ const update = async (req, res) => {
       return actualizacion;
     });
     if (!result.count) return res.status(404).json({ error: "Cliente no encontrado." });
-    return res.json(await prisma.cliente.findUnique({ where: { id }, select: safeSelect }));
+    return res.json(incluirPaqueteSeccion(await prisma.cliente.findUnique({ where: { id }, select: safeSelect })));
   } catch (error) {
     return reportControllerError(res, "actualizar el cliente", error);
   }

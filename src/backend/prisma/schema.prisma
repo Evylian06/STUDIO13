@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -108,6 +107,7 @@ model Paquete {
   updatedAt       DateTime                @updatedAt
   caracteristicas PaqueteCaracteristica[]
   campanias       Campania[]
+  reservaciones   Reservacion[]
 }
 
 model Campania {
@@ -222,11 +222,14 @@ model Reservacion {
   estado            EstadoReservacion            @default(PENDIENTE)
   estadoPago        EstadoPagoReservacion        @default(PENDIENTE)
   clienteId         Int?
+  paqueteId         Int?
   createdAt         DateTime                     @default(now())
   updatedAt         DateTime                     @updatedAt
   cliente           Cliente?                     @relation(fields: [clienteId], references: [id])
+  paquete           Paquete?                     @relation(fields: [paqueteId], references: [id], onDelete: SetNull)
 
   @@index([clienteId])
+  @@index([paqueteId])
   @@index([fecha])
   @@index([categoriaServicio])
 }
