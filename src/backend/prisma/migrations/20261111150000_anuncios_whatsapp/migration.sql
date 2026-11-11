@@ -1,0 +1,2 @@
+ALTER TABLE "Imagen"
+ADD COLUMN "mostrarWhatsapp" BOOLEAN NOT NULL DEFAULT false;

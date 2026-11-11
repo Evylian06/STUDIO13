@@ -18,9 +18,12 @@ const safeSelect = {
   reservaciones: {
     select: {
       id: true,
+      campaniaId: true,
+      campaniaNombre: true,
       tipoSesion: true,
       categoriaServicio: true,
-      paquete: { select: { seccion: true } },
+      paquete: { select: { id: true, nombre: true, seccion: true } },
+      campania: { select: { id: true, titulo: true } },
       fecha: true,
       hora: true,
       estado: true,
@@ -32,9 +35,11 @@ const safeSelect = {
 
 const incluirPaqueteSeccion = (cliente) => ({
   ...cliente,
-  reservaciones: (cliente.reservaciones || []).map(({ paquete, ...reservacion }) => ({
+  reservaciones: (cliente.reservaciones || []).map(({ paquete, campania, ...reservacion }) => ({
     ...reservacion,
-    paqueteSeccion: paquete?.seccion ?? null,
+    paqueteSeccion: campania || reservacion.campaniaNombre ? "CAMPANIA" : paquete?.seccion ?? null,
+    paqueteNombre: paquete?.nombre ?? null,
+    campaniaNombre: campania?.titulo ?? reservacion.campaniaNombre ?? null,
   })),
 });
 

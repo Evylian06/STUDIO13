@@ -66,12 +66,27 @@ const getActive = async (_req, res) => {
     const campaign = await prisma.campania.findFirst({
       where: {
         habilitada: true,
+        inicio: { lte: now },
         fin: { gt: now },
         paquete: { activo: true, seccion: { in: ["CAMPANIA", "SESION"] } },
       },
-      select: { id: true, titulo: true, descripcion: true, imagenUrl: true, inicio: true, fin: true, paqueteId: true },
+      select: { id: true, titulo: true, descripcion: true, imagenUrl: true, inicio: true, fin: true, paqueteId: true, paquete: { select: { id: true, nombre: true } } },
       orderBy: [{ inicio: "desc" }, { id: "desc" }],
     });
+    if (!campaign) {
+      const nextCampaign = await prisma.campania.findFirst({
+        where: {
+          habilitada: true,
+          inicio: { gt: now },
+          fin: { gt: now },
+          paquete: { activo: true, seccion: { in: ["CAMPANIA", "SESION"] } },
+        },
+        select: { inicio: true },
+        orderBy: [{ inicio: "asc" }, { id: "asc" }],
+      });
+      if (nextCampaign) res.set("X-Next-Campaign-Start", nextCampaign.inicio.toISOString());
+    }
+    res.set("Access-Control-Expose-Headers", "X-Next-Campaign-Start");
     res.set("Cache-Control", "no-store");
     return res.json(campaign);
   } catch (error) {
@@ -158,4 +173,25 @@ const setEnabled = async (req, res) => {
   }
 };
 
-export default { listAdmin, getActive, create, update, setEnabled };
+const remove = async (req, res) => {
+  const id = parseId(req.params.id);
+  if (!id) return res.status(400).json({ error: "El id debe ser un entero positivo." });
+  try {
+    const campaign = await prisma.$transaction(async (tx) => {
+      const existing = await tx.campania.findUnique({ where: { id }, select: { id: true, titulo: true, publicId: true } });
+      if (!existing) return null;
+      await tx.reservacion.updateMany({ where: { campaniaId: id }, data: { campaniaNombre: existing.titulo } });
+      await tx.campania.delete({ where: { id } });
+      return existing;
+    });
+    if (!campaign) return res.status(404).json({ error: "Campaña no encontrada." });
+    if (campaign.publicId) {
+      await deleteImage(campaign.publicId).catch((error) => console.error("[limpiar imagen de campaña eliminada]", error));
+    }
+    return res.status(204).end();
+  } catch (error) {
+    return reportControllerError(res, "eliminar la campaña", error);
+  }
+};
+
+export default { listAdmin, getActive, create, update, setEnabled, remove };

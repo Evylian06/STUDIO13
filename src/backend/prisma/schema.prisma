@@ -36,6 +36,7 @@ model Imagen {
   orden       Int        @default(0)
   activo      Boolean    @default(true)
   formularioEspecial Boolean @default(false)
+  mostrarWhatsapp    Boolean @default(false)
   visibleHasta DateTime? @db.Timestamptz(3)
   consultas   ConsultaAnuncio[]
   createdAt   DateTime   @default(now())
@@ -136,6 +137,7 @@ model Campania {
   habilitada  Boolean  @default(false)
   paqueteId   Int
   paquete     Paquete  @relation(fields: [paqueteId], references: [id], onDelete: Restrict)
+  reservaciones Reservacion[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -238,13 +240,17 @@ model Reservacion {
   estadoPago        EstadoPagoReservacion        @default(PENDIENTE)
   clienteId         Int?
   paqueteId         Int?
+  campaniaId        Int?
+  campaniaNombre    String?                      @db.VarChar(140)
   createdAt         DateTime                     @default(now())
   updatedAt         DateTime                     @updatedAt
   cliente           Cliente?                     @relation(fields: [clienteId], references: [id])
   paquete           Paquete?                     @relation(fields: [paqueteId], references: [id], onDelete: SetNull)
+  campania          Campania?                    @relation(fields: [campaniaId], references: [id], onDelete: SetNull)
 
   @@index([clienteId])
   @@index([paqueteId])
+  @@index([campaniaId])
   @@index([fecha])
   @@index([categoriaServicio])
 }

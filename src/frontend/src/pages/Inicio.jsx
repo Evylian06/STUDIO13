@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import Layout from "../pages/Layout/Layout.jsx";
 import studio13Logo from "../assets/studio13_blanco.png";
+import imagenFotografias01 from "../assets/imagen_fotografias01.jpg";
+import imagenFotografias02 from "../assets/imagen_fotografias02.jpg";
+import imagenFotografias03 from "../assets/imagen_fotografias03.jpg";
 import { Link } from "react-router-dom";
 import Testimonios from "../Components/Testimonios.jsx";
 import AnuncioEmergente from "../Components/AnuncioEmergente.jsx";
@@ -8,6 +11,7 @@ import CampaniaTemporada from "../Components/CampaniaTemporada.jsx";
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3001").replace(/\/+$/, "");
 const normalizarNombre = (value) => value.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase();
+const mismosDatos = (anterior, siguiente) => JSON.stringify(anterior) === JSON.stringify(siguiente);
 
 function ImagenRotativa({ imagenes, etiqueta }) {
   const [indice, setIndice] = useState(0);
@@ -67,39 +71,77 @@ const Inicio = () => {
     const controller = new AbortController();
     fetch(`${API_BASE_URL}/api/galerias`, { signal: controller.signal })
       .then((response) => response.ok ? response.json() : [])
-      .then((data) => { if (!controller.signal.aborted && Array.isArray(data)) setGalerias(data); })
+      .then((data) => { if (!controller.signal.aborted && Array.isArray(data)) setGalerias((actuales) => mismosDatos(actuales, data) ? actuales : data); })
       .catch(() => {});
     return () => controller.abort();
   }, []);
 
   useEffect(() => {
-    let controller;
-    let timer;
+    let controller = null;
+    let timerVencimiento = null;
+    let actualizando = false;
+    let desmontado = false;
     let inicial = true;
-    const cargar = () => {
-      controller?.abort();
-      controller = new AbortController();
-      fetch(`${API_BASE_URL}/api/publicidad`, { signal: controller.signal, cache: "no-store" })
-        .then((response) => response.ok ? response.json() : [])
-        .then((data) => {
-          if (controller.signal.aborted || !Array.isArray(data)) return;
-          const vigentes = data.filter((item) => !item.visibleHasta || new Date(item.visibleHasta).getTime() > Date.now());
-          setAnuncios(vigentes);
-          setAnuncioAbierto((actual) => actual?.visibleHasta && new Date(actual.visibleHasta).getTime() <= Date.now() ? null : actual);
-          if (inicial) {
-            inicial = false;
-            let cerrado = false;
-            try { cerrado = sessionStorage.getItem("studio13-anuncio-cerrado") === "true"; } catch { /* continúa */ }
-            if (!cerrado && vigentes[0]) setAnuncioAbierto(vigentes[0]);
+    const retirarVencidos = () => {
+      const ahora = Date.now();
+      setAnuncios((actuales) => {
+        const vigentes = actuales.filter((item) => !item.visibleHasta || new Date(item.visibleHasta).getTime() > ahora);
+        return mismosDatos(actuales, vigentes) ? actuales : vigentes;
+      });
+    };
+    const cargar = async () => {
+      if (desmontado || actualizando || document.visibilityState !== "visible") return;
+      actualizando = true;
+      const request = new AbortController();
+      controller = request;
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/publicidad`, { signal: request.signal, cache: "no-store" });
+        if (!response.ok) throw new Error("No se pudieron actualizar los anuncios.");
+        const data = await response.json();
+        if (request.signal.aborted || desmontado || !Array.isArray(data)) return;
+        const vigentes = data.filter((item) => !item.visibleHasta || new Date(item.visibleHasta).getTime() > Date.now());
+        setAnuncios((actuales) => mismosDatos(actuales, vigentes) ? actuales : vigentes);
+        let anuncioInicial = null;
+        if (inicial) {
+          inicial = false;
+          let cerrado = false;
+          try { cerrado = sessionStorage.getItem("studio13-anuncio-cerrado") === "true"; } catch { /* continúa */ }
+          if (!cerrado) anuncioInicial = vigentes[0] || null;
+        }
+        setAnuncioAbierto((actual) => {
+          if (actual) {
+            const actualizado = vigentes.find((item) => item.id === actual.id);
+            return actualizado ? (mismosDatos(actual, actualizado) ? actual : actualizado) : actual;
           }
-          window.clearTimeout(timer);
-          const siguientes = vigentes.map((item) => new Date(item.visibleHasta || Infinity).getTime()).filter(Number.isFinite);
-          if (siguientes.length) timer = window.setTimeout(cargar, Math.max(0, Math.min(...siguientes) - Date.now() + 100));
-        }).catch(() => {});
+          return anuncioInicial;
+        });
+        window.clearTimeout(timerVencimiento);
+        const vencimientos = vigentes.map((item) => item.visibleHasta ? new Date(item.visibleHasta).getTime() : Infinity).filter(Number.isFinite);
+        if (vencimientos.length) timerVencimiento = window.setTimeout(() => { retirarVencidos(); cargar(); }, Math.max(0, Math.min(...vencimientos) - Date.now() + 25));
+      } catch {
+        // Mantiene el listado actual y reintenta en el intervalo o al volver a la pestaña.
+      } finally {
+        if (controller === request) controller = null;
+        actualizando = false;
+      }
+    };
+    const alVolver = () => {
+      if (document.visibilityState !== "visible") return;
+      retirarVencidos();
+      cargar();
     };
     cargar();
     const intervalo = window.setInterval(cargar, 30000);
-    return () => { controller?.abort(); window.clearInterval(intervalo); window.clearTimeout(timer); };
+    document.addEventListener("visibilitychange", alVolver);
+    window.addEventListener("focus", alVolver);
+    return () => {
+      desmontado = true;
+      controller?.abort();
+      window.clearInterval(intervalo);
+      window.clearTimeout(timerVencimiento);
+      document.removeEventListener("visibilitychange", alVolver);
+      window.removeEventListener("focus", alVolver);
+    };
   }, []);
 
   useEffect(() => {
@@ -110,7 +152,7 @@ const Inicio = () => {
       controller = new AbortController();
       fetch(`${API_BASE_URL}/api/galerias`, { signal: controller.signal })
         .then((response) => response.ok ? response.json() : [])
-        .then((data) => { if (!controller.signal.aborted && Array.isArray(data)) setGalerias(data); })
+        .then((data) => { if (!controller.signal.aborted && Array.isArray(data)) setGalerias((actuales) => mismosDatos(actuales, data) ? actuales : data); })
         .catch(() => {});
     };
     window.addEventListener("focus", actualizar);
@@ -179,10 +221,10 @@ const Inicio = () => {
         <CampaniaTemporada />
         {anuncios.length > 0 && <section className="bg-[#f4f3f0] px-6 py-12 sm:px-12 sm:py-16" aria-labelledby="anuncios-inicio-titulo">
           <div className="mx-auto max-w-340"><p className="mb-3 text-[0.62rem] tracking-[0.32em] text-[#a51c1c] uppercase">Studio13</p><h2 id="anuncios-inicio-titulo" className="mb-8 font-[Fraunces,Georgia,serif] text-[clamp(2rem,4vw,3.5rem)] text-[#1a1818]">Anuncios</h2>
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{anuncios.map((anuncio) => <article key={anuncio.id} className="overflow-hidden border border-neutral-200 bg-white shadow-sm"><img src={anuncio.url?.startsWith("http") ? anuncio.url : `${API_BASE_URL}${anuncio.url || ""}`} alt={anuncio.nombre} className="aspect-[16/9] w-full object-cover" /><div className="p-4"><p className="mb-1.5 text-[10px] tracking-[.18em] text-[#a51c1c] uppercase">{anuncio.seccion}</p><h3 className="mb-2 font-[Fraunces,Georgia,serif] text-xl text-neutral-900">{anuncio.nombre}</h3>{anuncio.descripcion && <p className="mb-4 text-sm leading-6 text-neutral-600">{anuncio.descripcion}</p>}<button type="button" onClick={() => setAnuncioAbierto(anuncio)} className="inline-flex min-h-11 items-center bg-[#a51c1c] px-5 py-3 text-xs tracking-wide text-white uppercase hover:bg-[#111010]">Ver anuncio</button></div></article>)}</div>
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{anuncios.map((anuncio) => <article key={anuncio.id} className="overflow-hidden border border-neutral-200 bg-white shadow-sm"><img src={anuncio.url?.startsWith("http") ? anuncio.url : `${API_BASE_URL}${anuncio.url || ""}`} alt={anuncio.nombre} className="h-[100px] w-full object-cover object-center sm:h-[120px]" /><div className="p-4"><p className="mb-1.5 text-[10px] tracking-[.18em] text-[#a51c1c] uppercase">{anuncio.seccion}</p><h3 className="mb-2 font-[Fraunces,Georgia,serif] text-xl text-neutral-900">{anuncio.nombre}</h3>{anuncio.descripcion && <p className="mb-4 text-sm leading-6 text-neutral-600">{anuncio.descripcion}</p>}<button type="button" onClick={() => setAnuncioAbierto(anuncio)} className="inline-flex min-h-11 items-center bg-[#a51c1c] px-5 py-3 text-xs tracking-wide text-white uppercase hover:bg-[#111010]">Ver anuncio</button></div></article>)}</div>
           </div>
         </section>}
-        <AnuncioEmergente anuncio={anuncioAbierto} onClose={() => { try { sessionStorage.setItem("studio13-anuncio-cerrado", "true"); } catch { /* continúa */ } setAnuncioAbierto(null); }} />
+        <AnuncioEmergente anuncio={anuncioAbierto} disponible={Boolean(anuncioAbierto && anuncios.some((item) => item.id === anuncioAbierto.id))} onClose={() => { try { sessionStorage.setItem("studio13-anuncio-cerrado", "true"); } catch { /* continúa */ } setAnuncioAbierto(null); }} />
 
         <section className="min-h-212.5 py-24 px-8 md:px-12 max-w-340 mx-auto flex items-center">
           <div className="w-full grid grid-cols-1 xl:grid-cols-[1fr_1fr] gap-10 xl:gap-12 items-left">
@@ -234,8 +276,8 @@ const Inicio = () => {
               {/* Imagen principal */}
               <div className="relative overflow-hidden h-130">
                 <img
-                  src="https://images.unsplash.com/photo-1529636798458-92182e662485?w=900&h=1100&fit=crop&auto=format&q=85"
-                  alt="Boda con ramo"
+                  src={imagenFotografias01}
+                  alt="Mujer con un ramo de rosas"
                   className="w-full h-full object-cover object-center"
                 />
               </div>
@@ -244,17 +286,17 @@ const Inicio = () => {
               <div className="grid grid-rows-2 gap-3 h-130">
                 <div className="relative overflow-hidden">
                   <img
-                    src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=900&h=900&fit=crop&auto=format&q=85"
-                    alt="Boda exterior"
+                    src={imagenFotografias02}
+                    alt="Retrato familiar de una pareja con su bebé"
                     className="w-full h-full object-cover object-center"
                   />
                 </div>
 
                 <div className="relative overflow-hidden">
                   <img
-                    src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=900&h=1100&fit=crop&auto=format&q=85"
-                    alt="Retrato"
-                    className="w-full h-full object-cover object-[50%_30%]"
+                    src={imagenFotografias03}
+                    alt="Retrato de una mujer con toga y medalla"
+                    className="w-full h-full object-cover object-top"
                   />
                 </div>
               </div>

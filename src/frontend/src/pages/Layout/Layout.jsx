@@ -3,6 +3,8 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 import studio13Logo from "../../assets/studio13_negro.PNG";
 import studio13LogoWhite from "../../assets/studio13_blanco.png";
 
+export const WHATSAPP_ESTUDIO = "50688862187";
+
 const navLinks = [
   { to: "/", label: "Inicio" },
   { to: "/servicios", label: "Servicios" },
@@ -158,7 +160,7 @@ export default function Layout({ children }) {
             {
               label: "Contacto",
               links: [
-                { href: "https://wa.me/50688862187", text: "+506 8886‑2187" },
+                { href: `https://wa.me/${WHATSAPP_ESTUDIO}`, text: "+506 8886‑2187" },
                 {
                   href: "mailto:studio13@gmail.com",
                   text: "studio13@gmail.com",

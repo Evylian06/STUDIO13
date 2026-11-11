@@ -45,6 +45,7 @@ export default function Campanas() {
   const [guardando, setGuardando] = useState(false);
   const [errorOperacion, setErrorOperacion] = useState("");
   const [mensajeExito, setMensajeExito] = useState("");
+  const [eliminandoId, setEliminandoId] = useState(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -157,6 +158,28 @@ export default function Campanas() {
     }
   };
 
+  const eliminarCampania = async (campania) => {
+    if (!window.confirm(`¿Eliminar la campaña «${campania.titulo}»? Las reservas existentes conservarán su nombre histórico.`)) return;
+    setErrorOperacion("");
+    setMensajeExito("");
+    setEliminandoId(campania.id);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/campanias/${campania.id}`, {
+        method: "DELETE",
+        headers: adminHeaders(),
+      });
+      const body = response.status === 204 ? null : await response.json().catch(() => null);
+      redirigirSiNoAutorizado(response, navigate);
+      if (!response.ok) throw new Error(body?.error || "No se pudo eliminar la campaña.");
+      setFilas((actuales) => actuales.filter((item) => item.id !== campania.id));
+      setMensajeExito("Campaña eliminada.");
+    } catch (reason) {
+      setErrorOperacion(mensajeError(reason));
+    } finally {
+      setEliminandoId(null);
+    }
+  };
+
   return (
     <main className="mx-auto min-h-screen w-full max-w-350 px-5 py-8 sm:px-7 md:px-10 md:py-10 xl:px-12">
       <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
@@ -186,7 +209,7 @@ export default function Campanas() {
                 <div className="mb-3 flex items-start justify-between gap-3"><h2 className="m-0 font-[Georgia] text-xl font-normal! text-neutral-900">{campania.titulo}</h2><span className={`shrink-0 border px-2.5 py-1 text-[10px] font-semibold! uppercase ${estado === "Activa" ? "border-green-700 bg-green-700 text-white" : "border-neutral-300 bg-white text-neutral-600"}`}>{estado}</span></div>
                 <p className="mb-4 line-clamp-3 whitespace-pre-wrap text-sm leading-6 text-neutral-600">{campania.descripcion}</p>
                 <dl className="mb-4 grid gap-2 border-t border-neutral-200 pt-4 text-xs text-neutral-600"><div><dt className="inline font-semibold! text-neutral-800">Paquete: </dt><dd className="inline">{campania.paquete?.nombre || "No disponible"}</dd></div><div><dt className="inline font-semibold! text-neutral-800">Inicio: </dt><dd className="inline">{mostrarFecha(campania.inicio)}</dd></div><div><dt className="inline font-semibold! text-neutral-800">Fin: </dt><dd className="inline">{mostrarFecha(campania.fin)}</dd></div></dl>
-                <div className="flex flex-wrap gap-2 border-t border-neutral-200 pt-4"><button type="button" onClick={() => abrirEdicion(campania)} className="border border-[#a51c1c] px-3 py-2 text-xs font-semibold! text-[#a51c1c] hover:bg-[#a51c1c] hover:text-white">Editar</button><button type="button" onClick={() => cambiarEstado(campania)} className="border border-neutral-400 px-3 py-2 text-xs font-semibold! text-neutral-700">{campania.habilitada ? "Desactivar" : "Habilitar"}</button></div>
+                <div className="flex flex-wrap gap-2 border-t border-neutral-200 pt-4"><button type="button" onClick={() => abrirEdicion(campania)} className="border border-[#a51c1c] px-3 py-2 text-xs font-semibold! text-[#a51c1c] hover:bg-[#a51c1c] hover:text-white">Editar</button><button type="button" onClick={() => cambiarEstado(campania)} className="border border-neutral-400 px-3 py-2 text-xs font-semibold! text-neutral-700">{campania.habilitada ? "Desactivar" : "Habilitar"}</button><button type="button" disabled={eliminandoId === campania.id} onClick={() => eliminarCampania(campania)} className="border border-red-300 px-3 py-2 text-xs font-semibold! text-red-700 hover:border-red-700 hover:bg-red-700 hover:text-white disabled:cursor-wait disabled:opacity-60">{eliminandoId === campania.id ? "Eliminando…" : "Eliminar"}</button></div>
               </div>
             </article>;
           })}</div>

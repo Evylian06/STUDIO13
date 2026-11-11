@@ -43,6 +43,7 @@ export default function Paquetes() {
   const [tarifas, setTarifas] = useState([]);
   const [membresias, setMembresias] = useState([]);
   const [campania, setCampania] = useState(null);
+  const [horaActual, setHoraActual] = useState(Date.now());
   const [paquetesDeCampania, setPaquetesDeCampania] = useState([]);
   const [cargandoPaquetes, setCargandoPaquetes] = useState(true);
   const [errorPaquetes, setErrorPaquetes] = useState("");
@@ -111,21 +112,55 @@ export default function Paquetes() {
   }, []);
 
   useEffect(() => {
-    let controller;
-    const cargar = () => {
-      controller?.abort();
-      controller = new AbortController();
-      fetch(`${API_BASE_URL}/api/campanias/activa`, { signal: controller.signal, cache: "no-store" })
-        .then((response) => response.ok ? response.json() : null)
-        .then((data) => { if (!controller.signal.aborted) setCampania(data); })
-        .catch(() => { if (!controller.signal.aborted) setCampania(null); });
+    let controller = null;
+    let timerVigencia = null;
+    let actualizando = false;
+    let desmontado = false;
+    const cargar = async () => {
+      if (desmontado || actualizando || document.visibilityState !== "visible") return;
+      actualizando = true;
+      const request = new AbortController();
+      controller = request;
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/campanias/activa`, { signal: request.signal, cache: "no-store" });
+        if (!response.ok) throw new Error("No se pudo actualizar la campaña.");
+        const data = await response.json();
+        if (request.signal.aborted || desmontado) return;
+        setCampania((actual) => JSON.stringify(actual) === JSON.stringify(data) ? actual : data);
+        window.clearTimeout(timerVigencia);
+        const siguienteCambio = data?.fin ? new Date(data.fin).getTime() : new Date(response.headers.get("X-Next-Campaign-Start") || "").getTime();
+        if (Number.isFinite(siguienteCambio)) timerVigencia = window.setTimeout(() => {
+            setHoraActual(Date.now());
+            cargar();
+          }, Math.max(0, siguienteCambio - Date.now() + 20));
+      } catch {
+        // Conserva la campaña visible y reintenta en el próximo ciclo.
+      } finally {
+        if (controller === request) controller = null;
+        actualizando = false;
+      }
     };
     cargar();
-    const timer = window.setInterval(cargar, 15000);
-    return () => { controller?.abort(); window.clearInterval(timer); };
+    const intervalo = window.setInterval(cargar, 30000);
+    const alVolver = () => {
+      if (document.visibilityState !== "visible") return;
+      setHoraActual(Date.now());
+      cargar();
+    };
+    document.addEventListener("visibilitychange", alVolver);
+    window.addEventListener("focus", alVolver);
+    return () => {
+      desmontado = true;
+      controller?.abort();
+      window.clearInterval(intervalo);
+      window.clearTimeout(timerVigencia);
+      document.removeEventListener("visibilitychange", alVolver);
+      window.removeEventListener("focus", alVolver);
+    };
   }, []);
 
-  const paquetesCampania = campania?.paqueteId
+  const campaniaVigente = campania && new Date(campania.inicio).getTime() <= horaActual && new Date(campania.fin).getTime() > horaActual;
+  const paquetesCampania = campaniaVigente && campania?.paqueteId
     ? [...paquetesDeCampania, ...paquetes].filter((pkg, index, all) => Number(pkg.id) === Number(campania.paqueteId) && all.findIndex((item) => Number(item.id) === Number(pkg.id)) === index)
     : [];
   const idsPaquetesCampania = new Set(paquetesCampania.map((pkg) => Number(pkg.id)));
@@ -270,7 +305,7 @@ export default function Paquetes() {
 
         {tab === "campaigns" && paquetesCampania.length > 0 && (
           <section className="px-8 py-12 md:px-12">
-            {campania && <p className="mx-auto mb-6 max-w-340 font-['Inter'] text-xs text-[#8a8880]">Promoción del {formatDate(campania.inicio)} al {formatDate(campania.fin)}</p>}
+            {campaniaVigente && <p className="mx-auto mb-6 max-w-340 font-['Inter'] text-xs text-[#8a8880]">Promoción del {formatDate(campania.inicio)} al {formatDate(campania.fin)}</p>}
             <div className="mx-auto grid max-w-340 grid-cols-1 border-t border-[rgba(26,24,24,0.1)] md:grid-cols-2 xl:grid-cols-4">
               {paquetesCampania.map((pkg) => (
                 <article key={pkg.id} className="relative flex flex-col border-b border-[rgba(26,24,24,0.1)] p-8 md:border-r">

@@ -9,16 +9,6 @@ const parseVisibleHasta = (value) => {
   return Number.isNaN(date.getTime()) ? false : date;
 };
 
-const validarEnlace = (valor) => {
-  if (!valor) return true;
-  try {
-    const enlace = new URL(valor);
-    return enlace.protocol === "http:" || enlace.protocol === "https:";
-  } catch {
-    return false;
-  }
-};
-
 const listAdmin = async (_req, res) => {
   try {
     const anuncios = await prisma.imagen.findMany({
@@ -37,7 +27,7 @@ const listPublic = async (_req, res) => {
     const anuncios = await prisma.imagen.findMany({
       where: { tipo: tipoPublicidad, activo: true, OR: [{ visibleHasta: null }, { visibleHasta: { gt: new Date() } }] },
       orderBy: [{ orden: "asc" }, { createdAt: "desc" }],
-      select: { id: true, nombre: true, url: true, seccion: true, descripcion: true, textoBoton: true, enlace: true, formularioEspecial: true, visibleHasta: true },
+      select: { id: true, nombre: true, url: true, seccion: true, descripcion: true, mostrarWhatsapp: true, visibleHasta: true },
     });
     res.set("Cache-Control", "no-store");
     return res.json(anuncios);
@@ -46,42 +36,42 @@ const listPublic = async (_req, res) => {
   }
 };
 
-const create = async (req, res) => {
+export const createAdvertisementHandler = (database = prisma, upload = uploadImage, removeImage = deleteImage) => async (req, res) => {
   if (!isObjectBody(req.body)) return res.status(400).json({ error: "El cuerpo de la solicitud no es válido." });
-  const { titulo, servicio, descripcion, textoBoton, enlace, formularioEspecial, visibleHasta } = req.body;
-  if (typeof titulo !== "string" || !titulo.trim() || typeof servicio !== "string" || !servicio.trim()) {
-    return res.status(400).json({ error: "El título y el servicio son obligatorios." });
-  }
-  if (enlace && !validarEnlace(enlace)) return res.status(400).json({ error: "El enlace debe ser una URL HTTP o HTTPS válida." });
+  const { titulo, servicio, descripcion, visibleHasta, mostrarWhatsapp } = req.body;
+  if (typeof titulo !== "string" || !titulo.trim()) return res.status(400).json({ error: "El título del anuncio es obligatorio." });
+  if (servicio !== undefined && servicio !== null && typeof servicio !== "string") return res.status(400).json({ error: "La categoría del anuncio no es válida." });
+  if (typeof descripcion !== "string" || !descripcion.trim()) return res.status(400).json({ error: "La descripción del anuncio es obligatoria." });
+  if (mostrarWhatsapp !== undefined && ![true, false, "true", "false"].includes(mostrarWhatsapp)) return res.status(400).json({ error: "mostrarWhatsapp debe ser verdadero o falso." });
   const fechaVencimiento = parseVisibleHasta(visibleHasta);
   if (fechaVencimiento === false) return res.status(400).json({ error: "La fecha de vencimiento no es válida." });
-  if (formularioEspecial !== undefined && ![true, false, "true", "false"].includes(formularioEspecial)) return res.status(400).json({ error: "formularioEspecial debe ser verdadero o falso." });
   if (!req.file) return res.status(400).json({ error: "Selecciona una imagen para el anuncio." });
   let imagenSubida;
   try {
-    imagenSubida = await uploadImage(req.file.buffer, req.file.originalname, "anuncios", { requireCloudinary: true });
-    const anuncio = await prisma.imagen.create({
+    imagenSubida = await upload(req.file.buffer, req.file.originalname, "anuncios", { requireCloudinary: true });
+    const anuncio = await database.imagen.create({
       data: {
         nombre: titulo.trim(),
         url: imagenSubida.secure_url,
         publicId: imagenSubida.public_id,
-        seccion: servicio.trim(),
-        descripcion: typeof descripcion === "string" ? descripcion.trim() || null : null,
-        textoBoton: typeof textoBoton === "string" ? textoBoton.trim() || null : null,
-        enlace: typeof enlace === "string" ? enlace.trim() || null : null,
+        seccion: typeof servicio === "string" && servicio.trim() ? servicio.trim() : "Informaci\u00f3n del estudio",
+        descripcion: descripcion.trim(),
         tipo: tipoPublicidad,
         activo: false,
-        formularioEspecial: formularioEspecial === true || formularioEspecial === "true",
+        formularioEspecial: false,
+        mostrarWhatsapp: mostrarWhatsapp === true || mostrarWhatsapp === "true",
         visibleHasta: fechaVencimiento,
       },
     });
     return res.status(201).json(anuncio);
   } catch (error) {
-    if (imagenSubida?.public_id) await deleteImage(imagenSubida.public_id).catch((deleteError) => console.error("[limpiar imagen de anuncio]", deleteError));
+    if (imagenSubida?.public_id) await removeImage(imagenSubida.public_id).catch((deleteError) => console.error("[limpiar imagen de anuncio]", deleteError));
     if (error.status === 503) return res.status(503).json({ error: error.message });
     return reportControllerError(res, "crear el anuncio", error);
   }
 };
+
+const create = createAdvertisementHandler();
 
 const setPublished = async (req, res) => {
   const id = parseId(req.params.id);
@@ -142,17 +132,28 @@ const remove = async (req, res) => {
   }
 };
 
-const update = async (req, res) => {
+export const updateAdvertisementHandler = (database = prisma) => async (req, res) => {
   const id = parseId(req.params.id);
-  if (!id || !isObjectBody(req.body) || typeof req.body.formularioEspecial !== "boolean") return res.status(400).json({ error: "Configuración no válida." });
-  const fechaVencimiento = parseVisibleHasta(req.body.visibleHasta);
-  if (fechaVencimiento === false) return res.status(400).json({ error: "La fecha de vencimiento no es válida." });
+  if (!id || !isObjectBody(req.body)) return res.status(400).json({ error: "Configuracion no valida." });
+  if (Object.hasOwn(req.body, "mostrarWhatsapp") && typeof req.body.mostrarWhatsapp !== "boolean") {
+    return res.status(400).json({ error: "mostrarWhatsapp debe ser verdadero o falso." });
+  }
+  const data = {};
+  if (Object.hasOwn(req.body, "mostrarWhatsapp")) data.mostrarWhatsapp = req.body.mostrarWhatsapp;
+  if (Object.hasOwn(req.body, "visibleHasta")) {
+    const fechaVencimiento = parseVisibleHasta(req.body.visibleHasta);
+    if (fechaVencimiento === false) return res.status(400).json({ error: "La fecha de vencimiento no es valida." });
+    data.visibleHasta = fechaVencimiento;
+  }
+  if (!Object.keys(data).length) return res.status(400).json({ error: "Indica una configuracion para guardar." });
   try {
-    const result = await prisma.imagen.updateMany({ where: { id, tipo: tipoPublicidad }, data: { formularioEspecial: req.body.formularioEspecial, visibleHasta: fechaVencimiento } });
+    const result = await database.imagen.updateMany({ where: { id, tipo: tipoPublicidad }, data });
     if (!result.count) return res.status(404).json({ error: "Anuncio no encontrado." });
-    return res.json(await prisma.imagen.findUnique({ where: { id }, include: { _count: { select: { consultas: true } } } }));
-  } catch (error) { return reportControllerError(res, "actualizar la configuración del anuncio", error); }
+    return res.json(await database.imagen.findUnique({ where: { id }, include: { _count: { select: { consultas: true } } } }));
+  } catch (error) { return reportControllerError(res, "actualizar la configuracion del anuncio", error); }
 };
+
+const update = updateAdvertisementHandler();
 
 const createInquiry = async (req, res) => {
   const id = parseId(req.params.id);

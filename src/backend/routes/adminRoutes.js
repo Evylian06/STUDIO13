@@ -23,6 +23,7 @@ router.get("/campanias", campaniaController.listAdmin);
 router.post("/campanias", upload.single("imagen"), campaniaController.create);
 router.patch("/campanias/:id", upload.single("imagen"), campaniaController.update);
 router.patch("/campanias/:id/publicacion", campaniaController.setEnabled);
+router.delete("/campanias/:id", campaniaController.remove);
 
 /**
  * @swagger

@@ -11,7 +11,11 @@ import {
 const fields = ["tipoSesion", "fecha", "hora"];
 const categoriasServicio = new Set(["SESION", "ALQUILER", "TARIFA", "MEMBRESIAS"]);
 const requiredFields = ["nombre", "email", "tipoSesion"];
-const includeCliente = { cliente: { select: { id: true, nombre: true, email: true, telefono: true } } };
+const includeCliente = {
+  cliente: { select: { id: true, nombre: true, email: true, telefono: true } },
+  paquete: { select: { id: true, nombre: true, seccion: true } },
+  campania: { select: { id: true, titulo: true, paqueteId: true } },
+};
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const validPayload = (data, requireAll = false) =>
@@ -44,14 +48,14 @@ const getById = async (req, res) => {
   }
 };
 
-const create = async (req, res) => {
+export const createReservationHandler = (database = prisma, hashPassword = (value, rounds) => bcrypt.hash(value, rounds)) => async (req, res) => {
   if (!isObjectBody(req.body)) return res.status(400).json({ error: "El cuerpo debe ser un objeto JSON." });
   const esAdmin = Boolean(req.admin);
   const usarClienteExistente = esAdmin && req.body.clienteId !== undefined && req.body.clienteId !== null;
   const crearOReutilizarCliente = esAdmin && !usarClienteExistente;
   const data = pickDefined(req.body, esAdmin
-    ? ["clienteId", "nombre", "email", "telefono", "tipoSesion", "categoriaServicio", "paqueteId", "fecha", "hora", "mensaje"]
-    : ["nombre", "email", "telefono", "tipoSesion", "categoriaServicio", "paqueteId", "fecha", "hora", "mensaje"]);
+    ? ["clienteId", "nombre", "email", "telefono", "tipoSesion", "categoriaServicio", "paqueteId", "campaniaId", "fecha", "hora", "mensaje"]
+    : ["nombre", "email", "telefono", "tipoSesion", "categoriaServicio", "paqueteId", "campaniaId", "fecha", "hora", "mensaje"]);
   if (!data.tipoSesion || (esAdmin && ((!data.clienteId && (!data.nombre || !data.email || !data.telefono)) || !data.fecha || !data.hora)) || (!esAdmin && (!data.nombre || !data.email))) {
     return res.status(400).json({ error: esAdmin ? "Selecciona un cliente o indica nombre, email y teléfono; tipoSesion, fecha y hora son obligatorios." : "nombre, email y tipoSesion son obligatorios." });
   }
@@ -67,9 +71,17 @@ const create = async (req, res) => {
   if (data.categoriaServicio !== undefined && !categoriasServicio.has(data.categoriaServicio)) {
     return res.status(400).json({ error: "categoriaServicio no es una categoría válida." });
   }
+  const categoriaServicio = data.categoriaServicio || "SESION";
   const paqueteId = data.paqueteId === undefined || data.paqueteId === null || data.paqueteId === "" ? null : parseId(data.paqueteId);
   if (data.paqueteId !== undefined && data.paqueteId !== null && data.paqueteId !== "" && !paqueteId) {
     return res.status(400).json({ error: "paqueteId debe ser un entero positivo." });
+  }
+  const campaniaId = data.campaniaId === undefined || data.campaniaId === null || data.campaniaId === "" ? null : parseId(data.campaniaId);
+  if (data.campaniaId !== undefined && data.campaniaId !== null && data.campaniaId !== "" && !campaniaId) {
+    return res.status(400).json({ error: "campaniaId debe ser un entero positivo." });
+  }
+  if (campaniaId && (!paqueteId || categoriaServicio !== "SESION")) {
+    return res.status(400).json({ error: "La campaña requiere un paquete y la categoría Sesiones." });
   }
   if (esAdmin && (typeof data.hora !== "string" || !data.hora.trim())) {
     return res.status(400).json({ error: "hora debe ser una hora válida." });
@@ -91,8 +103,8 @@ const create = async (req, res) => {
   const nombre = usarClienteExistente ? null : data.nombre.trim();
   const telefono = typeof data.telefono === "string" ? data.telefono.trim() : "";
   const tipoSesion = data.tipoSesion.trim();
-  const categoriaServicio = data.categoriaServicio || "SESION";
   const mensaje = typeof data.mensaje === "string" ? data.mensaje.trim() : null;
+  let campaniaNombre = null;
   let fecha = null;
   if (data.fecha !== undefined && data.fecha !== null && data.fecha !== "") {
     fecha = new Date(data.fecha);
@@ -101,17 +113,26 @@ const create = async (req, res) => {
 
   try {
     if (paqueteId !== null) {
-      const paquete = await prisma.paquete.findUnique({ where: { id: paqueteId }, select: { id: true } });
+      const paquete = await database.paquete.findUnique({ where: { id: paqueteId }, select: { id: true } });
       if (!paquete) return res.status(404).json({ error: "El paquete asociado no existe." });
+    }
+    if (campaniaId !== null) {
+      const ahora = new Date();
+      const campaign = await database.campania.findFirst({
+        where: { id: campaniaId, paqueteId, habilitada: true, inicio: { lte: ahora }, fin: { gt: ahora }, paquete: { activo: true, seccion: { in: ["CAMPANIA", "SESION"] } } },
+        select: { id: true, titulo: true },
+      });
+      if (!campaign) return res.status(422).json({ error: "La campaña ya no está vigente o no corresponde al paquete seleccionado." });
+      campaniaNombre = campaign.titulo;
     }
     if (esAdmin) {
       let cliente;
       if (usarClienteExistente) {
         const clienteId = parseId(data.clienteId);
         if (!clienteId) return res.status(400).json({ error: "clienteId debe ser un entero positivo." });
-        cliente = await prisma.cliente.findUnique({ where: { id: clienteId } });
+        cliente = await database.cliente.findUnique({ where: { id: clienteId } });
         if (!cliente) return res.status(404).json({ error: "El cliente seleccionado no existe." });
-        return res.status(201).json(await prisma.reservacion.create({
+        return res.status(201).json(await database.reservacion.create({
           data: {
             nombre: cliente.nombre,
             email: cliente.email,
@@ -119,6 +140,8 @@ const create = async (req, res) => {
             tipoSesion,
             categoriaServicio,
             paqueteId,
+            campaniaId,
+            campaniaNombre,
             fecha,
             hora: data.hora,
             mensaje,
@@ -129,11 +152,11 @@ const create = async (req, res) => {
         }));
       }
 
-      const passwordHash = await bcrypt.hash(randomBytes(32).toString("hex"), 12);
+      const passwordHash = await hashPassword(randomBytes(32).toString("hex"), 12);
       let reservacionAdmin;
       for (let intento = 0; intento < 2; intento += 1) {
         try {
-          reservacionAdmin = await prisma.$transaction(async (tx) => {
+          reservacionAdmin = await database.$transaction(async (tx) => {
             let clienteNuevo = await tx.cliente.findFirst({
               where: { email: { equals: email, mode: "insensitive" } },
               orderBy: { id: "asc" },
@@ -149,6 +172,8 @@ const create = async (req, res) => {
                 tipoSesion,
                 categoriaServicio,
                 paqueteId,
+                campaniaId,
+                campaniaNombre,
                 fecha,
                 hora: data.hora,
                 mensaje,
@@ -167,11 +192,11 @@ const create = async (req, res) => {
       return res.status(201).json(reservacionAdmin);
     }
 
-    const passwordHash = await bcrypt.hash(randomBytes(32).toString("hex"), 12);
+    const passwordHash = await hashPassword(randomBytes(32).toString("hex"), 12);
     let reservacion;
     for (let intento = 0; intento < 2; intento += 1) {
       try {
-        reservacion = await prisma.$transaction(async (tx) => {
+        reservacion = await database.$transaction(async (tx) => {
           let cliente = await tx.cliente.findFirst({
             where: { email: { equals: email, mode: "insensitive" } },
             orderBy: { id: "asc" },
@@ -196,6 +221,8 @@ const create = async (req, res) => {
             tipoSesion,
             categoriaServicio,
             paqueteId,
+            campaniaId,
+            campaniaNombre,
             mensaje,
             estado: "PENDIENTE",
             clienteId: cliente.id,
@@ -218,6 +245,8 @@ const create = async (req, res) => {
     return reportControllerError(res, "crear la reservación", error);
   }
 };
+
+const create = createReservationHandler();
 
 const update = async (req, res) => {
   const id = parseId(req.params.id);
