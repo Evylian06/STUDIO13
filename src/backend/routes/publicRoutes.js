@@ -30,6 +30,7 @@ router.get("/campanias/activa", campaniaController.getActive);
  */
 router.get("/imagenes", imagenController.list);
 router.get("/publicidad", publicidadController.listPublic);
+router.post("/publicidad/:id/consultas", publicidadController.createInquiry);
 /**
  * @swagger
  * /api/imagenes/{id}:

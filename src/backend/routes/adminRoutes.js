@@ -16,6 +16,8 @@ router.get("/servicios", servicioController.list);
 router.get("/publicidad", publicidadController.listAdmin);
 router.post("/publicidad", upload.single("imagen"), publicidadController.create);
 router.patch("/publicidad/:id/publicacion", publicidadController.setPublished);
+router.patch("/publicidad/:id", publicidadController.update);
+router.get("/publicidad/:id/consultas", publicidadController.listInquiries);
 router.delete("/publicidad/:id", publicidadController.remove);
 router.get("/campanias", campaniaController.listAdmin);
 router.post("/campanias", upload.single("imagen"), campaniaController.create);

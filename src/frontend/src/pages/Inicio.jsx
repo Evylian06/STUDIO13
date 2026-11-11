@@ -38,6 +38,8 @@ function ImagenRotativa({ imagenes, etiqueta }) {
 
 const Inicio = () => {
   const [galerias, setGalerias] = useState([]);
+  const [anuncios, setAnuncios] = useState([]);
+  const [anuncioAbierto, setAnuncioAbierto] = useState(null);
   const categories = [
     {
       label: "Bodas",
@@ -68,6 +70,36 @@ const Inicio = () => {
       .then((data) => { if (!controller.signal.aborted && Array.isArray(data)) setGalerias(data); })
       .catch(() => {});
     return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    let controller;
+    let timer;
+    let inicial = true;
+    const cargar = () => {
+      controller?.abort();
+      controller = new AbortController();
+      fetch(`${API_BASE_URL}/api/publicidad`, { signal: controller.signal, cache: "no-store" })
+        .then((response) => response.ok ? response.json() : [])
+        .then((data) => {
+          if (controller.signal.aborted || !Array.isArray(data)) return;
+          const vigentes = data.filter((item) => !item.visibleHasta || new Date(item.visibleHasta).getTime() > Date.now());
+          setAnuncios(vigentes);
+          setAnuncioAbierto((actual) => actual?.visibleHasta && new Date(actual.visibleHasta).getTime() <= Date.now() ? null : actual);
+          if (inicial) {
+            inicial = false;
+            let cerrado = false;
+            try { cerrado = sessionStorage.getItem("studio13-anuncio-cerrado") === "true"; } catch { /* continúa */ }
+            if (!cerrado && vigentes[0]) setAnuncioAbierto(vigentes[0]);
+          }
+          window.clearTimeout(timer);
+          const siguientes = vigentes.map((item) => new Date(item.visibleHasta || Infinity).getTime()).filter(Number.isFinite);
+          if (siguientes.length) timer = window.setTimeout(cargar, Math.max(0, Math.min(...siguientes) - Date.now() + 100));
+        }).catch(() => {});
+    };
+    cargar();
+    const intervalo = window.setInterval(cargar, 30000);
+    return () => { controller?.abort(); window.clearInterval(intervalo); window.clearTimeout(timer); };
   }, []);
 
   useEffect(() => {
@@ -145,8 +177,12 @@ const Inicio = () => {
         </section>
 
         <CampaniaTemporada />
-
-        <AnuncioEmergente />
+        {anuncios.length > 0 && <section className="bg-[#f4f3f0] px-6 py-12 sm:px-12 sm:py-16" aria-labelledby="anuncios-inicio-titulo">
+          <div className="mx-auto max-w-340"><p className="mb-3 text-[0.62rem] tracking-[0.32em] text-[#a51c1c] uppercase">Studio13</p><h2 id="anuncios-inicio-titulo" className="mb-8 font-[Fraunces,Georgia,serif] text-[clamp(2rem,4vw,3.5rem)] text-[#1a1818]">Anuncios</h2>
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{anuncios.map((anuncio) => <article key={anuncio.id} className="overflow-hidden border border-neutral-200 bg-white shadow-sm"><img src={anuncio.url?.startsWith("http") ? anuncio.url : `${API_BASE_URL}${anuncio.url || ""}`} alt={anuncio.nombre} className="aspect-[16/9] w-full object-cover" /><div className="p-4"><p className="mb-1.5 text-[10px] tracking-[.18em] text-[#a51c1c] uppercase">{anuncio.seccion}</p><h3 className="mb-2 font-[Fraunces,Georgia,serif] text-xl text-neutral-900">{anuncio.nombre}</h3>{anuncio.descripcion && <p className="mb-4 text-sm leading-6 text-neutral-600">{anuncio.descripcion}</p>}<button type="button" onClick={() => setAnuncioAbierto(anuncio)} className="inline-flex min-h-11 items-center bg-[#a51c1c] px-5 py-3 text-xs tracking-wide text-white uppercase hover:bg-[#111010]">Ver anuncio</button></div></article>)}</div>
+          </div>
+        </section>}
+        <AnuncioEmergente anuncio={anuncioAbierto} onClose={() => { try { sessionStorage.setItem("studio13-anuncio-cerrado", "true"); } catch { /* continúa */ } setAnuncioAbierto(null); }} />
 
         <section className="min-h-212.5 py-24 px-8 md:px-12 max-w-340 mx-auto flex items-center">
           <div className="w-full grid grid-cols-1 xl:grid-cols-[1fr_1fr] gap-10 xl:gap-12 items-left">

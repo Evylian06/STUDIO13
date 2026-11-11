@@ -35,12 +35,27 @@ model Imagen {
   tipo        TipoImagen @default(GENERAL)
   orden       Int        @default(0)
   activo      Boolean    @default(true)
+  formularioEspecial Boolean @default(false)
+  visibleHasta DateTime? @db.Timestamptz(3)
+  consultas   ConsultaAnuncio[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   servicio    Servicio?  @relation(fields: [servicioId], references: [id], onDelete: SetNull)
 
   @@index([tipo, activo])
   @@index([tipo, servicioId])
+}
+
+model ConsultaAnuncio {
+  id          Int      @id @default(autoincrement())
+  anuncioId   Int
+  nombre      String   @db.VarChar(140)
+  whatsapp    String   @db.VarChar(40)
+  mensaje     String   @db.Text
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  anuncio     Imagen   @relation(fields: [anuncioId], references: [id], onDelete: Cascade)
+
+  @@index([anuncioId, createdAt])
 }
 
 enum TipoImagen {
