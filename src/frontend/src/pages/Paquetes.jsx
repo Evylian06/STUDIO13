@@ -273,33 +273,6 @@ export default function Paquetes() {
                 </div>
               ))}
             </div>
-
-            {/* ADD-ONS */}
-            <div className="mt-12 py-8 border-t border-[rgba(26,24,24,0.08)]">
-              <p className="t-label mb-6">Servicios adicionales</p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0">
-                {[
-                  ["Foto editada adicional", "₡2,000"],
-                  ["Hora adicional", "₡15,000"],
-                  ["Maquillaje profesional", "₡20,000"],
-                  ["Reel 30 seg adicional", "₡25,000"],
-                  ["Entrega urgente 24–48 h", "+50%"],
-                  ['Impresión 8×10"', "₡3,500"],
-                ].map(([item, price]) => (
-                  <div
-                    key={item}
-                    className="flex justify-between items-baseline py-3 border-b border-[rgba(26,24,24,0.06)]"
-                  >
-                    <span className="t-body text-[0.8rem]">{item}</span>
-
-                    <span className="font-[Fraunces,Georgia,serif] font-light text-[0.9rem] text-[#1a1818]">
-                      {price}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </section>
         )}
 

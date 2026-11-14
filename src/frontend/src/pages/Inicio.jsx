@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Layout from "../pages/Layout/Layout.jsx";
 import studio13Logo from "../assets/studio13_blanco.png";
+import imagenInicio01 from "../assets/imagen_Inicio01.png";
 import imagenFotografias01 from "../assets/imagen_fotografias01.jpg";
 import imagenFotografias02 from "../assets/imagen_fotografias02.jpg";
 import imagenFotografias03 from "../assets/imagen_fotografias03.jpg";
@@ -173,44 +174,44 @@ const Inicio = () => {
     <Layout>
       <div className="bg-white">
         {/* ── HERO ── */}
-        <section className="relative h-svh min-h-150 overflow-hidden bg-[#0c0b0b]">
+        <section className="relative h-svh min-h-[47rem] overflow-hidden bg-[#0c0b0b] sm:min-h-150">
           <img
-            src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=2000&h=1300&fit=crop&auto=format&q=90"
-            alt="Studio 13 — fotografía profesional"
-            className="absolute inset-0 w-full h-full object-cover object-[center_30%] opacity-70"
+            src={imagenInicio01}
+            alt="Fotógrafo de Studio13 con su cámara"
+            className="absolute right-0 bottom-0 z-0 h-auto w-[62vw] max-w-[18rem] object-contain object-bottom sm:inset-y-0 sm:h-full sm:w-auto sm:max-w-[75%] sm:object-right-bottom"
           />
-          <div className="absolute bottom-0 left-0 right-0 h-[55%] bg-linear-to-t from-[rgba(12,11,11,0.88)] to-transparent" />
+          <div className="absolute inset-0 z-[1] bg-linear-to-r from-black via-black/85 via-40% to-transparent to-80%" aria-hidden="true" />
 
-          <div className="absolute bottom-16 left-12 max-w-140">
-            <p className="font-['Inter'] font-normal text-[0.62rem] tracking-[0.32em] uppercase text-[rgba(244,243,240,0.5)] mb-[1.1rem]">
+          <div className="absolute bottom-12 left-5 z-10 w-[58%] max-w-140 sm:bottom-16 sm:left-12 sm:w-auto">
+            <p className="mb-3 font-['Inter'] text-[0.52rem] font-normal tracking-[0.2em] text-white/70 uppercase sm:mb-[1.1rem] sm:text-[0.62rem] sm:tracking-[0.32em]">
               Puerto Cito, Costa Rica — Est. 2017
             </p>
             <img
               src={studio13Logo}
               alt="Studio13"
-              className="h-30 w-auto object-contain mb-8"
+              className="mb-5 h-22 w-auto object-contain sm:mb-8 sm:h-26"
             />
-            <p className="font-['Inter'] font-light text-[0.82rem] tracking-[0.12em] text-[rgba(244,243,240,0.6)] leading-[1.7] max-w-85 mb-8">
+            <p className="mb-5 max-w-85 font-['Inter'] text-[0.7rem] leading-[1.65] font-light tracking-[0.06em] text-white/80 sm:mb-8 sm:text-[0.82rem] sm:leading-[1.7] sm:tracking-[0.12em]">
               Fotografía profesional que convierte momentos en imágenes que
               duran para siempre.
             </p>
-            <div className="flex gap-8 items-center">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               <Link
                 to="/portafolio"
-                className="inline-block font-['Inter'] text-[0.7rem] tracking-[0.18em] uppercase text-[rgba(244,243,240,0.8)] border border-[rgba(244,243,240,0.25)] px-6 py-3 transition-all duration-300 hover:bg-[#f4f3f0] hover:text-[#0c0b0b] hover:border-[#f4f3f0]"
+                className="inline-flex min-h-11 items-center border border-white bg-white px-3 py-3 font-['Inter'] text-[0.58rem] tracking-[0.12em] text-black uppercase transition-all duration-300 hover:-translate-y-0.5 hover:border-gray-200 hover:bg-gray-200 sm:px-6 sm:text-[0.7rem] sm:tracking-[0.18em]"
               >
                 Ver portafolio
               </Link>
               <Link
                 to="/paquetes"
-                className="inline-block font-['Inter'] text-[0.7rem] tracking-[0.18em] uppercase text-[rgba(244,243,240,0.8)] border border-[rgba(244,243,240,0.25)] px-6 py-3 transition-all duration-300 hover:bg-[#f4f3f0] hover:text-[#0c0b0b] hover:border-[#f4f3f0]"
+                className="inline-flex min-h-11 items-center border border-white/80 bg-transparent px-3 py-3 font-['Inter'] text-[0.58rem] tracking-[0.12em] text-white uppercase transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:text-black sm:px-6 sm:text-[0.7rem] sm:tracking-[0.18em]"
               >
                 Paquetes
               </Link>
             </div>
           </div>
 
-          <div className="absolute bottom-8 right-12 flex flex-col items-center gap-2">
+          <div className="absolute bottom-8 right-5 z-10 hidden flex-col items-center gap-2 sm:right-12 sm:flex">
             <div className="w-px h-12 bg-linear-to-b from-transparent to-[rgba(244,243,240,0.35)]" />
             <p className="font-['Inter'] text-[0.58rem] tracking-[0.2em] uppercase text-[rgba(244,243,240,0.3)] [writing-mode:vertical-rl]">
               scroll
@@ -221,7 +222,7 @@ const Inicio = () => {
         <CampaniaTemporada />
         {anuncios.length > 0 && <section className="bg-[#f4f3f0] px-6 py-12 sm:px-12 sm:py-16" aria-labelledby="anuncios-inicio-titulo">
           <div className="mx-auto max-w-340"><p className="mb-3 text-[0.62rem] tracking-[0.32em] text-[#a51c1c] uppercase">Studio13</p><h2 id="anuncios-inicio-titulo" className="mb-8 font-[Fraunces,Georgia,serif] text-[clamp(2rem,4vw,3.5rem)] text-[#1a1818]">Anuncios</h2>
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{anuncios.map((anuncio) => <article key={anuncio.id} className="overflow-hidden border border-neutral-200 bg-white shadow-sm"><img src={anuncio.url?.startsWith("http") ? anuncio.url : `${API_BASE_URL}${anuncio.url || ""}`} alt={anuncio.nombre} className="h-[100px] w-full object-cover object-center sm:h-[120px]" /><div className="p-4"><p className="mb-1.5 text-[10px] tracking-[.18em] text-[#a51c1c] uppercase">{anuncio.seccion}</p><h3 className="mb-2 font-[Fraunces,Georgia,serif] text-xl text-neutral-900">{anuncio.nombre}</h3>{anuncio.descripcion && <p className="mb-4 text-sm leading-6 text-neutral-600">{anuncio.descripcion}</p>}<button type="button" onClick={() => setAnuncioAbierto(anuncio)} className="inline-flex min-h-11 items-center bg-[#a51c1c] px-5 py-3 text-xs tracking-wide text-white uppercase hover:bg-[#111010]">Ver anuncio</button></div></article>)}</div>
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{anuncios.map((anuncio) => <article key={anuncio.id} className="overflow-hidden border border-neutral-200 bg-white shadow-sm"><img src={anuncio.url?.startsWith("http") ? anuncio.url : `${API_BASE_URL}${anuncio.url || ""}`} alt={anuncio.nombre} className="h-25 w-full object-cover object-center sm:h-30" /><div className="p-4"><p className="mb-1.5 text-[10px] tracking-[.18em] text-[#a51c1c] uppercase">{anuncio.seccion}</p><h3 className="mb-2 font-[Fraunces,Georgia,serif] text-xl text-neutral-900">{anuncio.nombre}</h3>{anuncio.descripcion && <p className="mb-4 text-sm leading-6 text-neutral-600">{anuncio.descripcion}</p>}<button type="button" onClick={() => setAnuncioAbierto(anuncio)} className="inline-flex min-h-11 items-center bg-[#a51c1c] px-5 py-3 text-xs tracking-wide text-white uppercase hover:bg-[#111010]">Ver anuncio</button></div></article>)}</div>
           </div>
         </section>}
         <AnuncioEmergente anuncio={anuncioAbierto} disponible={Boolean(anuncioAbierto && anuncios.some((item) => item.id === anuncioAbierto.id))} onClose={() => { try { sessionStorage.setItem("studio13-anuncio-cerrado", "true"); } catch { /* continúa */ } setAnuncioAbierto(null); }} />
@@ -295,8 +296,8 @@ const Inicio = () => {
                 <div className="relative overflow-hidden">
                   <img
                     src={imagenFotografias03}
-                    alt="Retrato de una mujer con toga y medalla"
-                    className="w-full h-full object-cover object-top"
+                    alt="Retrato con vestimenta y pintura corporal tradicional"
+                    className="w-full h-full object-cover object-[center_70%]"
                   />
                 </div>
               </div>

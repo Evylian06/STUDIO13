@@ -35,6 +35,7 @@ const env = {
   DATABASE_URL: required("DATABASE_URL"),
   DIRECT_URL: process.env.DIRECT_URL?.trim() || undefined,
   JWT_SECRET: process.env.JWT_SECRET?.trim() || undefined,
+  CORS_ORIGINS: process.env.CORS_ORIGINS?.split(",").map((origin) => origin.trim()).filter(Boolean) || [],
   SMTP_HOST: process.env.SMTP_HOST?.trim() || undefined,
   SMTP_PORT: parseOptionalPort("SMTP_PORT"),
   SMTP_USER: process.env.SMTP_USER?.trim() || undefined,

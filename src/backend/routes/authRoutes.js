@@ -1,5 +1,6 @@
 import { Router } from "express";
 import adminAuthController from "../controllers/adminAuthController.js";
+import limitLoginAttempts from "../middleware/limitLoginAttempts.js";
 
 const router = Router();
 
@@ -38,6 +39,6 @@ const router = Router();
  *       500:
  *         description: La autenticación no está configurada o se produjo un error interno.
  */
-router.post("/login", adminAuthController.login);
+router.post("/login", limitLoginAttempts, adminAuthController.login);
 
 export default router;

@@ -66,7 +66,7 @@ export default function CampaniaTemporada() {
     <>
     {campaniaVisible && <section className="bg-[#111010] px-6 py-12 sm:px-12 sm:py-16" aria-labelledby="campania-temporada-titulo">
       <div className="mx-auto grid max-w-340 items-center gap-8 lg:grid-cols-2 lg:gap-16">
-        <img src={campania.imagenUrl} alt={campania.titulo} className="aspect-[16/10] w-full object-cover" />
+        <img src={campania.imagenUrl} alt={campania.titulo} className="aspect-16/10 w-full object-cover" />
         <div className="text-left text-[#e8e6e2]">
           <p className="mb-4 font-['Inter'] text-[0.62rem] tracking-[0.32em] uppercase text-[#a9a5a0]">Temporada especial</p>
           <h2 id="campania-temporada-titulo" className="mb-5 font-[Fraunces,Georgia,serif] text-[clamp(2rem,4vw,3.5rem)] leading-tight font-light text-[#e8e6e2]">{campania.titulo}</h2>

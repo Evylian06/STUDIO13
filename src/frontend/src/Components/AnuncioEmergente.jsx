@@ -25,9 +25,9 @@ export default function AnuncioEmergente({ anuncio, disponible = true, onClose }
   const enlaceWhatsApp = `https://wa.me/${WHATSAPP_ESTUDIO}?text=${mensajeWhatsApp}`;
 
   return createPortal(
-    <div className="fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto px-4 py-6 sm:px-8" role="presentation">
+    <div className="fixed inset-0 z-200 flex items-center justify-center overflow-y-auto px-4 py-6 sm:px-8" role="presentation">
       <button type="button" aria-label="Cerrar anuncio" onClick={onClose} className="absolute inset-0 h-full w-full cursor-default bg-[rgba(12,11,11,0.72)] backdrop-blur-[3px]" />
-      <section role="dialog" aria-modal="true" aria-labelledby="anuncio-inicio-titulo" className="relative z-10 my-auto grid max-h-[calc(100dvh-2rem)] w-full max-w-[820px] overflow-y-auto border border-white/60 bg-[#f4f3f0] shadow-[0_24px_80px_rgba(0,0,0,0.4)] md:grid-cols-[1.08fr_0.92fr] md:overflow-hidden">
+      <section role="dialog" aria-modal="true" aria-labelledby="anuncio-inicio-titulo" className="relative z-10 my-auto grid max-h-[calc(100dvh-2rem)] w-full max-w-205 overflow-y-auto border border-white/60 bg-[#f4f3f0] shadow-[0_24px_80px_rgba(0,0,0,0.4)] md:grid-cols-[1.08fr_0.92fr] md:overflow-hidden">
         <button ref={cerrarRef} type="button" onClick={onClose} aria-label="Cerrar anuncio" className="absolute right-3 top-3 z-20 flex h-11 w-11 items-center justify-center border border-white/70 bg-[#111010]/90 text-white shadow-md hover:bg-[#a51c1c]">×</button>
         <div className="relative min-h-48 bg-[#1a1818] md:min-h-96"><img src={imagenPublicidad(anuncio.url)} alt={anuncio.nombre} className="absolute inset-0 h-full w-full object-cover" /><div className="absolute inset-0 bg-linear-to-t from-[rgba(12,11,11,0.48)] via-transparent to-transparent" /><span className="absolute bottom-4 left-4 border border-white/40 bg-[#111010]/55 px-3 py-2 text-[0.6rem] tracking-[0.2em] text-white uppercase">Studio13 · {anuncio.seccion}</span></div>
         <div className="flex flex-col justify-center px-5 py-6 text-[#1a1818] sm:px-7 sm:py-8 md:px-8">

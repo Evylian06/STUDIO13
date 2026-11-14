@@ -44,7 +44,7 @@ export default function Layout({ children }) {
             : "bg-white border-black/8",
         ].join(" ")}
       >
-        <div className="max-w-340 mx-auto px-10 h-14.5 flex items-center justify-between">
+        <div className="max-w-340 mx-auto px-5 sm:px-10 h-14.5 flex items-center justify-between">
           {/* Logo */}
           <NavLink to="/" className="no-underline flex items-baseline">
             <img
@@ -91,6 +91,7 @@ export default function Layout({ children }) {
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="md:hidden flex flex-col gap-1.25 p-1 bg-transparent border-0 cursor-pointer"
+            aria-expanded={menuOpen}
             aria-label="Menú"
           >
             {[0, 1, 2].map((i) => (
@@ -110,7 +111,7 @@ export default function Layout({ children }) {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="md:hidden bg-white border-t border-black/8 px-10 pt-6 pb-8">
+          <div className={`md:hidden border-t px-5 pt-3 pb-5 backdrop-blur-xl sm:px-10 sm:pt-6 sm:pb-8 ${isHome ? "border-white/10 bg-[rgba(12,11,11,0.97)]" : "border-black/8 bg-white"}`}>
             {navLinks.map((link) => (
               <NavLink
                 key={link.to}
@@ -118,8 +119,9 @@ export default function Layout({ children }) {
                 end={link.to === "/"}
                 className={({ isActive }) =>
                   [
-                    "block font-['Inter'] text-[0.7rem] tracking-[0.22em] uppercase no-underline py-3 border-b border-black/6",
-                    isActive ? "text-[#a51c1c]" : "text-[#1a1818]",
+                    "block border-b py-3 font-['Inter'] text-[0.7rem] tracking-[0.22em] uppercase no-underline transition-colors duration-200",
+                    isHome ? "border-white/10" : "border-black/6",
+                    isActive ? "text-[#a51c1c]" : isHome ? "text-white/85 hover:text-white" : "text-[#1a1818]",
                   ].join(" ")
                 }
               >
